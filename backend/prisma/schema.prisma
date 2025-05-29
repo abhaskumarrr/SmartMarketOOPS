@@ -1,0 +1,758 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider      = "prisma-client-js"
+  output        = "../generated/prisma"
+  binaryTargets = ["native", "darwin", "darwin-arm64"]
+  previewFeatures = ["prismaSchemaFolder"] // Enable multi-file schema support
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                      String         @id @default(uuid())
+  name                    String
+  email                   String         @unique
+  password                String
+  role                    String         @default("user")
+  isVerified              Boolean        @default(false)
+  verificationToken       String?
+  verificationTokenExpiry DateTime?
+  resetToken              String?
+  resetTokenExpiry        DateTime?
+  lastLoginAt             DateTime?
+  oauthProvider           String?
+  oauthId                 String?
+  createdAt               DateTime       @default(now())
+  updatedAt               DateTime       @updatedAt
+  apiKeys                 ApiKey[]
+  tradeLogs               TradeLog[]
+  bots                    Bot[]
+  positions               Position[]
+  sessions                Session[] // Relation to sessions
+  riskSettings            RiskSettings[] // Relation to risk settings
+  riskAlerts              RiskAlert[] // Relation to risk alerts
+  orders                  Order[]
+  auditLogs               AuditLog[]
+  decisionLogs            DecisionLog[] // Relation to decision logs
+
+  @@index([email]) // Add index on email for faster lookups
+  @@index([role]) // Add index on role for faster lookups
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  token        String   @unique // Session identifier (JWT or custom token)
+  refreshToken String?  @unique // For JWT refresh flow
+  ipAddress    String? // User's IP address
+  userAgent    String? // User's browser/device info
+  deviceId     String? // Unique device identifier 
+  isValid      Boolean  @default(true) // Whether session is active
+  expiresAt    DateTime // When session expires
+  lastActiveAt DateTime @default(now()) // Last activity timestamp
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  rememberMe   Boolean  @default(false) // For extended session duration
+  metadata     Json? // Additional session data (geolocation, etc.)
+
+  @@index([userId]) // For finding user's sessions
+  @@index([token]) // For validating sessions quickly
+  @@index([isValid]) // For filtering active sessions
+  @@index([expiresAt]) // For cleanup of expired sessions
+}
+
+model ApiKey {
+  id             String    @id @default(uuid())
+  key            String    @unique
+  encryptedData  String    @db.Text
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  name           String    @default("Default") // Friendly name for the API key
+  scopes         String
+  expiry         DateTime
+  environment    String    @default("testnet") // testnet or mainnet
+  createdAt      DateTime  @default(now())
+  lastUsedAt     DateTime? // Track when key was last used
+  isRevoked      Boolean   @default(false) // Track revoked keys
+  revokedAt      DateTime? // When the key was revoked
+  revokedBy      String? // Who revoked the key (user ID)
+  revokedReason  String? // Why the key was revoked
+  ipRestrictions String? // Comma-separated list of allowed IPs
+  hashedSecret   String? // Hashed version of secret for verification
+  usageCount     Int       @default(0) // Track how many times the key has been used
+  isDefault      Boolean   @default(false) // Whether this is the default key for the user
+  rateLimits     Json? // Custom rate limits for this key
+  metadata       Json? // Additional metadata for the key
+
+  @@index([userId]) // Add index for faster lookups by user
+  @@index([key]) // Add index for faster lookups by key
+  @@index([environment]) // Add index for environment filtering
+  @@index([isRevoked]) // Add index to filter active/revoked keys
+  @@index([expiry]) // Add index for expiry queries
+  @@index([createdAt]) // Add index for sorting by creation date
+  @@index([lastUsedAt]) // Add index for sorting by last used
+}
+
+model TradeLog {
+  id         String   @id @default(uuid())
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId     String
+  instrument String
+  amount     Float
+  price      Float
+  timestamp  DateTime @default(now())
+  orderId    String? // Optional field to link to exchange order ID
+  type       String // Buy or sell
+  status     String // Success, Failed, Pending
+
+  @@index([userId, timestamp(sort: Desc)]) // Add compound index for user's trades chronologically
+  @@index([instrument, timestamp(sort: Desc)]) // Add index for instrument-specific queries
+}
+
+model Bot {
+  id           String         @id @default(uuid())
+  user         User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  name         String
+  symbol       String
+  strategy     String
+  timeframe    String
+  parameters   Json           @default("{}")
+  isActive     Boolean        @default(false)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  positions    Position[]
+  riskSettings RiskSettings[] // Relation to risk settings specific to this bot
+  orders       Order[]
+  decisionLogs DecisionLog[] // Relation to decision logs
+
+  @@index([userId]) // Add index for faster lookups by user
+  @@index([symbol]) // Add index for faster lookups by trading symbol
+  @@index([isActive]) // Add index for active bots
+}
+
+model Position {
+  id              String    @id @default(uuid())
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId          String
+  bot             Bot?      @relation(fields: [botId], references: [id], onDelete: SetNull)
+  botId           String?
+  symbol          String
+  side            String // Long or Short
+  entryPrice      Float
+  currentPrice    Float?
+  amount          Float
+  leverage        Float     @default(1.0)
+  takeProfitPrice Float?
+  stopLossPrice   Float?
+  status          String // Open, Closed, Liquidated
+  pnl             Float? // Profit and Loss (calculated)
+  openedAt        DateTime  @default(now())
+  closedAt        DateTime?
+  metadata        Json? // Additional data like exchange-specific information
+  orders          Order[]
+
+  @@index([userId]) // Add index for faster lookups by user
+  @@index([botId]) // Add index for faster lookups by bot
+  @@index([symbol]) // Add index for faster lookups by trading symbol
+  @@index([status]) // Add index for filtering by status
+}
+
+model Metric {
+  id         String   @id @default(uuid())
+  name       String
+  value      Float
+  recordedAt DateTime @default(now())
+  tags       Json? // Add tags for better categorization
+
+  @@index([name, recordedAt(sort: Desc)]) // Add compound index for time-series queries
+}
+
+model TradingSignal {
+  id               String    @id @default(uuid())
+  symbol           String
+  type             String // ENTRY, EXIT, INCREASE, DECREASE, HOLD
+  direction        String // LONG, SHORT, NEUTRAL
+  strength         String // VERY_WEAK, WEAK, MODERATE, STRONG, VERY_STRONG
+  timeframe        String // VERY_SHORT, SHORT, MEDIUM, LONG, VERY_LONG
+  price            Float
+  targetPrice      Float?
+  stopLoss         Float?
+  confidenceScore  Int // 0-100
+  expectedReturn   Float
+  expectedRisk     Float
+  riskRewardRatio  Float
+  generatedAt      DateTime
+  expiresAt        DateTime?
+  source           String // Source of the signal (model name/version)
+  metadata         Json // Additional metadata
+  predictionValues Json // Raw prediction values
+  validatedAt      DateTime?
+  validationStatus Boolean   @default(false)
+  validationReason String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  orders           Order[]
+
+  @@index([symbol])
+  @@index([type])
+  @@index([direction])
+  @@index([strength])
+  @@index([timeframe])
+  @@index([generatedAt])
+  @@index([expiresAt])
+  @@index([confidenceScore])
+  @@index([validationStatus])
+}
+
+model RiskSettings {
+  id          String  @id @default(uuid())
+  name        String
+  description String?
+  user        User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
+  bot         Bot?    @relation(fields: [botId], references: [id], onDelete: SetNull)
+  botId       String?
+  isActive    Boolean @default(true)
+
+  // Position sizing
+  positionSizingMethod String // FIXED_FRACTIONAL, KELLY_CRITERION, etc.
+  riskPercentage       Float // % of account to risk per trade
+  maxPositionSize      Float // Maximum position size in base currency
+  kellyFraction        Float? // Fraction of Kelly criterion to use
+  winRate              Float? // Historical win rate for Kelly
+  customSizingParams   Json? // Additional params for custom methods
+
+  // Stop loss configuration
+  stopLossType     String // FIXED, PERCENTAGE, etc.
+  stopLossValue    Float // Value depends on type
+  trailingCallback Float? // For trailing stops
+  trailingStep     Float? // For trailing stops
+  timeLimit        Int? // For time-based stops (seconds)
+  stopLossLevels   Json? // For partial stops
+
+  // Take profit configuration
+  takeProfitType     String // FIXED, PERCENTAGE, etc.
+  takeProfitValue    Float // Value depends on type
+  trailingActivation Float? // For trailing take profits
+  takeProfitLevels   Json? // For partial take profits
+
+  // Risk limits
+  maxRiskPerTrade     Float // Max % per trade
+  maxRiskPerSymbol    Float // Max % per symbol
+  maxRiskPerDirection Float // Max % per direction
+  maxTotalRisk        Float // Max % total
+  maxDrawdown         Float // Max drawdown %
+  maxPositions        Int // Max number of positions
+  maxDailyLoss        Float // Max daily loss %
+  cooldownPeriod      Int // Cooldown in seconds
+
+  // Volatility settings
+  volatilityLookback Int // Periods for volatility
+
+  // Circuit breaker
+  circuitBreakerEnabled    Boolean @default(true)
+  maxDailyLossBreaker      Float // % of account
+  maxDrawdownBreaker       Float // % from peak
+  volatilityMultiplier     Float // Trigger multiplier
+  consecutiveLossesBreaker Int // Number of losses
+  tradingPause             Int // Pause duration in seconds
+  marketWideEnabled        Boolean @default(true)
+  enableManualOverride     Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([botId])
+  @@index([isActive])
+}
+
+model RiskAlert {
+  id           String    @id @default(uuid())
+  user         User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  type         String // MARGIN_CALL, HIGH_EXPOSURE, etc.
+  level        String // info, warning, critical
+  message      String
+  details      Json
+  timestamp    DateTime  @default(now())
+  acknowledged Boolean   @default(false)
+  resolvedAt   DateTime?
+
+  @@index([userId])
+  @@index([type])
+  @@index([level])
+  @@index([acknowledged])
+  @@index([timestamp])
+}
+
+model CircuitBreaker {
+  id                String    @id @default(uuid())
+  name              String
+  description       String?
+  userId            String
+  botId             String?
+  type              String // DRAWDOWN, LOSS_STREAK, LOSS_AMOUNT, VOLATILITY, CUSTOM
+  isGlobal          Boolean   @default(false)
+  isActive          Boolean   @default(true)
+  threshold         Float
+  recoveryThreshold Float?
+  cooldownMinutes   Int       @default(60)
+  action            String // PAUSE_TRADING, NOTIFICATION, REDUCE_POSITION_SIZE
+  lastTriggered     DateTime?
+  status            String    @default("READY") // READY, TRIGGERED, RECOVERING, DEACTIVATED
+  metadata          Json?
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([botId])
+  @@index([isActive])
+  @@index([type])
+  @@index([status])
+}
+
+// Trading strategy model
+model TradingStrategy {
+  id             String              @id @default(uuid())
+  name           String
+  description    String?
+  type           String // Enum value from StrategyType
+  timeHorizon    String // Enum value from StrategyTimeHorizon
+  symbols        String[] // Array of trading symbols
+  entryRules     Json // Serialized strategy rules
+  exitRules      Json // Serialized strategy rules
+  positionSizing Json // Position sizing configuration
+  riskManagement Json // Risk management configuration
+  userId         String // User who created the strategy
+  isPublic       Boolean             @default(false)
+  isActive       Boolean             @default(true)
+  metadata       Json?
+  executions     StrategyExecution[]
+  orders         Order[]
+  decisionLogs   DecisionLog[] // Add relation to decision logs
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+
+  @@index([userId])
+  @@index([isActive])
+}
+
+// Strategy execution model
+model StrategyExecution {
+  id            String                    @id @default(uuid())
+  strategyId    String
+  strategy      TradingStrategy           @relation(fields: [strategyId], references: [id])
+  userId        String
+  status        String // RUNNING, PAUSED, STOPPED, COMPLETED, FAILED
+  startedAt     DateTime                  @default(now())
+  stoppedAt     DateTime?
+  runningTimeMs Int?
+  results       StrategyExecutionResult[]
+  metadata      Json?
+  createdAt     DateTime                  @default(now())
+  updatedAt     DateTime                  @updatedAt
+
+  @@index([strategyId])
+  @@index([userId])
+  @@index([status])
+}
+
+// Strategy execution result model
+model StrategyExecutionResult {
+  id                   String            @id @default(uuid())
+  executionId          String
+  execution            StrategyExecution @relation(fields: [executionId], references: [id])
+  symbol               String
+  entryTime            DateTime?
+  entryPrice           Float?
+  exitTime             DateTime?
+  exitPrice            Float?
+  direction            String // LONG, SHORT
+  quantity             Float?
+  profitLoss           Float?
+  profitLossPercentage Float?
+  status               String // OPEN, CLOSED, CANCELLED
+  metadata             Json?
+  createdAt            DateTime          @default(now())
+  updatedAt            DateTime          @updatedAt
+
+  @@index([executionId])
+  @@index([symbol])
+  @@index([status])
+}
+
+// ML Model Metadata
+model MLModel {
+  id          String         @id @default(uuid())
+  name        String
+  version     String
+  modelType   String
+  symbol      String?
+  timeframe   String?
+  description String?
+  status      String         @default("ACTIVE") // ACTIVE, TRAINING, DEPRECATED, FAILED
+  accuracy    Float?
+  precision   Float?
+  recall      Float?
+  f1Score     Float?
+  trainedAt   DateTime?
+  lastUsedAt  DateTime?
+  trainingId  String?
+  location    String?
+  params      Json?
+  predictions MLPrediction[]
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  @@unique([name, version])
+  @@index([symbol, timeframe])
+}
+
+// ML Prediction
+model MLPrediction {
+  id               String    @id @default(uuid())
+  modelId          String
+  model            MLModel   @relation(fields: [modelId], references: [id])
+  symbol           String
+  timeframe        String
+  predictionType   String // PRICE, DIRECTION, PROBABILITY
+  values           Float[]
+  timestamps       String[]
+  confidenceScores Float[]
+  metadata         Json?
+  generatedAt      DateTime  @default(now())
+  expiresAt        DateTime?
+  signalGenerated  Boolean   @default(false)
+  signalId         String?
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  @@index([symbol, timeframe])
+  @@index([modelId])
+  @@index([signalId])
+}
+
+// ML Training Job
+model MLTrainingJob {
+  id            String    @id @default(uuid())
+  userId        String
+  symbol        String
+  timeframe     String
+  modelType     String
+  status        String    @default("QUEUED") // QUEUED, RUNNING, COMPLETED, FAILED, CANCELLED
+  progress      Float     @default(0)
+  startedAt     DateTime?
+  completedAt   DateTime?
+  resultModelId String?
+  errorMessage  String?
+  params        Json?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([symbol, timeframe])
+}
+
+// ML-Trading Bridge Configuration
+model BridgeConfig {
+  id                     String    @id @default(uuid())
+  userId                 String?
+  name                   String
+  description            String?
+  isActive               Boolean   @default(true)
+  mlModelId              String?
+  autoGenerateSignals    Boolean   @default(false)
+  confidenceThreshold    Float     @default(70)
+  signalExpiryMinutes    Int       @default(1440) // 24 hours
+  refreshIntervalMinutes Int       @default(60)
+  symbols                String[]
+  timeframes             String[]
+  lastExecutedAt         DateTime?
+  metadata               Json?
+  createdAt              DateTime  @default(now())
+  updatedAt              DateTime  @updatedAt
+
+  @@unique([userId, name])
+  @@index([isActive])
+}
+
+// Performance Test Configuration
+model PerformanceTest {
+  id             String                  @id @default(uuid())
+  name           String
+  description    String?
+  testType       String // API_LATENCY, ML_PREDICTION_THROUGHPUT, etc.
+  duration       Int // Duration in seconds
+  concurrency    Int // Number of concurrent virtual users
+  rampUp         Int? // Ramp-up period in seconds
+  targetEndpoint String? // For API tests
+  modelId        String? // For ML model tests
+  strategyId     String? // For strategy tests
+  symbol         String?
+  timeframe      String?
+  options        Json? // Additional test options
+  results        PerformanceTestResult[]
+  createdAt      DateTime                @default(now())
+  updatedAt      DateTime                @updatedAt
+
+  @@index([testType])
+  @@index([modelId])
+  @@index([strategyId])
+}
+
+// Performance Test Result
+model PerformanceTestResult {
+  id              String                       @id @default(uuid())
+  test            PerformanceTest              @relation(fields: [testId], references: [id])
+  testId          String
+  status          String // RUNNING, COMPLETED, FAILED, CANCELLED
+  startTime       DateTime
+  endTime         DateTime?
+  duration        Int? // Actual duration in milliseconds
+  metrics         Json // Performance metrics
+  errors          Json? // Errors encountered during test
+  recommendations OptimizationRecommendation[]
+  createdAt       DateTime                     @default(now())
+  updatedAt       DateTime                     @updatedAt
+
+  @@index([testId])
+  @@index([status])
+}
+
+// Optimization Recommendation
+model OptimizationRecommendation {
+  id                   String                @id @default(uuid())
+  testResult           PerformanceTestResult @relation(fields: [testResultId], references: [id])
+  testResultId         String
+  category             String // CACHING, DATABASE, ML_MODEL, etc.
+  impact               String // LOW, MEDIUM, HIGH, CRITICAL
+  description          String
+  implementation       String?
+  estimatedImprovement String?
+  createdAt            DateTime              @default(now())
+
+  @@index([testResultId])
+  @@index([category])
+  @@index([impact])
+}
+
+// A/B Test Configuration
+model ABTest {
+  id                String         @id @default(uuid())
+  name              String
+  description       String?
+  variantA          String // Reference to a configuration, model, or strategy
+  variantB          String // Reference to a configuration, model, or strategy
+  type              String // ML_MODEL, STRATEGY, SIGNAL_GENERATION, API_CONFIGURATION
+  metric            String // The metric to compare
+  targetImprovement Float // Percentage improvement target
+  status            String // DRAFT, RUNNING, COMPLETED, CANCELLED
+  startDate         DateTime?
+  endDate           DateTime?
+  results           ABTestResult[]
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+
+  @@index([type])
+  @@index([status])
+}
+
+// A/B Test Result
+model ABTestResult {
+  id              String    @id @default(uuid())
+  test            ABTest    @relation(fields: [testId], references: [id])
+  testId          String
+  status          String // RUNNING, COMPLETED, CANCELLED
+  startDate       DateTime
+  endDate         DateTime?
+  variantAMetrics Json // Metrics for variant A
+  variantBMetrics Json // Metrics for variant B
+  winner          String? // A, B, or INCONCLUSIVE
+  improvement     Float? // Percentage improvement
+  confidenceLevel Float? // Statistical confidence level
+  notes           String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([testId])
+}
+
+// System Performance Metrics
+model PerformanceMetric {
+  id        String   @id @default(uuid())
+  timestamp DateTime @default(now())
+  system    String // API, ML, TRADING, DATABASE, etc.
+  component String // Component name
+  metric    String // Metric name
+  value     Float // Metric value
+  unit      String // Metric unit
+  tags      Json? // Additional tags
+
+  @@index([timestamp])
+  @@index([system, component])
+  @@index([metric])
+}
+
+// Order Execution Model
+model Order {
+  id                String    @id @default(uuid())
+  status            String
+  symbol            String
+  type              String
+  side              String
+  quantity          Float
+  price             Float?
+  stopPrice         Float?
+  avgFillPrice      Float?
+  filledQuantity    Float
+  remainingQuantity Float
+  fee               Float?
+  feeCurrency       String?
+  clientOrderId     String?
+  exchangeOrderId   String?
+  source            String
+  exchangeId        String
+  submittedAt       DateTime
+  updatedAt         DateTime
+  completedAt       DateTime?
+  errorCode         String?
+  errorMessage      String?
+  errorDetails      Json?
+  raw               Json?
+
+  // Relations
+  user       User             @relation(fields: [userId], references: [id])
+  userId     String
+  position   Position?        @relation(fields: [positionId], references: [id])
+  positionId String?
+  strategy   TradingStrategy? @relation(fields: [strategyId], references: [id])
+  strategyId String?
+  bot        Bot?             @relation(fields: [botId], references: [id])
+  botId      String?
+  signal     TradingSignal?   @relation(fields: [signalId], references: [id])
+  signalId   String?
+
+  // Add relation to AuditTrail
+  auditTrails AuditTrail[]
+
+  @@index([userId])
+  @@index([positionId])
+  @@index([strategyId])
+  @@index([botId])
+  @@index([signalId])
+  @@index([symbol])
+  @@index([status])
+  @@index([submittedAt])
+}
+
+// Decision Log Model - for logging trading decisions
+model DecisionLog {
+  id            String   @id @default(uuid())
+  timestamp     DateTime @default(now())
+  source        String
+  actionType    String
+  decision      String
+  reasonDetails String?
+  userId        String?
+  botId         String?
+  strategyId    String?
+  symbol        String?
+  orderId       String?
+  positionId    String?
+  importance    String
+  metadata      Json     @default("{}")
+  tags          String[] @default([])
+
+  user         User?            @relation(fields: [userId], references: [id])
+  bot          Bot?             @relation(fields: [botId], references: [id])
+  strategy     TradingStrategy? @relation(fields: [strategyId], references: [id])
+  auditTrail   AuditTrail?      @relation(fields: [auditTrailId], references: [id])
+  auditTrailId String?
+
+  @@index([timestamp])
+  @@index([userId])
+  @@index([botId])
+  @@index([strategyId])
+  @@index([symbol])
+  @@map("decision_logs")
+}
+
+// Audit Trail Model - for comprehensive audit logs
+model AuditTrail {
+  id         String    @id @default(uuid())
+  trailType  String // Order, Signal, Strategy, Risk, Authentication, etc.
+  entityId   String // ID of the entity being audited
+  entityType String // Type of entity (Order, User, Bot, etc.)
+  startTime  DateTime  @default(now())
+  endTime    DateTime? // When the trail was completed
+  status     String    @default("ACTIVE") // ACTIVE, COMPLETED, CANCELLED, FAILED
+  summary    String? // Summary of the audit trail
+
+  // Relations
+  userId       String? // User who initiated the action
+  events       AuditEvent[] // Detailed events in the trail
+  decisionLogs DecisionLog[] // Associated decision logs
+  order        Order?        @relation(fields: [orderId], references: [id])
+  orderId      String?
+
+  // Metadata
+  tags     String[] // For categorization and searching
+  metadata Json? // Additional metadata
+
+  // Indexes for fast queries
+  @@index([trailType])
+  @@index([entityId])
+  @@index([entityType])
+  @@index([startTime])
+  @@index([status])
+  @@index([userId])
+  @@index([tags])
+}
+
+// Audit Event Model - for detailed event tracking within an audit trail
+model AuditEvent {
+  id           String     @id @default(uuid())
+  auditTrail   AuditTrail @relation(fields: [auditTrailId], references: [id], onDelete: Cascade)
+  auditTrailId String
+  timestamp    DateTime   @default(now())
+  eventType    String // CREATE, UPDATE, DELETE, LOGIN, LOGOUT, etc.
+  component    String // Component that generated the event
+  action       String // Specific action taken
+  status       String // SUCCESS, FAILURE, WARNING, etc.
+  details      Json? // Event details
+  dataBefore   Json? // State before the event
+  dataAfter    Json? // State after the event
+  metadata     Json? // Additional metadata
+
+  // Indexes for fast queries
+  @@index([auditTrailId])
+  @@index([timestamp])
+  @@index([eventType])
+  @@index([component])
+  @@index([status])
+}
+
+// Audit logging for security sensitive operations
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String
+  action    String // e.g., "api_key.create", "user.login"
+  details   Json // Additional details about the action
+  ipAddress String? // IP address of the user
+  userAgent String? // User agent string
+  timestamp DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

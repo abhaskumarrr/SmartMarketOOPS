@@ -1,0 +1,85 @@
+{
+  "meta": {
+    "generatedAt": "2025-05-29T09:46:11.827Z",
+    "tasksAnalyzed": 9,
+    "totalTasks": 14,
+    "analysisCount": 9,
+    "thresholdScore": 5,
+    "projectName": "Taskmaster",
+    "usedResearch": true
+  },
+  "complexityAnalysis": [
+    {
+      "taskId": 6,
+      "taskTitle": "Bot Management",
+      "complexityScore": 8,
+      "recommendedSubtasks": 7,
+      "expansionPrompt": "Break down bot management into configuration UI, API, control mechanisms, risk management, and monitoring components",
+      "reasoning": "This task involves multiple complex components including UI, API, and risk management. It requires significant development and testing efforts."
+    },
+    {
+      "taskId": 7,
+      "taskTitle": "Performance Monitoring",
+      "complexityScore": 7,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Expand into real-time metrics dashboard, historical tracking, alert system, and health monitoring components",
+      "reasoning": "While complex, this task builds upon existing infrastructure and focuses on monitoring and visualization."
+    },
+    {
+      "taskId": 8,
+      "taskTitle": "WebSocket Integration",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Focus on real-time data streaming, message queuing, reconnection logic, and performance optimization",
+      "reasoning": "This task involves enhancing existing WebSocket integration with additional features and optimizations."
+    },
+    {
+      "taskId": 9,
+      "taskTitle": "Testing and Validation",
+      "complexityScore": 9,
+      "recommendedSubtasks": 8,
+      "expansionPrompt": "Develop end-to-end testing, backtesting UI, simulated trading environment, and performance benchmarking",
+      "reasoning": "Comprehensive testing framework requires significant development and integration efforts across multiple components."
+    },
+    {
+      "taskId": 10,
+      "taskTitle": "Documentation and Deployment",
+      "complexityScore": 5,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Create user documentation, API docs, deployment procedures, and troubleshooting guides",
+      "reasoning": "While important, this task is more about documentation and process creation rather than complex feature development."
+    },
+    {
+      "taskId": 11,
+      "taskTitle": "Update ML Backend for Trading Predictions",
+      "complexityScore": 6,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Modify ML model endpoint to provide trading-relevant predictions with confidence scores",
+      "reasoning": "Requires ML model updates and potentially new data processing logic."
+    },
+    {
+      "taskId": 12,
+      "taskTitle": "Integrate ML Predictions into Trading Strategy",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Update trading strategy logic to incorporate ML predictions alongside traditional analysis",
+      "reasoning": "Involves integrating new ML predictions with existing trading logic, potentially requiring significant changes."
+    },
+    {
+      "taskId": 13,
+      "taskTitle": "Refine Risk Management with ML Confidence",
+      "complexityScore": 6,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Modify risk management to incorporate ML prediction confidence levels",
+      "reasoning": "Requires updates to risk management logic to utilize new ML confidence scores."
+    },
+    {
+      "taskId": 14,
+      "taskTitle": "Implement ML-Informed Trading Execution",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Update trading execution logic to use combined ML and traditional analysis decisions",
+      "reasoning": "Involves integrating new decision-making logic with trading execution, potentially requiring significant changes."
+    }
+  ]
+}

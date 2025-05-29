@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SmartMarket OOPS - Trading Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .card {
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:hover {
+            background-color: #f5f5f5;
+        }
+        .buy {
+            color: green;
+        }
+        .sell {
+            color: red;
+        }
+        .loading {
+            text-align: center;
+            padding: 20px;
+            font-style: italic;
+            color: #666;
+        }
+        .error {
+            color: red;
+            padding: 10px;
+            border: 1px solid red;
+            background-color: #ffeeee;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .success {
+            color: green;
+            padding: 10px;
+            border: 1px solid green;
+            background-color: #eeffee;
+            border-radius: 4px;
+            margin-bottom: 20px;
+        }
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            border: 1px solid transparent;
+            border-bottom: none;
+            margin-right: 5px;
+        }
+        .tab.active {
+            background-color: white;
+            border-color: #ddd;
+            border-radius: 4px 4px 0 0;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SmartMarket OOPS Trading Dashboard</h1>
+        
+        <div class="tabs">
+            <div class="tab active" data-tab="trades">Recent Trades</div>
+            <div class="tab" data-tab="metrics">Metrics</div>
+            <div class="tab" data-tab="signals">Trading Signals</div>
+        </div>
+        
+        <div id="status" class="loading">Connecting to backend...</div>
+        
+        <div id="trades-tab" class="tab-content active">
+            <h2>Recent Trades</h2>
+            <div id="trades-container" class="loading">Loading trades...</div>
+        </div>
+        
+        <div id="metrics-tab" class="tab-content">
+            <h2>Trading Metrics</h2>
+            <div id="metrics-container" class="loading">Loading metrics...</div>
+        </div>
+        
+        <div id="signals-tab" class="tab-content">
+            <h2>Trading Signals</h2>
+            <div id="signals-container" class="loading">Loading signals...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE_URL = 'http://localhost:3333/api';
+        
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs and contents
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Show corresponding content
+                const tabName = tab.getAttribute('data-tab');
+                document.getElementById(`${tabName}-tab`).classList.add('active');
+            });
+        });
+        
+        // Check backend connectivity
+        async function checkBackendStatus() {
+            try {
+                const response = await fetch(`${API_BASE_URL}/health`);
+                if (response.ok) {
+                    document.getElementById('status').innerHTML = '<div class="success">Connected to backend successfully</div>';
+                    // Load initial data
+                    loadTrades();
+                    loadMetrics();
+                    loadSignals();
+                } else {
+                    document.getElementById('status').innerHTML = '<div class="error">Backend is not responding properly</div>';
+                }
+            } catch (error) {
+                document.getElementById('status').innerHTML = `<div class="error">Failed to connect to backend: ${error.message}</div>`;
+            }
+        }
+        
+        // Load trades data
+        async function loadTrades() {
+            const tradesContainer = document.getElementById('trades-container');
+            try {
+                const response = await fetch(`${API_BASE_URL}/trades/public`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.length === 0) {
+                    tradesContainer.innerHTML = '<p>No trades available</p>';
+                    return;
+                }
+                
+                let tableHtml = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Symbol</th>
+                                <th>Side</th>
+                                <th>Price</th>
+                                <th>Quantity</th>
+                                <th>Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                data.forEach(trade => {
+                    const sideClass = trade.side === 'BUY' ? 'buy' : 'sell';
+                    const formattedDate = new Date(trade.timestamp).toLocaleString();
+                    
+                    tableHtml += `
+                        <tr>
+                            <td>${trade.id}</td>
+                            <td>${trade.symbol}</td>
+                            <td class="${sideClass}">${trade.side}</td>
+                            <td>$${parseFloat(trade.price).toFixed(2)}</td>
+                            <td>${parseFloat(trade.quantity).toFixed(4)}</td>
+                            <td>${formattedDate}</td>
+                            <td>${trade.status}</td>
+                        </tr>
+                    `;
+                });
+                
+                tableHtml += `
+                        </tbody>
+                    </table>
+                `;
+                
+                tradesContainer.innerHTML = tableHtml;
+            } catch (error) {
+                tradesContainer.innerHTML = `<div class="error">Error loading trades: ${error.message}</div>`;
+            }
+        }
+        
+        // Load metrics data
+        async function loadMetrics() {
+            const metricsContainer = document.getElementById('metrics-container');
+            try {
+                const response = await fetch(`${API_BASE_URL}/metrics/summary`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                let html = `
+                    <div class="card">
+                        <h3>Performance Metrics</h3>
+                        <p>Total Profit/Loss: $${parseFloat(data.totalPnl).toFixed(2)}</p>
+                        <p>Win Rate: ${data.winRate}%</p>
+                        <p>Sharpe Ratio: ${data.sharpeRatio}</p>
+                        <p>Maximum Drawdown: ${data.maxDrawdown}%</p>
+                    </div>
+                    
+                    <div class="card">
+                        <h3>Trading Activity</h3>
+                        <p>Total Trades: ${data.totalTrades}</p>
+                        <p>Winning Trades: ${data.winningTrades}</p>
+                        <p>Losing Trades: ${data.losingTrades}</p>
+                        <p>Average Trade Duration: ${data.avgTradeDuration} minutes</p>
+                    </div>
+                `;
+                
+                metricsContainer.innerHTML = html;
+            } catch (error) {
+                metricsContainer.innerHTML = `<div class="error">Error loading metrics: ${error.message}</div>`;
+            }
+        }
+        
+        // Load signals data
+        async function loadSignals() {
+            const signalsContainer = document.getElementById('signals-container');
+            try {
+                const response = await fetch(`${API_BASE_URL}/signals`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.length === 0) {
+                    signalsContainer.innerHTML = '<p>No active trading signals</p>';
+                    return;
+                }
+                
+                let tableHtml = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Signal</th>
+                                <th>Confidence</th>
+                                <th>Generated At</th>
+                                <th>Model</th>
+                                <th>Timeframe</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                
+                data.forEach(signal => {
+                    const signalClass = signal.direction === 'BUY' ? 'buy' : 'sell';
+                    const formattedDate = new Date(signal.generatedAt).toLocaleString();
+                    
+                    tableHtml += `
+                        <tr>
+                            <td>${signal.symbol}</td>
+                            <td class="${signalClass}">${signal.direction}</td>
+                            <td>${signal.confidence}%</td>
+                            <td>${formattedDate}</td>
+                            <td>${signal.modelName}</td>
+                            <td>${signal.timeframe}</td>
+                        </tr>
+                    `;
+                });
+                
+                tableHtml += `
+                        </tbody>
+                    </table>
+                `;
+                
+                signalsContainer.innerHTML = tableHtml;
+            } catch (error) {
+                signalsContainer.innerHTML = `<div class="error">Error loading signals: ${error.message}</div>`;
+            }
+        }
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            checkBackendStatus();
+            
+            // Refresh data every 30 seconds
+            setInterval(() => {
+                loadTrades();
+                loadMetrics();
+                loadSignals();
+            }, 30000);
+        });
+    </script>
+</body>
+</html> 

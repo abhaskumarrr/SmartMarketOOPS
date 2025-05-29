@@ -1,0 +1,10 @@
+# Prisma Accelerate configuration
+[accelerate]
+# Enable connection pooling
+pooling = true
+# Enable query caching
+caching = true
+# Pool size (adjust as needed)
+pool_size = 10
+# Cache TTL in seconds
+cache_ttl = 60 

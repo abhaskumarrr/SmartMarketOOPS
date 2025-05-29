@@ -1,0 +1,18 @@
+timestamp:
+  type: string
+  format: datetime
+open:
+  type: number
+  description: 'Open price'
+high:
+  type: number
+  description: 'High price'
+low:
+  type: number
+  description: 'Low price'
+close:
+  type: number
+  description: 'Close price'
+volume:
+  type: number
+  description: 'Trade volume at the given timestamp'

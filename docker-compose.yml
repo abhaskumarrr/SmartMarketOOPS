@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-smoops}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: 
+      context: ./backend
+      dockerfile: Dockerfile
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    ports:
+      - "${PORT:-3001}:3001"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-smoops}?schema=public
+      - NODE_ENV=${NODE_ENV:-development}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: npm run dev
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    env_file:
+      - .env
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:${PORT:-3001}
+      - NODE_ENV=${NODE_ENV:-development}
+    depends_on:
+      - backend
+    command: npm run dev
+
+  ml:
+    build: 
+      context: ./ml
+      dockerfile: Dockerfile
+    volumes:
+      - ./ml:/app
+      - /app/__pycache__
+    ports:
+      - "${ML_PORT:-3002}:3002"
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-smoops}?schema=public
+      - PYTHONUNBUFFERED=1
+    depends_on:
+      - postgres
+    command: python -m ml.backend.src.scripts.server
+
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ollama
+    restart: always
+    ports:
+      - "11434:11434"
+    volumes:
+      - /Volumes/abhaskumarrr_ssd/ollama_models:/root/.ollama
+    environment:
+      - OLLAMA_MODELS=/root/.ollama
+    # Pulls models to external SSD for persistence and performance
+    # To use a different model, set OLLAMA_DEFAULT_MODEL=phi4 or phi3 as needed
+
+volumes:
+  postgres_data:

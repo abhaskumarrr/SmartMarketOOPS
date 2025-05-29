@@ -1,0 +1,308 @@
+"""
+GRU Model Architecture for cryptocurrency trading with Smart Money Concepts features
+"""
+
+import torch
+import torch.nn as nn
+import torch.optim as optim
+import numpy as np
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score
+import os
+import logging
+from typing import Dict, Any, Optional, Tuple, List, Union
+
+from .base_model import BaseModel
+
+logger = logging.getLogger(__name__)
+
+class GRUModel(BaseModel, nn.Module):
+    """
+    GRU model for time-series prediction of cryptocurrency markets
+    with Smart Money Concepts features
+    """
+    
+    def __init__(
+        self,
+        input_dim: int,
+        output_dim: int,
+        seq_len: int,
+        forecast_horizon: int,
+        hidden_dim: int = 64,
+        num_layers: int = 2,
+        dropout: float = 0.2,
+        device: Optional[str] = None,
+    ):
+        """
+        Initialize the GRU model.
+        
+        Args:
+            input_dim: Dimension of input features
+            output_dim: Dimension of output features
+            seq_len: Length of input sequences
+            forecast_horizon: Length of forecast horizon
+            hidden_dim: Number of units in GRU layers
+            num_layers: Number of GRU layers
+            dropout: Dropout rate for regularization
+            device: Device to use for computation
+        """
+        BaseModel.__init__(self)
+        nn.Module.__init__(self)
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.seq_len = seq_len
+        self.forecast_horizon = forecast_horizon
+        self.hidden_dim = hidden_dim
+        self.num_layers = num_layers
+        self.dropout = dropout
+        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        self.gru = nn.GRU(input_dim, hidden_dim, num_layers, batch_first=True, dropout=dropout)
+        self.fc = nn.Sequential(
+            nn.Linear(hidden_dim, output_dim),
+            nn.Sigmoid() if output_dim == 1 else nn.Identity()
+        )
+        self.to(self.device)
+    
+    def forward(self, x):
+        """
+        Forward pass of the GRU model.
+        
+        Args:
+            x: Input tensor
+        
+        Returns:
+            Output tensor
+        """
+        out, _ = self.gru(x)
+        if out.dim() == 3:
+            out = out[:, -1, :]
+        out = self.fc(out)
+        return out
+    
+    def fit_model(
+        self,
+        train_loader,
+        val_loader,
+        num_epochs: int = 100,
+        lr: float = 0.001,
+        early_stopping_patience: int = 10,
+        checkpoint_dir: Optional[str] = None,
+        class_weights: Optional[torch.Tensor] = None
+    ) -> Dict[str, float]:
+        """
+        Train the GRU model.
+        
+        Args:
+            train_loader: DataLoader for training data
+            val_loader: DataLoader for validation data
+            num_epochs: Maximum number of epochs
+            lr: Learning rate for optimizer
+            early_stopping_patience: Patience for early stopping
+            checkpoint_dir: Directory for model checkpoints
+            class_weights: Optional tensor of class weights
+            
+        Returns:
+            Dictionary with training history
+        """
+        if self.output_dim == 1:
+            criterion = nn.BCEWithLogitsLoss(pos_weight=class_weights.to(self.device) if class_weights is not None else None)
+        else:
+            criterion = nn.CrossEntropyLoss(weight=class_weights.to(self.device) if class_weights is not None else None)
+        optimizer = optim.Adam(self.parameters(), lr=lr)
+        best_val_loss = float('inf')
+        patience_counter = 0
+        best_state = None
+        for epoch in range(num_epochs):
+            self.train()
+            train_losses = []
+            for X, y in train_loader:
+                X = X.to(self.device).float()
+                y = y.to(self.device).float() if self.output_dim == 1 else y.to(self.device).long()
+                optimizer.zero_grad()
+                outputs = self(X)
+                if self.output_dim == 1:
+                    outputs = outputs.squeeze(-1)
+                    loss = criterion(outputs, y)
+                else:
+                    loss = criterion(outputs, y)
+                loss.backward()
+                optimizer.step()
+                train_losses.append(loss.item())
+            val_loss = self._evaluate_loss(val_loader, criterion)
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
+                patience_counter = 0
+                best_state = self.state_dict()
+        if checkpoint_dir:
+            os.makedirs(checkpoint_dir, exist_ok=True)
+                    torch.save(self.state_dict(), os.path.join(checkpoint_dir, "best_gru.pt"))
+            else:
+                patience_counter += 1
+                if patience_counter >= early_stopping_patience:
+                    logger.info("Early stopping triggered.")
+                    break
+        if best_state:
+            self.load_state_dict(best_state)
+        return {"best_val_loss": best_val_loss}
+    
+    def _evaluate_loss(self, loader, criterion):
+        """
+        Evaluate the model loss.
+        
+        Args:
+            loader: DataLoader for evaluation data
+            criterion: Loss function
+            
+        Returns:
+            Mean loss
+        """
+        self.eval()
+        losses = []
+        with torch.no_grad():
+            for X, y in loader:
+                X = X.to(self.device).float()
+                y = y.to(self.device).float() if self.output_dim == 1 else y.to(self.device).long()
+                outputs = self(X)
+                if self.output_dim == 1:
+                    outputs = outputs.squeeze(-1)
+                    loss = criterion(outputs, y)
+                else:
+                    loss = criterion(outputs, y)
+                losses.append(loss.item())
+        return np.mean(losses)
+    
+    def predict(self, X: np.ndarray, batch_size: int = 64) -> np.ndarray:
+        """
+        Make predictions with the model.
+        
+        Args:
+            X: Input data
+            batch_size: Batch size for prediction
+            
+        Returns:
+            Predictions
+        """
+        self.eval()
+        preds = []
+        with torch.no_grad():
+            for i in range(0, len(X), batch_size):
+                batch = torch.tensor(X[i:i+batch_size]).to(self.device).float()
+                out = self(batch)
+                if self.output_dim == 1:
+                    out = out.cpu().numpy().flatten()
+                else:
+                    out = torch.softmax(out, dim=1).cpu().numpy()
+                preds.append(out)
+        if self.output_dim == 1:
+            return np.concatenate(preds)
+        else:
+            return np.vstack(preds)
+    
+    def evaluate(self, X: np.ndarray, y: np.ndarray, batch_size: int = 64) -> dict:
+        """
+        Evaluate the model performance.
+        
+        Args:
+            X: Input data
+            y: True labels
+            batch_size: Batch size for prediction
+            
+        Returns:
+            Dictionary with evaluation metrics
+        """
+        y_pred = self.predict(X, batch_size)
+        if self.output_dim == 1:
+            y_pred_label = (y_pred > 0.5).astype(int)
+            y_true = y.astype(int).flatten()
+        metrics = {
+                'accuracy': accuracy_score(y_true, y_pred_label),
+                'precision': precision_score(y_true, y_pred_label),
+                'recall': recall_score(y_true, y_pred_label),
+                'f1_score': f1_score(y_true, y_pred_label)
+            }
+        else:
+            y_pred_label = np.argmax(y_pred, axis=1)
+            y_true = y.astype(int).flatten()
+            metrics = {
+                'accuracy': accuracy_score(y_true, y_pred_label),
+                'precision': precision_score(y_true, y_pred_label, average='macro'),
+                'recall': recall_score(y_true, y_pred_label, average='macro'),
+                'f1_score': f1_score(y_true, y_pred_label, average='macro')
+            }
+        return metrics
+    
+    def save(self, model_path: str) -> None:
+        """
+        Save the model.
+        
+        Args:
+            model_path: Path to save the model
+        """
+        os.makedirs(os.path.dirname(model_path), exist_ok=True)
+        torch.save(self.state_dict(), model_path)
+        logger.info(f"Model saved to {model_path}")
+    
+    @classmethod
+    def load(cls, model_path: str, **kwargs) -> 'GRUModel':
+        """
+        Load a pre-trained model.
+        
+        Args:
+            model_path: Path to the saved model
+            **kwargs: Additional arguments for model initialization
+            
+        Returns:
+            Loaded model
+        """
+        model = cls(**kwargs)
+        model.load_state_dict(torch.load(model_path, map_location=kwargs.get('device', 'cpu')))
+        model.eval()
+        return model
+    
+    def get_feature_importance(self, X: np.ndarray, n_samples: int = 10) -> Dict[str, float]:
+        """
+        Get feature importance using permutation importance.
+        
+        Args:
+            X: Input data
+            n_samples: Number of samples to use
+            
+        Returns:
+            Dictionary mapping feature indices to importance scores
+        """
+        if len(X) < n_samples:
+            n_samples = len(X)
+            
+        # Select random samples
+        indices = np.random.choice(len(X), n_samples, replace=False)
+        X_samples = X[indices]
+        
+        # Get baseline predictions
+        baseline_preds = self.predict(X_samples)
+        
+        # Initialize importance dict
+        importance_dict = {}
+        
+        # For each feature, permute its values and measure impact
+        for feature_idx in range(X_samples.shape[2]):
+            # Create permuted data
+            X_permuted = X_samples.copy()
+            
+            # Permute the feature across all time steps
+            for i in range(X_samples.shape[0]):
+                perm_indices = np.random.permutation(X_samples.shape[1])
+                X_permuted[i, :, feature_idx] = X_samples[i, perm_indices, feature_idx]
+            
+            # Get predictions with permuted feature
+            permuted_preds = self.predict(X_permuted)
+            
+            # Calculate importance as mean absolute difference
+            importance = np.mean(np.abs(baseline_preds - permuted_preds))
+            importance_dict[feature_idx] = float(importance)
+        
+        # Sort by importance (descending)
+        importance_dict = dict(sorted(importance_dict.items(), key=lambda x: x[1], reverse=True))
+        
+        return importance_dict
+
+    def _build_model(self):
+        pass 

@@ -1,0 +1,27 @@
+{
+  "model_type": "cnn_lstm",
+  "input_features": [
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume",
+    "sma_50",
+    "sma_200",
+    "ema_20",
+    "rsi_14",
+    "macd",
+    "macd_signal",
+    "obv",
+    "stoch_k",
+    "stoch_d",
+    "log_close",
+    "log_return_1",
+    "log_return_2",
+    "log_return_3"
+  ],
+  "seq_len": 32,
+  "architecture": "CNNLSTM",
+  "num_classes": 3,
+  "training_mode": "hyperopt"
+}
