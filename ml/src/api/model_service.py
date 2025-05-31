@@ -18,6 +18,7 @@ from pydantic import BaseModel, Field
 # Import project modules
 from ..models import ModelFactory
 # from ..data.preprocessor import EnhancedPreprocessor # Removed EnhancedPreprocessor
+from .enhanced_model_service import EnhancedModelService
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -37,7 +38,7 @@ class PredictionInput(BaseModel):
     symbol: str = Field(..., description="Trading symbol (e.g., 'BTC/USDT')")
     features: Dict[str, float] = Field(..., description="Feature values for prediction")
     sequence_length: Optional[int] = Field(60, description="Length of input sequence")
-    
+
 
 class PredictionOutput(BaseModel):
     """Output data for prediction"""
@@ -51,21 +52,21 @@ class PredictionOutput(BaseModel):
 
 class ModelService:
     """Service for loading and running models"""
-    
+
     def __init__(self):
         self.models = {}
         self.min_params = {}
         self.max_params = {}
         self.model_info = {}
-        
+
     def load_model(self, symbol: str, model_version: Optional[str] = None) -> bool:
         """
         Load a model for a specific symbol.
-        
+
         Args:
             symbol: Trading symbol
             model_version: Specific model version to load (default: latest)
-            
+
         Returns:
             True if model was loaded successfully
         """
@@ -74,7 +75,7 @@ class ModelService:
             # Use the same naming convention as in the training script now using ModelRegistry.save_model
             # This assumes a consistent naming convention where '/' is removed.
             symbol_name_in_registry = symbol.replace("/", "") # Use consistent naming with the training script
-            
+
             # Determine model path
             if model_version is None:
                 # Find latest model version
@@ -84,19 +85,19 @@ class ModelService:
                 if not model_dir.exists():
                     # logger.error(f"No models found for {symbol} in registry directory {symbol_name_in_registry}")
                     raise HTTPException(status_code=404, detail=f"Model directory not found: {model_dir}") # More specific error
-                
+
                 # Find the latest version
                 versions = [d.name for d in model_dir.iterdir() if d.is_dir()]
                 # logger.info(f"Found versions: {versions}") # Added logging
                 if not versions:
                     # logger.error(f"No model versions found for {symbol} in registry directory {symbol_name_in_registry}")
                     raise HTTPException(status_code=404, detail=f"No model versions found in directory: {model_dir}") # More specific error
-                
+
                 model_version = sorted(versions)[-1] # Assumes version names sort correctly chronologically
-            
+
             model_path = Path(MODEL_REGISTRY_PATH) / symbol_name_in_registry / model_version / "best.pt"
             logger.info(f"Looking for model file at: {model_path}")
-            
+
             if not model_path.exists():
                 logger.error(f"Model file not found at {model_path}")
                 # Also try loading model.pt if best.pt is not found (from ModelRegistry.save_model)
@@ -104,11 +105,11 @@ class ModelService:
                 logger.info(f"best.pt not found, trying model.pt at: {model_path}")
                 if not model_path.exists():
                      raise HTTPException(status_code=404, detail=f"Model file not found at: {model_path}") # More specific error
-            
+
             # Load the model
             logger.info(f"Loading model from {model_path}")
             checkpoint = torch.load(model_path, map_location=torch.device('cpu'), weights_only=False)
-            
+
             # Get model config
             model_config = checkpoint.get("config", {})
             logger.info(f"Model config loaded: {model_config}") # Added print statement to inspect model_config
@@ -145,11 +146,11 @@ class ModelService:
                 lstm_layers=model_config.get('lstm_layers', 2), # Added for CNNLSTM
                 dropout=model_config.get('dropout', 0.2) # Added for CNNLSTM
             )
-            
+
             # Load model state
             model.load_state_dict(checkpoint['model_state_dict'])
             model.eval()
-            
+
             # Load normalization parameters (min/max from norm_params.npy)
             norm_params_path = Path(MODEL_REGISTRY_PATH) / symbol_name_in_registry / model_version / "norm_params.npy"
             if not norm_params_path.exists():
@@ -166,37 +167,37 @@ class ModelService:
                 'type': model_type,
                 'config': model_config # Store the original config or the inferred one
             }
-            
+
             logger.info(f"Model and normalization parameters for {symbol} loaded successfully (version: {model_version})")
             return True
-            
+
         except Exception as e:
             logger.error(f"Error loading model for {symbol}: {str(e)}")
             if "Model directory not found" in str(e) or "Model file not found" in str(e) or "No model versions found" in str(e):
                  raise HTTPException(status_code=404, detail=f"Model for {symbol} not found: {str(e)}") # Propagate 404 for specific errors
             else:
                  raise HTTPException(status_code=500, detail=f"Error loading model for {symbol}: {str(e)}") # Raise 500 for other exceptions
-    
+
     def predict(self, symbol: str, features: Dict[str, float], sequence_length: int = 60) -> Dict[str, Any]:
         """
         Make predictions using the loaded model.
-        
+
         Args:
             symbol: Trading symbol
             features: Feature values for prediction
             sequence_length: Length of input sequence
-            
+
         Returns:
             Dictionary with prediction results
         """
         # Check if model is loaded
         if symbol not in self.models:
             loaded = self.load_model(symbol)
-        
+
         # Check again if model was successfully loaded after attempting to load
         if symbol not in self.models:
              raise HTTPException(status_code=500, detail=f"Model for {symbol} could not be loaded.") # Ensure model is available
-        
+
         model = self.models[symbol]
         min_vals = self.min_params[symbol]
         max_vals = self.max_params[symbol]
@@ -346,13 +347,19 @@ class ModelService:
             raise HTTPException(status_code=500, detail=f"Prediction error: {str(e)}")
 
 
-# Create model service instance
+# Create model service instances
 model_service = ModelService()
+enhanced_model_service = EnhancedModelService()
 
 
 def get_model_service():
     """Dependency for getting model service instance"""
     return model_service
+
+
+def get_enhanced_model_service():
+    """Dependency for getting enhanced model service instance"""
+    return enhanced_model_service
 
 
 @router.post("/predict", response_model=PredictionOutput)
@@ -384,7 +391,7 @@ async def get_model_info(
         loaded = service.load_model(symbol)
         if not loaded:
             raise HTTPException(status_code=404, detail=f"Model for {symbol} not found")
-    
+
     return service.model_info[symbol]
 
 
@@ -400,5 +407,113 @@ async def load_model(
     success = service.load_model(symbol, model_version)
     if not success:
         raise HTTPException(status_code=404, detail=f"Model for {symbol} not found")
-    
-    return {"status": "success", "model_info": service.model_info[symbol]} 
+
+    return {"status": "success", "model_info": service.model_info[symbol]}
+
+
+# Enhanced API Endpoints with Signal Quality System
+
+class EnhancedPredictionOutput(BaseModel):
+    """Enhanced output data for prediction with signal quality metrics"""
+    symbol: str
+    prediction: float
+    confidence: float
+    signal_valid: bool
+    quality_score: float
+    recommendation: str
+    market_regime: str
+    regime_strength: float
+    model_predictions: Dict[str, Dict[str, float]]
+    confidence_breakdown: Dict[str, float]
+    prediction_time: str
+    enhanced: bool
+
+
+@router.post("/enhanced/predict", response_model=EnhancedPredictionOutput)
+async def enhanced_predict(
+    input_data: PredictionInput,
+    service: EnhancedModelService = Depends(get_enhanced_model_service)
+) -> Dict[str, Any]:
+    """
+    Make an enhanced prediction using the signal quality system.
+    """
+    result = service.predict(
+        symbol=input_data.symbol,
+        features=input_data.features,
+        sequence_length=input_data.sequence_length
+    )
+
+    # Format for enhanced output model
+    return {
+        "symbol": input_data.symbol,
+        "prediction": result.get('prediction', 0.5),
+        "confidence": result.get('confidence', 0.0),
+        "signal_valid": result.get('signal_valid', False),
+        "quality_score": result.get('quality_score', 0.0),
+        "recommendation": result.get('recommendation', 'NEUTRAL'),
+        "market_regime": result.get('market_regime', 'unknown'),
+        "regime_strength": result.get('regime_strength', 0.0),
+        "model_predictions": result.get('model_predictions', {}),
+        "confidence_breakdown": result.get('confidence_breakdown', {}),
+        "prediction_time": result.get('timestamp', pd.Timestamp.now().isoformat()),
+        "enhanced": result.get('enhanced', True)
+    }
+
+
+@router.get("/enhanced/models/{symbol}/status")
+async def get_enhanced_model_status(
+    symbol: str,
+    service: EnhancedModelService = Depends(get_enhanced_model_service)
+) -> Dict[str, Any]:
+    """
+    Get comprehensive status of the enhanced model system for a symbol.
+    """
+    return service.get_model_status(symbol)
+
+
+@router.post("/enhanced/models/{symbol}/load")
+async def load_enhanced_model(
+    symbol: str,
+    model_version: Optional[str] = None,
+    service: EnhancedModelService = Depends(get_enhanced_model_service)
+) -> Dict[str, Any]:
+    """
+    Load an enhanced model for a specific symbol.
+    """
+    success = service.load_model(symbol, model_version)
+    if not success:
+        raise HTTPException(status_code=404, detail=f"Enhanced model for {symbol} not found")
+
+    return {
+        "status": "success",
+        "model_status": service.get_model_status(symbol),
+        "enhanced": True
+    }
+
+
+@router.post("/enhanced/models/{symbol}/performance")
+async def update_model_performance(
+    symbol: str,
+    prediction: float,
+    actual_outcome: float,
+    confidence: float,
+    service: EnhancedModelService = Depends(get_enhanced_model_service)
+) -> Dict[str, Any]:
+    """
+    Update model performance with actual trading results.
+    """
+    service.update_performance(symbol, prediction, actual_outcome, confidence)
+    return {"status": "success", "message": "Performance updated"}
+
+
+@router.get("/enhanced/models")
+async def list_enhanced_models(
+    service: EnhancedModelService = Depends(get_enhanced_model_service)
+) -> Dict[str, Any]:
+    """
+    List all available enhanced models.
+    """
+    return {
+        "models": service.get_available_models(),
+        "enhanced": True
+    }

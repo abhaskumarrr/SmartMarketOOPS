@@ -29,20 +29,38 @@ interface PredictionRequest {
 }
 
 /**
+ * Interface for enhanced prediction response
+ */
+interface EnhancedPrediction {
+  symbol: string;
+  prediction: number;
+  confidence: number;
+  signal_valid: boolean;
+  quality_score: number;
+  recommendation: string;
+  market_regime: string;
+  regime_strength: number;
+  model_predictions: Record<string, { prediction: number; confidence: number }>;
+  confidence_breakdown: Record<string, number>;
+  prediction_time: string;
+  enhanced: boolean;
+}
+
+/**
  * ML Model Client class
  * Provides methods to interact with the ML model API
  */
 export class MLModelClient {
   private client: AxiosInstance;
   private baseUrl: string;
-  
+
   /**
    * Creates a new ML Model Client instance
    * @param config - Configuration options
    */
   constructor(config: MLModelClientConfig) {
     this.baseUrl = config.baseUrl;
-    
+
     // Set up axios instance with default configuration
     this.client = axios.create({
       baseURL: this.baseUrl,
@@ -52,7 +70,7 @@ export class MLModelClient {
         ...(config.apiKey && { 'Authorization': `Bearer ${config.apiKey}` })
       }
     });
-    
+
     // Add response interceptor for logging
     this.client.interceptors.response.use(
       (response: AxiosResponse) => {
@@ -64,10 +82,10 @@ export class MLModelClient {
         return Promise.reject(error);
       }
     );
-    
+
     logger.info('ML Model Client initialized successfully');
   }
-  
+
   /**
    * Get a prediction from the ML model
    * @param request - Prediction request parameters
@@ -76,7 +94,7 @@ export class MLModelClient {
   async getPrediction(request: PredictionRequest): Promise<ModelPrediction> {
     try {
       logger.info(`Requesting prediction for ${request.symbol}`);
-      
+
       const response = await this.client.post<ModelPrediction>('/predict', request);
       return response.data;
     } catch (error) {
@@ -88,7 +106,28 @@ export class MLModelClient {
       throw error;
     }
   }
-  
+
+  /**
+   * Get an enhanced prediction with signal quality analysis
+   * @param request - Prediction request parameters
+   * @returns Enhanced prediction result with signal quality metrics
+   */
+  async getEnhancedPrediction(request: PredictionRequest): Promise<EnhancedPrediction> {
+    try {
+      logger.info(`Requesting enhanced prediction for ${request.symbol}`);
+
+      const response = await this.client.post<EnhancedPrediction>('/enhanced/predict', request);
+      return response.data;
+    } catch (error) {
+      const logData: LogData = {
+        symbol: request.symbol,
+        error: error instanceof Error ? error.message : String(error)
+      };
+      logger.error(`Error getting enhanced prediction for ${request.symbol}`, logData);
+      throw error;
+    }
+  }
+
   /**
    * Get information about a specific model
    * @param symbol - Trading symbol
@@ -97,7 +136,7 @@ export class MLModelClient {
   async getModelInfo(symbol: string): Promise<any> {
     try {
       logger.info(`Getting model info for ${symbol}`);
-      
+
       const response = await this.client.get(`/models/${symbol}`);
       return response.data;
     } catch (error) {
@@ -109,7 +148,7 @@ export class MLModelClient {
       throw error;
     }
   }
-  
+
   /**
    * Load a specific model version
    * @param symbol - Trading symbol
@@ -119,7 +158,7 @@ export class MLModelClient {
   async loadModel(symbol: string, modelVersion?: string): Promise<any> {
     try {
       logger.info(`Loading model for ${symbol}${modelVersion ? ` (version: ${modelVersion})` : ''}`);
-      
+
       const params = modelVersion ? { model_version: modelVersion } : {};
       const response = await this.client.post(`/models/${symbol}/load`, params);
       return response.data;
@@ -133,7 +172,88 @@ export class MLModelClient {
       throw error;
     }
   }
-  
+
+  /**
+   * Load an enhanced model with signal quality system
+   * @param symbol - Trading symbol
+   * @param modelVersion - Optional model version
+   * @returns Enhanced load result
+   */
+  async loadEnhancedModel(symbol: string, modelVersion?: string): Promise<any> {
+    try {
+      logger.info(`Loading enhanced model for ${symbol}${modelVersion ? ` (version: ${modelVersion})` : ''}`);
+
+      const params = modelVersion ? { model_version: modelVersion } : {};
+      const response = await this.client.post(`/enhanced/models/${symbol}/load`, params);
+      return response.data;
+    } catch (error) {
+      const logData: LogData = {
+        symbol,
+        modelVersion,
+        error: error instanceof Error ? error.message : String(error)
+      };
+      logger.error(`Error loading enhanced model for ${symbol}`, logData);
+      throw error;
+    }
+  }
+
+  /**
+   * Get enhanced model status
+   * @param symbol - Trading symbol
+   * @returns Enhanced model status
+   */
+  async getEnhancedModelStatus(symbol: string): Promise<any> {
+    try {
+      logger.info(`Getting enhanced model status for ${symbol}`);
+
+      const response = await this.client.get(`/enhanced/models/${symbol}/status`);
+      return response.data;
+    } catch (error) {
+      const logData: LogData = {
+        symbol,
+        error: error instanceof Error ? error.message : String(error)
+      };
+      logger.error(`Error getting enhanced model status for ${symbol}`, logData);
+      throw error;
+    }
+  }
+
+  /**
+   * Update model performance with actual trading results
+   * @param symbol - Trading symbol
+   * @param prediction - Model prediction value
+   * @param actualOutcome - Actual trading outcome
+   * @param confidence - Prediction confidence
+   * @returns Update result
+   */
+  async updateModelPerformance(
+    symbol: string,
+    prediction: number,
+    actualOutcome: number,
+    confidence: number
+  ): Promise<any> {
+    try {
+      logger.info(`Updating model performance for ${symbol}`);
+
+      const response = await this.client.post(`/enhanced/models/${symbol}/performance`, {
+        prediction,
+        actual_outcome: actualOutcome,
+        confidence
+      });
+      return response.data;
+    } catch (error) {
+      const logData: LogData = {
+        symbol,
+        prediction,
+        actualOutcome,
+        confidence,
+        error: error instanceof Error ? error.message : String(error)
+      };
+      logger.error(`Error updating model performance for ${symbol}`, logData);
+      throw error;
+    }
+  }
+
   /**
    * Log API response
    * @private
@@ -143,10 +263,10 @@ export class MLModelClient {
     const { config, status, statusText, headers } = response;
     const method = config.method?.toUpperCase() || 'UNKNOWN';
     const url = config.url || 'UNKNOWN';
-    
+
     logger.debug(`${method} ${url} ${status} ${statusText}`);
   }
-  
+
   /**
    * Log API error
    * @private
@@ -158,14 +278,14 @@ export class MLModelClient {
       const { config, status, statusText, data } = error.response;
       const method = config.method?.toUpperCase() || 'UNKNOWN';
       const url = config.url || 'UNKNOWN';
-      
+
       const logData: LogData = {
         status,
         statusText,
         data,
         url
       };
-      
+
       logger.error(`${method} ${url} ${status} ${statusText}`, logData);
     } else if (error.request) {
       // Request was made but no response received
@@ -187,4 +307,4 @@ const defaultClient = new MLModelClient({
   timeout: parseInt(process.env.ML_API_TIMEOUT || '30000', 10)
 });
 
-export default defaultClient; 
+export default defaultClient;

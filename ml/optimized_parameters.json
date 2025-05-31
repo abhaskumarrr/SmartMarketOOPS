@@ -1,0 +1,21 @@
+{
+  "ensemble_weights": {
+    "enhanced_transformer": 0.4538435670464345,
+    "cnn_lstm": 0.07702518559817309,
+    "technical_indicators": 0.13524249788358278,
+    "smc_analyzer": 0.3338887494718097
+  },
+  "confidence_threshold": 0.5,
+  "quality_threshold": 0.4421052631578948,
+  "regime_thresholds": {
+    "trending_threshold": 27.75187301117715,
+    "volatile_threshold": 0.01461985475390108,
+    "ranging_threshold": 0.5539589112433169
+  },
+  "adaptive_settings": {
+    "performance_window": 100,
+    "decay_factor": 0.95,
+    "min_confidence": 0.6,
+    "max_confidence": 0.9
+  }
+}

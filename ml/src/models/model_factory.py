@@ -8,7 +8,7 @@ import torch.nn as nn
 from .base_model import BaseModel
 from .lstm_model import LSTMModel
 from .gru_model import GRUModel
-from .transformer_model import TransformerModel
+from .transformer_model import TransformerModel, EnhancedTransformerModel
 from .cnn_lstm_model import CNNLSTMModel
 
 logger = logging.getLogger(__name__)
@@ -84,11 +84,37 @@ class ModelFactory:
                 seq_len=seq_len,
                 forecast_horizon=forecast_horizon,
                 d_model=hidden_dim,
-                nhead=kwargs.get('nhead', 4),
+                nhead=kwargs.get('nhead', 8),  # Updated default based on research
                 num_layers=num_layers,
                 dropout=dropout,
                 device=device,
                 **kwargs
+            )
+        elif model_type == 'enhanced_transformer':
+            # Use the new enhanced transformer with research-based defaults
+            from .transformer_model import EnhancedTransformerModel
+
+            # Extract specific parameters to avoid conflicts
+            enhanced_kwargs = {
+                'd_model': kwargs.get('d_model', 256),
+                'nhead': kwargs.get('nhead', 8),
+                'num_layers': kwargs.get('num_layers', 6),
+                'use_financial_attention': kwargs.get('use_financial_attention', True)
+            }
+
+            # Remove conflicting parameters from kwargs
+            filtered_kwargs = {k: v for k, v in kwargs.items()
+                             if k not in ['d_model', 'nhead', 'num_layers', 'use_financial_attention']}
+
+            return EnhancedTransformerModel(
+                input_dim=input_dim,
+                output_dim=output_dim,
+                seq_len=seq_len,
+                forecast_horizon=forecast_horizon,
+                dropout=dropout,
+                device=device,
+                **enhanced_kwargs,
+                **filtered_kwargs
             )
         elif model_type == 'cnn_lstm':
              # Explicitly map parameters from create_model and kwargs to CNNLSTMModel constructor arguments
@@ -108,5 +134,28 @@ class ModelFactory:
                 dropout=cnn_dropout,
                 num_classes=cnn_num_classes
             )
+        elif model_type == 'enhanced_transformer':
+            # Use the new enhanced transformer with research-based defaults
+            enhanced_kwargs = {
+                'd_model': kwargs.get('d_model', 256),
+                'nhead': kwargs.get('nhead', 8),
+                'num_layers': kwargs.get('num_layers', 6),
+                'use_financial_attention': kwargs.get('use_financial_attention', True)
+            }
+
+            # Remove conflicting parameters from kwargs
+            filtered_kwargs = {k: v for k, v in kwargs.items()
+                             if k not in ['d_model', 'nhead', 'num_layers', 'use_financial_attention']}
+
+            return EnhancedTransformerModel(
+                input_dim=input_dim,
+                output_dim=output_dim,
+                seq_len=seq_len,
+                forecast_horizon=forecast_horizon,
+                dropout=dropout,
+                device=device,
+                **enhanced_kwargs,
+                **filtered_kwargs
+            )
         else:
-            raise ValueError(f"Unknown model type: {model_type}") 
+            raise ValueError(f"Unknown model type: {model_type}")

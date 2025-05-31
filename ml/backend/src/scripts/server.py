@@ -34,6 +34,14 @@ logging.basicConfig(
 )
 logger = logging.getLogger("ml-service")
 
+# Import the enhanced trading predictions router
+try:
+    from ml.backend.src.api.enhanced_trading_predictions import router as trading_predictions_router
+    ENHANCED_PREDICTIONS_AVAILABLE = True
+except ImportError as e:
+    logger.warning(f"Enhanced trading predictions not available: {e}")
+    ENHANCED_PREDICTIONS_AVAILABLE = False
+
 # Create the FastAPI app
 app = FastAPI(
     title="SMOOPs ML Service",
@@ -52,6 +60,13 @@ app.add_middleware(
 
 # Include the model_service router
 app.include_router(model_service_router, prefix="/api/models")
+
+# Include the enhanced trading predictions router if available
+if ENHANCED_PREDICTIONS_AVAILABLE:
+    app.include_router(trading_predictions_router, prefix="/api/enhanced")
+    logger.info("Enhanced trading predictions router included")
+else:
+    logger.warning("Enhanced trading predictions router not available")
 
 @app.get("/")
 async def root():
@@ -115,4 +130,4 @@ def main():
     uvicorn.run("ml.backend.src.scripts.server:app", host="0.0.0.0", port=port, reload=False)
 
 if __name__ == "__main__":
-    main() 
+    main()

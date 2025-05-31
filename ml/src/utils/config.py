@@ -41,17 +41,58 @@ DATA_CONFIG = {
 
 # Model settings
 MODEL_CONFIG = {
-    "model_type": "lstm",  # Default model type
-    "hidden_size": 128,
-    "num_layers": 2,
-    "dropout": 0.2,
+    "model_type": "enhanced_transformer",  # Default to enhanced transformer
+    "hidden_size": 256,  # Increased for better performance
+    "num_layers": 6,     # Research-based default for transformer
+    "dropout": 0.1,      # Lower dropout for transformer
     "learning_rate": 0.001,
-    "batch_size": 64,
+    "batch_size": 32,    # Smaller batch size for transformer
     "epochs": 100,
-    "patience": 10,  # Early stopping patience
-    "device": "mps",  # Use Metal Performance Shaders for Apple Silicon
+    "patience": 15,      # Increased patience for transformer training
+    "device": "mps",     # Use Metal Performance Shaders for Apple Silicon
     "model_dir": str(Path(__file__).parents[2] / "models"),
-    "tensorboard_dir": str(Path(__file__).parents[2] / "logs" / "tensorboard")
+    "tensorboard_dir": str(Path(__file__).parents[2] / "logs" / "tensorboard"),
+
+    # Enhanced Transformer specific settings
+    "transformer": {
+        "d_model": 256,
+        "nhead": 8,
+        "num_layers": 6,
+        "use_financial_attention": True,
+        "positional_encoding": True
+    },
+
+    # Ensemble settings
+    "ensemble": {
+        "enabled": True,
+        "models": {
+            "enhanced_transformer": {"weight": 0.4, "enabled": True},
+            "cnn_lstm": {"weight": 0.3, "enabled": True},
+            "technical_indicators": {"weight": 0.2, "enabled": True},
+            "smc_analyzer": {"weight": 0.1, "enabled": True}
+        },
+        "voting_method": "confidence_weighted",
+        "confidence_threshold": 0.7,
+        "min_models_required": 2,
+        "dynamic_weights": True
+    },
+
+    # Signal quality settings
+    "signal_quality": {
+        "confidence_threshold": 0.7,
+        "regime_filtering": True,
+        "adaptive_thresholds": True,
+        "performance_tracking": True
+    },
+
+    # Real market data settings
+    "use_real_market_data": True,
+    "supported_symbols": ["BTCUSDT", "ETHUSDT", "SOLUSDT", "ADAUSDT"],
+    "market_data_sources": {
+        "delta": {"enabled": True, "testnet": True},
+        "binance": {"enabled": True, "testnet": True},
+        "kucoin": {"enabled": False, "testnet": True}
+    }
 }
 
 # Training settings
@@ -79,22 +120,22 @@ def save_config(config=CONFIG, filepath=None):
     """Save the configuration to a JSON file"""
     if filepath is None:
         filepath = str(Path(__file__).parents[2] / "config.json")
-    
+
     with open(filepath, 'w') as f:
         json.dump(config, f, indent=4)
-    
+
     return filepath
 
 def load_config(filepath=None):
     """Load configuration from a JSON file"""
     if filepath is None:
         filepath = str(Path(__file__).parents[2] / "config.json")
-    
+
     if not os.path.exists(filepath):
         # If no config file exists, save the default one
         save_config(CONFIG, filepath)
         return CONFIG
-    
+
     with open(filepath, 'r') as f:
         return json.load(f)
 
@@ -108,7 +149,7 @@ def create_directories():
         MODEL_CONFIG["model_dir"],
         MODEL_CONFIG["tensorboard_dir"]
     ]
-    
+
     for directory in directories:
         os.makedirs(directory, exist_ok=True)
 
@@ -118,4 +159,4 @@ create_directories()
 if __name__ == "__main__":
     # If run directly, save the default config
     config_path = save_config()
-    print(f"Default configuration saved to {config_path}") 
+    print(f"Default configuration saved to {config_path}")

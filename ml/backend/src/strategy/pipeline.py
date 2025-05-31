@@ -27,9 +27,36 @@ def main(symbol: str = 'BTCUSD'):
     macro = MacroBiasAnalyzer(ohlcv_1d, ohlcv_4h)
     macro_result = macro.analyze()
 
-    # SMC Detection
+    # Enhanced SMC Detection with Order Block Engine
     smc = SMCDector(ohlcv_15m)
     smc_result = smc.detect_all()
+
+    # Get enhanced order block statistics
+    order_block_stats = smc.get_order_block_statistics()
+    print(f"[INFO] Enhanced Order Block Detection Results:")
+    print(f"  - Total detected: {order_block_stats['total_detected']}")
+    print(f"  - Valid blocks: {order_block_stats['valid_blocks']}")
+    print(f"  - Bullish blocks: {order_block_stats['bullish_blocks']}")
+    print(f"  - Bearish blocks: {order_block_stats['bearish_blocks']}")
+    print(f"  - Average strength: {order_block_stats['average_strength']:.3f}")
+    print(f"  - Average touches: {order_block_stats['average_touches']:.1f}")
+
+    # Add order block statistics to SMC result
+    smc_result['order_block_statistics'] = order_block_stats
+
+    # Get enhanced FVG statistics if available
+    if 'fvg_statistics' in smc_result:
+        fvg_stats = smc_result['fvg_statistics']
+        print(f"[INFO] Enhanced FVG Detection Results:")
+        print(f"  - Total FVGs: {fvg_stats['total_fvgs']}")
+        print(f"  - Bullish FVGs: {fvg_stats['bullish_fvgs']}")
+        print(f"  - Bearish FVGs: {fvg_stats['bearish_fvgs']}")
+        print(f"  - Average validation score: {fvg_stats['average_validation_score']:.3f}")
+        print(f"  - Fill success rate: {fvg_stats['fill_success_rate']:.1%}")
+        print(f"  - Active FVGs: {fvg_stats['active_fvgs']}")
+        print(f"  - Enhanced detection: {fvg_stats['enhanced_detection']}")
+    else:
+        print(f"[INFO] Basic FVG Detection: {len(smc_result['fvg'])} FVGs detected")
 
     # Candlestick Patterns
     candle = CandlestickPatternDetector(ohlcv_15m)
@@ -314,4 +341,4 @@ if __name__ == "__main__":
     result = main('BTCUSD')
     for k, v in result.items():
         print(f"{k}: {v}")
-    print("Feature chart saved as feature_verification_chart.png") 
+    print("Feature chart saved as feature_verification_chart.png")

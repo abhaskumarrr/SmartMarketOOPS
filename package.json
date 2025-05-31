@@ -57,6 +57,7 @@
   },
   "dependencies": {
     "next": "^15.1.8",
+    "task-master-ai": "^0.15.0",
     "ua-parser-js": "^2.0.3",
     "uuid": "^11.1.0"
   }
