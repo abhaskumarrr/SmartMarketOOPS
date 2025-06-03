@@ -7,7 +7,7 @@ import { Request, Response } from 'express';
 import prisma from '../utils/prismaClient';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-import { generateToken, generateRefreshToken } from '../utils/jwt';
+import { generateTokenPair } from '../utils/jwt';
 import { sendEmail } from '../utils/email';
 import env from '../utils/env';
 import sessionManager from '../utils/sessionManager';
@@ -103,13 +103,18 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     });
 
     if (user) {
-      // Generate tokens
-      const token = generateToken(user.id);
-      const refreshToken = generateRefreshToken(user.id);
+      // Generate session ID for token rotation
+      const sessionId = crypto.randomUUID();
+
+      // Generate token pair with enhanced security
+      const tokenPair = generateTokenPair(user.id, sessionId, {
+        email: user.email,
+        role: user.role || 'user'
+      });
 
       // Send verification email
       const verificationUrl = `${env.CLIENT_URL}/verify-email?token=${verificationToken}`;
-      
+
       try {
         await sendEmail({
           to: email,
@@ -128,9 +133,10 @@ export const register = async (req: Request, res: Response): Promise<void> => {
           id: user.id,
           name: user.name,
           email: user.email,
-          token,
-          refreshToken,
+          role: user.role || 'user',
           isVerified: false,
+          ...tokenPair,
+          sessionId,
           message: 'Registration successful. Please check your email for verification.'
         }
       });
@@ -161,7 +167,7 @@ export const verifyEmail = async (req: Request, res: Response): Promise<void> =>
 
     // Find user with the verification token
     const user = await prisma.user.findFirst({
-      where: { 
+      where: {
         verificationToken: token,
         verificationTokenExpiry: {
           gte: new Date()
@@ -245,8 +251,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
     // Create a new session with device tracking
     const { token, refreshToken, session } = await sessionManager.createSession(
-      user.id, 
-      req, 
+      user.id,
+      req,
       rememberMe
     );
 
@@ -283,7 +289,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 };
 
 /**
- * Refresh access token using refresh token
+ * Refresh access token using refresh token with rotation
  * @route POST /api/auth/refresh-token
  * @access Public
  */
@@ -299,23 +305,68 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    // Refresh the session
-    const result = await sessionManager.refreshSession(requestRefreshToken, req);
+    // Try session manager first (for backward compatibility)
+    let result = await sessionManager.refreshSession(requestRefreshToken, req);
 
     if (!result) {
-      res.status(401).json({
-        success: false,
-        message: 'Invalid or expired refresh token'
-      });
-      return;
+      // If session manager fails, try direct JWT refresh with rotation
+      const { verifyRefreshToken } = await import('../utils/jwt');
+
+      try {
+        const decoded = verifyRefreshToken(requestRefreshToken);
+
+        if (!decoded || decoded.type !== 'refresh') {
+          res.status(401).json({
+            success: false,
+            message: 'Invalid refresh token'
+          });
+          return;
+        }
+
+        // Get user from database
+        const user = await prisma.user.findUnique({
+          where: { id: decoded.id }
+        });
+
+        if (!user) {
+          res.status(401).json({
+            success: false,
+            message: 'User not found'
+          });
+          return;
+        }
+
+        // Generate new session ID for token rotation
+        const newSessionId = crypto.randomUUID();
+
+        // Generate new token pair
+        const tokenPair = generateTokenPair(user.id, newSessionId, {
+          email: user.email,
+          role: user.role
+        });
+
+        result = {
+          token: tokenPair.accessToken,
+          refreshToken: tokenPair.refreshToken,
+          session: { id: newSessionId }
+        };
+      } catch (jwtError) {
+        res.status(401).json({
+          success: false,
+          message: 'Invalid or expired refresh token'
+        });
+        return;
+      }
     }
 
     // Return new tokens
     res.status(200).json({
       success: true,
       data: {
-        token: result.token,
+        accessToken: result.token,
         refreshToken: result.refreshToken,
+        tokenType: 'Bearer',
+        expiresIn: 15 * 60, // 15 minutes
         sessionId: result.session.id
       }
     });
@@ -375,7 +426,7 @@ export const forgotPassword = async (req: Request, res: Response): Promise<void>
 
     // Send reset email
     const resetUrl = `${env.CLIENT_URL}/reset-password?token=${resetToken}`;
-    
+
     try {
       await sendEmail({
         to: email,
@@ -568,7 +619,7 @@ export const logout = async (req: AuthenticatedRequest, res: Response): Promise<
   try {
     // Get token from header
     const authHeader = req.headers.authorization;
-    
+
     if (authHeader && authHeader.startsWith('Bearer ')) {
       const token = authHeader.split(' ')[1];
       // Invalidate the session
@@ -602,4 +653,4 @@ export default {
   resetPassword,
   oauthLogin,
   logout
-}; 
+};

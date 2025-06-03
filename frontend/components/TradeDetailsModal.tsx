@@ -6,7 +6,7 @@ import {
   DialogActions,
   Button,
   Typography,
-  Grid,
+  
   Divider,
   Box,
   Chip,
@@ -124,9 +124,9 @@ export const TradeDetailsModal: React.FC<TradeDetailsModalProps> = ({
       </DialogTitle>
       
       <DialogContent dividers sx={{ px: 3, py: 2 }}>
-        <Grid container spacing={3}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }, gap: 3 }}>
           {/* Trade Summary */}
-          <Grid item xs={12}>
+          <Box>
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
               <Box>
                 <Typography variant="h5" style={styles.text}>
@@ -138,24 +138,24 @@ export const TradeDetailsModal: React.FC<TradeDetailsModalProps> = ({
               </Box>
               
               <Box sx={{ display: 'flex', gap: 1 }}>
-                <Chip 
-                  label={trade.type.toUpperCase()} 
-                  style={trade.type === 'buy' ? styles.buyChip : styles.sellChip}
+                <Chip
+                  label={trade.side.toUpperCase()}
+                  style={trade.side === 'buy' ? styles.buyChip : styles.sellChip}
                 />
-                <Chip 
-                  label={trade.status.toUpperCase()} 
+                <Chip
+                  label={trade.status.toUpperCase()}
                   style={
-                    trade.status === 'executed' ? styles.executedChip :
+                    trade.status === 'completed' ? styles.executedChip :
                     trade.status === 'pending' ? styles.pendingChip : styles.cancelledChip
                   }
                 />
               </Box>
             </Box>
             <Divider style={styles.divider} sx={{ mb: 3 }} />
-          </Grid>
+          </Box>
           
           {/* Price Details */}
-          <Grid item xs={12} md={6}>
+          <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <ReceiptIcon style={styles.sectionIcon} sx={{ mr: 1 }} />
               <Typography variant="subtitle1" style={styles.text}>
@@ -163,59 +163,59 @@ export const TradeDetailsModal: React.FC<TradeDetailsModalProps> = ({
               </Typography>
             </Box>
             
-            <Grid container spacing={2}>
-              <Grid item xs={6}>
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }, gap: 2 }}>
+              <Box>
                 <Typography variant="body2" style={styles.subtitle}>
                   Price
                 </Typography>
                 <Typography variant="body1" style={styles.text}>
                   ${trade.price.toLocaleString()}
                 </Typography>
-              </Grid>
+              </Box>
               
-              <Grid item xs={6}>
+              <Box>
                 <Typography variant="body2" style={styles.subtitle}>
                   Amount
                 </Typography>
                 <Typography variant="body1" style={styles.text}>
-                  {trade.amount.toLocaleString()} {trade.symbol.split('/')[0]}
+                  {trade.quantity.toLocaleString()} {trade.symbol.split('/')[0]}
                 </Typography>
-              </Grid>
+              </Box>
               
-              <Grid item xs={6}>
+              <Box>
                 <Typography variant="body2" style={styles.subtitle}>
                   Total Value
                 </Typography>
                 <Typography variant="body1" style={styles.text}>
-                  ${trade.value.toLocaleString()}
+                  ${(trade.price * trade.quantity).toLocaleString()}
                 </Typography>
-              </Grid>
+              </Box>
               
-              <Grid item xs={6}>
+              <Box>
                 <Typography variant="body2" style={styles.subtitle}>
                   Fee
                 </Typography>
                 <Typography variant="body1" style={styles.text}>
                   ${trade.fee.toLocaleString()}
                 </Typography>
-              </Grid>
+              </Box>
               
-              {trade.profit !== undefined && (
-                <Grid item xs={12}>
+              {trade.pnl !== undefined && (
+                <Box>
                   <Typography variant="body2" style={styles.subtitle}>
                     Profit/Loss
                   </Typography>
-                  <Chip 
-                    label={`${trade.profit > 0 ? '+' : ''}$${trade.profit.toLocaleString()} (${trade.profitPercentage}%)`} 
-                    style={trade.profit > 0 ? styles.profitChip : styles.lossChip}
+                  <Chip
+                    label={`${trade.pnl > 0 ? '+' : ''}$${trade.pnl.toLocaleString()}`}
+                    style={trade.pnl > 0 ? styles.profitChip : styles.lossChip}
                   />
-                </Grid>
+                </Box>
               )}
-            </Grid>
-          </Grid>
+            </Box>
+          </Box>
           
           {/* Time & Status */}
-          <Grid item xs={12} md={6}>
+          <Box>
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
               <TimeIcon style={styles.sectionIcon} sx={{ mr: 1 }} />
               <Typography variant="subtitle1" style={styles.text}>
@@ -223,49 +223,49 @@ export const TradeDetailsModal: React.FC<TradeDetailsModalProps> = ({
               </Typography>
             </Box>
             
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }, gap: 2 }}>
+              <Box>
                 <Typography variant="body2" style={styles.subtitle}>
                   Trade Time
                 </Typography>
                 <Typography variant="body1" style={styles.text}>
                   {formatDate(trade.timestamp)}
                 </Typography>
-              </Grid>
+              </Box>
               
-              <Grid item xs={12}>
+              <Box>
                 <Typography variant="body2" style={styles.subtitle}>
                   Status
                 </Typography>
                 <Typography variant="body1" style={styles.text}>
-                  {trade.status === 'executed' ? 'Executed' : 
+                  {trade.status === 'completed' ? 'Executed' : 
                    trade.status === 'pending' ? 'Pending Execution' : 'Cancelled'}
                 </Typography>
-              </Grid>
+              </Box>
               
               {/* Additional dummy data for demonstration */}
-              <Grid item xs={12}>
+              <Box>
                 <Typography variant="body2" style={styles.subtitle}>
                   Exchange
                 </Typography>
                 <Typography variant="body1" style={styles.text}>
                   Delta Exchange
                 </Typography>
-              </Grid>
+              </Box>
               
-              <Grid item xs={12}>
+              <Box>
                 <Typography variant="body2" style={styles.subtitle}>
                   Order Type
                 </Typography>
                 <Typography variant="body1" style={styles.text}>
                   Market Order
                 </Typography>
-              </Grid>
-            </Grid>
-          </Grid>
+              </Box>
+            </Box>
+          </Box>
           
           {/* Notes Section */}
-          <Grid item xs={12}>
+          <Box>
             <Divider style={styles.divider} sx={{ mt: 1, mb: 3 }} />
             
             <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
@@ -277,7 +277,7 @@ export const TradeDetailsModal: React.FC<TradeDetailsModalProps> = ({
             
             <Typography variant="body2" style={styles.text} sx={{ mb: 2 }}>
               {/* Dummy notes for demonstration */}
-              {trade.type === 'buy' 
+              {trade.side === 'buy' 
                 ? 'Entry based on MACD crossover and RSI oversold condition. Price action showing strong support at this level.' 
                 : 'Exit triggered by take profit level. Market showing signs of resistance at upper Bollinger Band.'}
             </Typography>
@@ -296,8 +296,8 @@ export const TradeDetailsModal: React.FC<TradeDetailsModalProps> = ({
                 color: darkMode ? '#E0E0E0' : '#121212',
               }} />
             </Box>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </DialogContent>
       
       <DialogActions style={styles.actions}>

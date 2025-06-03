@@ -1,0 +1,1452 @@
+[
+  {
+    "config": {
+      "id": "grid_1",
+      "minConfidence": 60,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 5,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 1
+  },
+  {
+    "config": {
+      "id": "grid_2",
+      "minConfidence": 60,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 5,
+      "riskPerTrade": 2,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 2
+  },
+  {
+    "config": {
+      "id": "grid_3",
+      "minConfidence": 60,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 5,
+      "riskPerTrade": 3,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 3
+  },
+  {
+    "config": {
+      "id": "grid_4",
+      "minConfidence": 60,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 15,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 4
+  },
+  {
+    "config": {
+      "id": "grid_5",
+      "minConfidence": 60,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 15,
+      "riskPerTrade": 2,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 5
+  },
+  {
+    "config": {
+      "id": "grid_6",
+      "minConfidence": 60,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 15,
+      "riskPerTrade": 3,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 6
+  },
+  {
+    "config": {
+      "id": "grid_7",
+      "minConfidence": 60,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 30,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 7
+  },
+  {
+    "config": {
+      "id": "grid_8",
+      "minConfidence": 60,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 30,
+      "riskPerTrade": 2,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 8
+  },
+  {
+    "config": {
+      "id": "grid_9",
+      "minConfidence": 60,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 30,
+      "riskPerTrade": 3,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 9
+  },
+  {
+    "config": {
+      "id": "grid_10",
+      "minConfidence": 60,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 5,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 10
+  },
+  {
+    "config": {
+      "id": "grid_11",
+      "minConfidence": 60,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 5,
+      "riskPerTrade": 2,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 11
+  },
+  {
+    "config": {
+      "id": "grid_12",
+      "minConfidence": 60,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 5,
+      "riskPerTrade": 3,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 12
+  },
+  {
+    "config": {
+      "id": "grid_13",
+      "minConfidence": 60,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 15,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 13
+  },
+  {
+    "config": {
+      "id": "grid_14",
+      "minConfidence": 60,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 15,
+      "riskPerTrade": 2,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 14
+  },
+  {
+    "config": {
+      "id": "grid_15",
+      "minConfidence": 60,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 15,
+      "riskPerTrade": 3,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 15
+  },
+  {
+    "config": {
+      "id": "grid_16",
+      "minConfidence": 60,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 30,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 16
+  },
+  {
+    "config": {
+      "id": "grid_17",
+      "minConfidence": 60,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 30,
+      "riskPerTrade": 2,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 17
+  },
+  {
+    "config": {
+      "id": "grid_18",
+      "minConfidence": 60,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 30,
+      "riskPerTrade": 3,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 18
+  },
+  {
+    "config": {
+      "id": "grid_28",
+      "minConfidence": 70,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 5,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 19
+  },
+  {
+    "config": {
+      "id": "grid_29",
+      "minConfidence": 70,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 5,
+      "riskPerTrade": 2,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 20
+  },
+  {
+    "config": {
+      "id": "grid_30",
+      "minConfidence": 70,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 5,
+      "riskPerTrade": 3,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 21
+  },
+  {
+    "config": {
+      "id": "grid_31",
+      "minConfidence": 70,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 15,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 22
+  },
+  {
+    "config": {
+      "id": "grid_32",
+      "minConfidence": 70,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 15,
+      "riskPerTrade": 2,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 23
+  },
+  {
+    "config": {
+      "id": "grid_33",
+      "minConfidence": 70,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 15,
+      "riskPerTrade": 3,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 24
+  },
+  {
+    "config": {
+      "id": "grid_34",
+      "minConfidence": 70,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 30,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 25
+  },
+  {
+    "config": {
+      "id": "grid_35",
+      "minConfidence": 70,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 30,
+      "riskPerTrade": 2,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 26
+  },
+  {
+    "config": {
+      "id": "grid_36",
+      "minConfidence": 70,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 30,
+      "riskPerTrade": 3,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 27
+  },
+  {
+    "config": {
+      "id": "grid_37",
+      "minConfidence": 70,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 5,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 28
+  },
+  {
+    "config": {
+      "id": "grid_38",
+      "minConfidence": 70,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 5,
+      "riskPerTrade": 2,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 29
+  },
+  {
+    "config": {
+      "id": "grid_39",
+      "minConfidence": 70,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 5,
+      "riskPerTrade": 3,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 30
+  },
+  {
+    "config": {
+      "id": "grid_40",
+      "minConfidence": 70,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 15,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 31
+  },
+  {
+    "config": {
+      "id": "grid_41",
+      "minConfidence": 70,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 15,
+      "riskPerTrade": 2,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 32
+  },
+  {
+    "config": {
+      "id": "grid_42",
+      "minConfidence": 70,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 15,
+      "riskPerTrade": 3,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 33
+  },
+  {
+    "config": {
+      "id": "grid_43",
+      "minConfidence": 70,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 30,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 34
+  },
+  {
+    "config": {
+      "id": "grid_44",
+      "minConfidence": 70,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 30,
+      "riskPerTrade": 2,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 35
+  },
+  {
+    "config": {
+      "id": "grid_45",
+      "minConfidence": 70,
+      "modelConsensus": 0.6,
+      "decisionCooldown": 30,
+      "riskPerTrade": 3,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 36
+  },
+  {
+    "config": {
+      "id": "grid_19",
+      "minConfidence": 60,
+      "modelConsensus": 0.7,
+      "decisionCooldown": 5,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.1962980040667162,
+      "sharpeRatio": -1.6397722960049441,
+      "maxDrawdownPercent": 0.43336593866129075,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 1.441595793224464,
+      "calmarRatio": -5.454717671326522
+    },
+    "trades": [],
+    "score": 38.37004126326603,
+    "rank": 37
+  },
+  {
+    "config": {
+      "id": "grid_20",
+      "minConfidence": 60,
+      "modelConsensus": 0.7,
+      "decisionCooldown": 5,
+      "riskPerTrade": 2,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.1962980040667162,
+      "sharpeRatio": -1.6397722960049441,
+      "maxDrawdownPercent": 0.43336593866129075,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 1.441595793224464,
+      "calmarRatio": -5.454717671326522
+    },
+    "trades": [],
+    "score": 38.37004126326603,
+    "rank": 38
+  },
+  {
+    "config": {
+      "id": "grid_21",
+      "minConfidence": 60,
+      "modelConsensus": 0.7,
+      "decisionCooldown": 5,
+      "riskPerTrade": 3,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.1962980040667162,
+      "sharpeRatio": -1.6397722960049441,
+      "maxDrawdownPercent": 0.43336593866129075,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 1.441595793224464,
+      "calmarRatio": -5.454717671326522
+    },
+    "trades": [],
+    "score": 38.37004126326603,
+    "rank": 39
+  },
+  {
+    "config": {
+      "id": "grid_22",
+      "minConfidence": 60,
+      "modelConsensus": 0.7,
+      "decisionCooldown": 15,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.1962980040667162,
+      "sharpeRatio": -1.6397722960049441,
+      "maxDrawdownPercent": 0.43336593866129075,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 1.441595793224464,
+      "calmarRatio": -5.454717671326522
+    },
+    "trades": [],
+    "score": 38.37004126326603,
+    "rank": 40
+  },
+  {
+    "config": {
+      "id": "grid_23",
+      "minConfidence": 60,
+      "modelConsensus": 0.7,
+      "decisionCooldown": 15,
+      "riskPerTrade": 2,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.1962980040667162,
+      "sharpeRatio": -1.6397722960049441,
+      "maxDrawdownPercent": 0.43336593866129075,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 1.441595793224464,
+      "calmarRatio": -5.454717671326522
+    },
+    "trades": [],
+    "score": 38.37004126326603,
+    "rank": 41
+  },
+  {
+    "config": {
+      "id": "grid_24",
+      "minConfidence": 60,
+      "modelConsensus": 0.7,
+      "decisionCooldown": 15,
+      "riskPerTrade": 3,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.1962980040667162,
+      "sharpeRatio": -1.6397722960049441,
+      "maxDrawdownPercent": 0.43336593866129075,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 1.441595793224464,
+      "calmarRatio": -5.454717671326522
+    },
+    "trades": [],
+    "score": 38.37004126326603,
+    "rank": 42
+  },
+  {
+    "config": {
+      "id": "grid_25",
+      "minConfidence": 60,
+      "modelConsensus": 0.7,
+      "decisionCooldown": 30,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.1962980040667162,
+      "sharpeRatio": -1.6397722960049441,
+      "maxDrawdownPercent": 0.43336593866129075,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 1.441595793224464,
+      "calmarRatio": -5.454717671326522
+    },
+    "trades": [],
+    "score": 38.37004126326603,
+    "rank": 43
+  },
+  {
+    "config": {
+      "id": "grid_26",
+      "minConfidence": 60,
+      "modelConsensus": 0.7,
+      "decisionCooldown": 30,
+      "riskPerTrade": 2,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.1962980040667162,
+      "sharpeRatio": -1.6397722960049441,
+      "maxDrawdownPercent": 0.43336593866129075,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 1.441595793224464,
+      "calmarRatio": -5.454717671326522
+    },
+    "trades": [],
+    "score": 38.37004126326603,
+    "rank": 44
+  },
+  {
+    "config": {
+      "id": "grid_27",
+      "minConfidence": 60,
+      "modelConsensus": 0.7,
+      "decisionCooldown": 30,
+      "riskPerTrade": 3,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.1962980040667162,
+      "sharpeRatio": -1.6397722960049441,
+      "maxDrawdownPercent": 0.43336593866129075,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 1.441595793224464,
+      "calmarRatio": -5.454717671326522
+    },
+    "trades": [],
+    "score": 38.37004126326603,
+    "rank": 45
+  },
+  {
+    "config": {
+      "id": "grid_46",
+      "minConfidence": 70,
+      "modelConsensus": 0.7,
+      "decisionCooldown": 5,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.1962980040667162,
+      "sharpeRatio": -1.6397722960049441,
+      "maxDrawdownPercent": 0.43336593866129075,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 1.441595793224464,
+      "calmarRatio": -5.454717671326522
+    },
+    "trades": [],
+    "score": 38.37004126326603,
+    "rank": 46
+  },
+  {
+    "config": {
+      "id": "grid_47",
+      "minConfidence": 70,
+      "modelConsensus": 0.7,
+      "decisionCooldown": 5,
+      "riskPerTrade": 2,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.1962980040667162,
+      "sharpeRatio": -1.6397722960049441,
+      "maxDrawdownPercent": 0.43336593866129075,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 1.441595793224464,
+      "calmarRatio": -5.454717671326522
+    },
+    "trades": [],
+    "score": 38.37004126326603,
+    "rank": 47
+  },
+  {
+    "config": {
+      "id": "grid_48",
+      "minConfidence": 70,
+      "modelConsensus": 0.7,
+      "decisionCooldown": 5,
+      "riskPerTrade": 3,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.1962980040667162,
+      "sharpeRatio": -1.6397722960049441,
+      "maxDrawdownPercent": 0.43336593866129075,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 1.441595793224464,
+      "calmarRatio": -5.454717671326522
+    },
+    "trades": [],
+    "score": 38.37004126326603,
+    "rank": 48
+  },
+  {
+    "config": {
+      "id": "grid_49",
+      "minConfidence": 70,
+      "modelConsensus": 0.7,
+      "decisionCooldown": 15,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.1962980040667162,
+      "sharpeRatio": -1.6397722960049441,
+      "maxDrawdownPercent": 0.43336593866129075,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 1.441595793224464,
+      "calmarRatio": -5.454717671326522
+    },
+    "trades": [],
+    "score": 38.37004126326603,
+    "rank": 49
+  },
+  {
+    "config": {
+      "id": "grid_50",
+      "minConfidence": 70,
+      "modelConsensus": 0.7,
+      "decisionCooldown": 15,
+      "riskPerTrade": 2,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.1962980040667162,
+      "sharpeRatio": -1.6397722960049441,
+      "maxDrawdownPercent": 0.43336593866129075,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 1.441595793224464,
+      "calmarRatio": -5.454717671326522
+    },
+    "trades": [],
+    "score": 38.37004126326603,
+    "rank": 50
+  }
+]

@@ -4,7 +4,7 @@
  * Provides a consistent logging interface across the application
  */
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.Logger = exports.LogLevel = void 0;
+exports.logger = exports.Logger = exports.LogLevel = void 0;
 exports.createLogger = createLogger;
 // Log levels in order of verbosity
 var LogLevel;
@@ -105,5 +105,6 @@ function createLogger(moduleName) {
     return new Logger(moduleName);
 }
 // Export a default logger for use in places where a specific module name isn't needed
-exports.default = new Logger('App');
+exports.logger = new Logger('App');
+exports.default = exports.logger;
 //# sourceMappingURL=logger.js.map

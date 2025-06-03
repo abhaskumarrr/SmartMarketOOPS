@@ -25,7 +25,7 @@ export declare const verifyEmail: (req: Request, res: Response) => Promise<void>
  */
 export declare const login: (req: Request, res: Response) => Promise<void>;
 /**
- * Refresh access token using refresh token
+ * Refresh access token using refresh token with rotation
  * @route POST /api/auth/refresh-token
  * @access Public
  */

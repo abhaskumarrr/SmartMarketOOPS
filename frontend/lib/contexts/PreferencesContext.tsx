@@ -56,7 +56,7 @@ export const PreferencesProvider: React.FC<PreferencesProviderProps> = ({ childr
     section: K,
     values: Partial<UserPreferences[K]>
   ) => {
-    const updatedPreferences = updatePreferences(section, values);
+    const updatedPreferences = updatePreferences(preferences, section, values);
     setPreferences(updatedPreferences);
   };
 
@@ -68,7 +68,7 @@ export const PreferencesProvider: React.FC<PreferencesProviderProps> = ({ childr
 
   // Export preferences as JSON
   const exportPreferencesToJSON = () => {
-    return exportPreferences();
+    return exportPreferences(preferences);
   };
 
   // Import preferences from JSON

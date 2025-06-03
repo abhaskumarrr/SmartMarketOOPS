@@ -1,0 +1,14 @@
+{
+  "components/charts/LightweightChart.tsx -> lightweight-charts": {
+    "id": "components/charts/LightweightChart.tsx -> lightweight-charts",
+    "files": [
+      "static/chunks/_app-pages-browser_node_modules_lightweight-charts_dist_lightweight-charts_development_mjs.js"
+    ]
+  },
+  "components/charts/TradingViewChart.tsx -> ./LightweightChart": {
+    "id": "components/charts/TradingViewChart.tsx -> ./LightweightChart",
+    "files": [
+      "static/chunks/_app-pages-browser_components_charts_LightweightChart_tsx.js"
+    ]
+  }
+}

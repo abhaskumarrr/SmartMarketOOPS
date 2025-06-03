@@ -86,5 +86,35 @@ services:
     # Pulls models to external SSD for persistence and performance
     # To use a different model, set OLLAMA_DEFAULT_MODEL=phi4 or phi3 as needed
 
+  questdb:
+    image: questdb/questdb:7.3.10
+    container_name: questdb
+    ports:
+      - "${QUESTDB_HTTP_PORT:-9000}:9000"  # HTTP/REST API and Web Console
+      - "${QUESTDB_PG_PORT:-8812}:8812"    # PostgreSQL wire protocol
+      - "${QUESTDB_ILP_PORT:-9009}:9009"   # InfluxDB Line Protocol (high-performance ingestion)
+    volumes:
+      - questdb_data:/var/lib/questdb
+    environment:
+      - QDB_CAIRO_COMMIT_LAG=1000
+      - QDB_CAIRO_MAX_UNCOMMITTED_ROWS=10000
+      - QDB_SHARED_WORKER_COUNT=2
+      - QDB_HTTP_WORKER_COUNT=2
+      - QDB_HTTP_WORKER_AFFINITY=false
+      - QDB_HTTP_WORKER_HALTONFAILURE=false
+      - QDB_PG_ENABLED=true
+      - QDB_PG_NET_ACTIVE_CONNECTION_LIMIT=10
+      - QDB_LINE_TCP_ENABLED=true
+      - QDB_LINE_TCP_NET_ACTIVE_CONNECTION_LIMIT=10
+      - QDB_TELEMETRY_ENABLED=false
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/status || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
+
 volumes:
   postgres_data:
+  questdb_data:

@@ -48,22 +48,38 @@ exports.csrfProtection = (0, csurf_1.default)({
  */
 const protect = async (req, res, next) => {
     try {
-        // Get token from header
+        // Get token from header using utility function
         const authHeader = req.headers.authorization;
-        if (!authHeader || !authHeader.startsWith('Bearer ')) {
+        const token = (0, jwt_1.extractTokenFromHeader)(authHeader || '');
+        if (!token) {
             res.status(401).json({
                 success: false,
-                message: 'Not authorized, no token'
+                message: 'Not authorized, no token provided'
             });
             return;
         }
         // Verify token
-        const token = authHeader.split(' ')[1];
         const decoded = (0, jwt_1.verifyToken)(token);
         if (!decoded) {
             res.status(401).json({
                 success: false,
-                message: 'Not authorized, token failed'
+                message: 'Not authorized, invalid token'
+            });
+            return;
+        }
+        // Check if token is expired (additional safety check)
+        if ((0, jwt_1.isTokenExpired)(decoded)) {
+            res.status(401).json({
+                success: false,
+                message: 'Token expired, please refresh'
+            });
+            return;
+        }
+        // Validate token type
+        if (decoded.type !== 'access') {
+            res.status(401).json({
+                success: false,
+                message: 'Invalid token type'
             });
             return;
         }

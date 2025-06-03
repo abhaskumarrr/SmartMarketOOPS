@@ -7,7 +7,7 @@ import {
   DarkMode as DarkModeIcon,
   LightMode as LightModeIcon,
 } from '@mui/icons-material';
-import Sidebar from './Sidebar';
+import { Sidebar } from './NavigationSidebar';
 import WebSocketStatus from './WebSocketStatus';
 import { useThemeContext } from '../../lib/contexts/ThemeContext';
 import { useTradingContext } from '../../lib/contexts/TradingContext';
@@ -148,12 +148,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       </AppBar>
       
       {/* Sidebar */}
-      <Sidebar 
-        open={drawerOpen} 
-        onToggle={toggleDrawer} 
-        mobileOpen={mobileDrawerOpen} 
-        onMobileClose={handleMobileDrawerToggle}
-      />
+      <Sidebar />
       
       {/* Account Menu */}
       <Menu

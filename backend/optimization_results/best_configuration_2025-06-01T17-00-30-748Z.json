@@ -1,0 +1,12 @@
+{
+  "id": "grid_1",
+  "minConfidence": 60,
+  "modelConsensus": 0.5,
+  "decisionCooldown": 5,
+  "riskPerTrade": 1,
+  "stopLossPercent": 1.5,
+  "takeProfitMultiplier": 2.5,
+  "positionSizeMultiplier": 0.8,
+  "trendThreshold": 0.001,
+  "volatilityThreshold": 0.3
+}

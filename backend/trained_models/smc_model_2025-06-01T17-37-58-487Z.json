@@ -1,0 +1,212 @@
+{
+  "modelName": "Active_SMC",
+  "parameters": {
+    "weights": {
+      "open": 0.2374446092713183,
+      "high": -0.004469506106844396,
+      "low": 0.16488748438043369,
+      "close": -0.017628537340927657,
+      "volume": -0.03330108090761896,
+      "rsi_14": -0.15934058990923408,
+      "rsi_7": 0.029761011433248354,
+      "rsi_21": 0.18111151030055048,
+      "sma_10": -0.018727022097913906,
+      "sma_20": -0.13090223362720782,
+      "sma_50": -0.09579584224364183,
+      "ema_12": 0.19133468634606818,
+      "ema_26": -0.12663752401201198,
+      "ema_50": -0.012889445084873271,
+      "macd": -0.01109885844505277,
+      "macd_signal": -0.15350483437155327,
+      "macd_histogram": -0.04962436229095516,
+      "bb_upper": 0.03827250905302091,
+      "bb_middle": 0.1874594572246653,
+      "bb_lower": -0.023431382295578732,
+      "bb_width": -0.059912658393245714,
+      "bb_position": 0.2306084045577429,
+      "volume_sma_20": -0.21705587297861717,
+      "volume_ratio": -0.014362310201366904,
+      "body_size": -0.0946548841881435,
+      "upper_wick": -0.1795025543372859,
+      "lower_wick": -0.024798822418174715,
+      "atr_14": -0.22880222647095907,
+      "volatility_10": -0.047725164811717284,
+      "momentum_5": -0.18104381227022748,
+      "momentum_10": 0.22722493529360013,
+      "higher_tf_trend": -0.20637095882419387,
+      "lower_tf_momentum": -0.007319231677035068,
+      "support_level": 0.2181435702688379,
+      "resistance_level": -0.036616241452014364,
+      "trend_strength": 0.2198803351019316,
+      "hour_of_day": 0.2179637833667034,
+      "day_of_week": -0.01788622959924832
+    },
+    "biases": [
+      0,
+      0,
+      0
+    ],
+    "learningRate": 0.002,
+    "epochs": 80,
+    "batchSize": 16,
+    "regularization": 0.02,
+    "dropout": 0.1
+  },
+  "trainingHistory": [
+    {
+      "epoch": 1,
+      "trainLoss": 0.34836971923160936,
+      "validationLoss": 0.43904527845561325,
+      "trainAccuracy": 0.6505979874952816,
+      "validationAccuracy": 0.6632136911231228,
+      "learningRate": 0.002
+    },
+    {
+      "epoch": 2,
+      "trainLoss": 0.3603167408471282,
+      "validationLoss": 0.2798213028111719,
+      "trainAccuracy": 0.6514181583785209,
+      "validationAccuracy": 0.8366019077246054,
+      "learningRate": 0.002
+    },
+    {
+      "epoch": 3,
+      "trainLoss": 0.3580681974382043,
+      "validationLoss": 0.32412734184363945,
+      "trainAccuracy": 0.6474649525830103,
+      "validationAccuracy": 0.8270238450036285,
+      "learningRate": 0.002
+    },
+    {
+      "epoch": 4,
+      "trainLoss": 0.35043699699208475,
+      "validationLoss": 0.21945316021386452,
+      "trainAccuracy": 0.6491824656796394,
+      "validationAccuracy": 0.7467409600215552,
+      "learningRate": 0.002
+    },
+    {
+      "epoch": 5,
+      "trainLoss": 0.3577430163915358,
+      "validationLoss": 0.3944742140426718,
+      "trainAccuracy": 0.6566224039629595,
+      "validationAccuracy": 0.6346776973525889,
+      "learningRate": 0.002
+    },
+    {
+      "epoch": 6,
+      "trainLoss": 0.3606124365804924,
+      "validationLoss": 0.38505356754812614,
+      "trainAccuracy": 0.6490435043326418,
+      "validationAccuracy": 0.8373326407214544,
+      "learningRate": 0.002
+    },
+    {
+      "epoch": 7,
+      "trainLoss": 0.3428230369048545,
+      "validationLoss": 0.26506640657880104,
+      "trainAccuracy": 0.6479391560782174,
+      "validationAccuracy": 0.7112893001242906,
+      "learningRate": 0.002
+    },
+    {
+      "epoch": 8,
+      "trainLoss": 0.3436332375606893,
+      "validationLoss": 0.21649127043835178,
+      "trainAccuracy": 0.6558372048656743,
+      "validationAccuracy": 0.6173435729686105,
+      "learningRate": 0.002
+    },
+    {
+      "epoch": 9,
+      "trainLoss": 0.3665749469380414,
+      "validationLoss": 0.18175479797374558,
+      "trainAccuracy": 0.6446445855568159,
+      "validationAccuracy": 0.7057372266621752,
+      "learningRate": 0.002
+    },
+    {
+      "epoch": 10,
+      "trainLoss": 0.3383525617896565,
+      "validationLoss": 0.2045905469249835,
+      "trainAccuracy": 0.6412244508956787,
+      "validationAccuracy": 0.7415075965493342,
+      "learningRate": 0.002
+    },
+    {
+      "epoch": 11,
+      "trainLoss": 0.36951648300087137,
+      "validationLoss": 0.46650592775265853,
+      "trainAccuracy": 0.6476733541709695,
+      "validationAccuracy": 0.7264066231706465,
+      "learningRate": 0.002
+    },
+    {
+      "epoch": 12,
+      "trainLoss": 0.35087093772099254,
+      "validationLoss": 0.1929430380733927,
+      "trainAccuracy": 0.6653949125258631,
+      "validationAccuracy": 0.7143080414205891,
+      "learningRate": 0.002
+    },
+    {
+      "epoch": 13,
+      "trainLoss": 0.34890453884870903,
+      "validationLoss": 0.4649345875266636,
+      "trainAccuracy": 0.6331961005149918,
+      "validationAccuracy": 0.6283680204220732,
+      "learningRate": 0.002
+    }
+  ],
+  "finalMetrics": {
+    "trainAccuracy": 0.7515430330933139,
+    "validationAccuracy": 0.7512081958583946,
+    "testAccuracy": 0.7918554634849828,
+    "precision": 0.7795430748026144,
+    "recall": 0.7510178855564742,
+    "f1Score": 0.7173015015401258
+  },
+  "featureImportance": {
+    "open": 1,
+    "high": 0.018823363143769135,
+    "low": 0.6944250487995853,
+    "close": 0.07424273557958204,
+    "volume": 0.14024778667249999,
+    "rsi_14": 0.6710642553571813,
+    "rsi_7": 0.12533875384486684,
+    "rsi_21": 0.762752672534257,
+    "sma_10": 0.07886901351597037,
+    "sma_20": 0.5512958749787036,
+    "sma_50": 0.40344500781729614,
+    "ema_12": 0.8058076657677994,
+    "ema_26": 0.5333350140087132,
+    "ema_50": 0.05428400806583495,
+    "macd": 0.04674293713853304,
+    "macd_signal": 0.6464869210660813,
+    "macd_histogram": 0.2089934256382777,
+    "bb_upper": 0.16118499876865375,
+    "bb_middle": 0.7894871052240356,
+    "bb_lower": 0.09868146666915754,
+    "bb_width": 0.25232267254712004,
+    "bb_position": 0.9712092654596174,
+    "volume_sma_20": 0.9141326629597063,
+    "volume_ratio": 0.06048699208393346,
+    "body_size": 0.3986398532214526,
+    "upper_wick": 0.7559765407526082,
+    "lower_wick": 0.10444045242500372,
+    "atr_14": 0.9636025310202603,
+    "volatility_10": 0.20099493923310627,
+    "momentum_5": 0.7624675617013317,
+    "momentum_10": 0.9569597557549072,
+    "higher_tf_trend": 0.8691330557367263,
+    "lower_tf_momentum": 0.030825006722606532,
+    "support_level": 0.9187135093876742,
+    "resistance_level": 0.15420961362055802,
+    "trend_strength": 0.9260279093162451,
+    "hour_of_day": 0.917956335313745,
+    "day_of_week": 0.07532800872649188
+  },
+  "trainingTime": 0.043,
+  "version": "2.0.0",
+  "trainedAt": "2025-06-01T17:37:58.486Z"
+}

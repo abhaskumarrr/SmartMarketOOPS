@@ -9,7 +9,7 @@ import {
   Typography,
   Divider,
   Slider,
-  Grid,
+  
   FormHelperText,
 } from '@mui/material';
 import { usePreferences } from '../../lib/contexts/PreferencesContext';
@@ -41,9 +41,9 @@ const NotificationSettings: React.FC = () => {
       </Typography>
       <Divider sx={{ mb: 3 }} />
       
-      <Grid container spacing={3}>
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }, gap: 3 }}>
         {/* Notification Toggles */}
-        <Grid item xs={12}>
+        <Box>
           <FormControl component="fieldset" variant="standard">
             <FormLabel component="legend">Notification Types</FormLabel>
             <FormGroup>
@@ -89,10 +89,10 @@ const NotificationSettings: React.FC = () => {
               />
             </FormGroup>
           </FormControl>
-        </Grid>
+        </Box>
         
         {/* Confidence Threshold */}
-        <Grid item xs={12}>
+        <Box>
           <Box sx={{ width: '100%', mt: 3 }}>
             <FormControl fullWidth>
               <FormLabel id="confidence-threshold-label">
@@ -122,8 +122,8 @@ const NotificationSettings: React.FC = () => {
               </FormHelperText>
             </FormControl>
           </Box>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 };

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Box, Paper, Typography, Grid, Card, CardContent, Divider, CircularProgress } from '@mui/material';
+import { Box, Paper, Typography,  Card, CardContent, Divider, CircularProgress } from '@mui/material';
 import {
   TrendingUp as ProfitIcon,
   TrendingDown as LossIcon,
@@ -215,9 +215,9 @@ export const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({ darkMode
         </Typography>
         
         {/* Key Metrics Cards */}
-        <Grid container spacing={3} sx={{ mb: 4 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' }, gap: 3, mb: 4 }}>
           {/* Total Profit */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Box>
             <Card elevation={0} sx={{ borderRadius: '8px' }} style={styles.cardBg}>
               <CardContent>
                 <Box display="flex" alignItems="center" sx={{ mb: 1 }}>
@@ -231,10 +231,10 @@ export const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({ darkMode
                 </Typography>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
           
           {/* Win Rate */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Box>
             <Card elevation={0} sx={{ borderRadius: '8px' }} style={styles.cardBg}>
               <CardContent>
                 <Box display="flex" alignItems="center" sx={{ mb: 1 }}>
@@ -246,10 +246,10 @@ export const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({ darkMode
                 </Typography>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
           
           {/* Total Trades */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Box>
             <Card elevation={0} sx={{ borderRadius: '8px' }} style={styles.cardBg}>
               <CardContent>
                 <Box display="flex" alignItems="center" sx={{ mb: 1 }}>
@@ -261,10 +261,10 @@ export const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({ darkMode
                 </Typography>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
           
           {/* Profit Factor */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Box>
             <Card elevation={0} sx={{ borderRadius: '8px' }} style={styles.cardBg}>
               <CardContent>
                 <Box display="flex" alignItems="center" sx={{ mb: 1 }}>
@@ -276,10 +276,10 @@ export const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({ darkMode
                 </Typography>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
           
           {/* Max Drawdown */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Box>
             <Card elevation={0} sx={{ borderRadius: '8px' }} style={styles.cardBg}>
               <CardContent>
                 <Box display="flex" alignItems="center" sx={{ mb: 1 }}>
@@ -291,10 +291,10 @@ export const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({ darkMode
                 </Typography>
               </CardContent>
             </Card>
-          </Grid>
+          </Box>
           
           {/* Daily Volume */}
-          <Grid item xs={12} sm={6} md={4}>
+          <Box>
             <Card elevation={0} sx={{ borderRadius: '8px' }} style={styles.cardBg}>
               <CardContent>
                 <Box display="flex" alignItems="center" sx={{ mb: 1 }}>
@@ -306,8 +306,8 @@ export const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({ darkMode
                 </Typography>
               </CardContent>
             </Card>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
         
         {/* Daily Performance Chart */}
         <Box sx={{ mb: 4 }}>
@@ -365,50 +365,50 @@ export const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({ darkMode
         </Box>
         
         {/* Trade Metrics & Asset Allocation */}
-        <Grid container spacing={3}>
+        <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }, gap: 3 }}>
           {/* Detailed Metrics */}
-          <Grid item xs={12} md={7}>
+          <Box>
             <Typography variant="subtitle1" sx={{ mb: 2 }} style={styles.title}>
               Detailed Metrics
             </Typography>
             <Box style={styles.cardBg} sx={{ p: 2, borderRadius: '8px' }}>
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
+              <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }, gap: 2 }}>
+                <Box>
                   <Typography variant="body2" style={styles.subtitle}>Avg. Profit per Trade:</Typography>
                   <Typography variant="body1" style={styles.profit}>
                     ${metricsData.avgProfit.toFixed(2)}
                   </Typography>
-                </Grid>
-                <Grid item xs={6}>
+                </Box>
+                <Box>
                   <Typography variant="body2" style={styles.subtitle}>Avg. Loss per Trade:</Typography>
                   <Typography variant="body1" style={styles.loss}>
                     ${metricsData.avgLoss.toFixed(2)}
                   </Typography>
-                </Grid>
-                <Grid item xs={6}>
+                </Box>
+                <Box>
                   <Typography variant="body2" style={styles.subtitle}>Best Trade:</Typography>
                   <Typography variant="body1" style={styles.profit}>
                     +${metricsData.bestTrade.toLocaleString()}
                   </Typography>
-                </Grid>
-                <Grid item xs={6}>
+                </Box>
+                <Box>
                   <Typography variant="body2" style={styles.subtitle}>Worst Trade:</Typography>
                   <Typography variant="body1" style={styles.loss}>
                     ${metricsData.worstTrade.toLocaleString()}
                   </Typography>
-                </Grid>
-                <Grid item xs={6}>
+                </Box>
+                <Box>
                   <Typography variant="body2" style={styles.subtitle}>Avg. Trade Time:</Typography>
                   <Typography variant="body1" style={styles.text}>
                     {metricsData.avgTradeTime}
                   </Typography>
-                </Grid>
-              </Grid>
+                </Box>
+              </Box>
             </Box>
-          </Grid>
+          </Box>
           
           {/* Asset Allocation */}
-          <Grid item xs={12} md={5}>
+          <Box>
             <Typography variant="subtitle1" sx={{ mb: 2 }} style={styles.title}>
               Asset Allocation
             </Typography>
@@ -441,8 +441,8 @@ export const PerformanceMetrics: React.FC<PerformanceMetricsProps> = ({ darkMode
                 </BarChart>
               </ResponsiveContainer>
             </Box>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Paper>
     </Box>
   );

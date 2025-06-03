@@ -3,7 +3,7 @@ import {
   Box,
   Paper,
   Typography,
-  Grid,
+  
   Button,
   TextField,
   Switch,
@@ -15,15 +15,15 @@ import {
   Alert,
   useTheme as useMuiTheme
 } from '@mui/material';
-import { useTheme } from '../../lib/theme';
+import { lightTheme, darkTheme } from '../../lib/theme';
 
 interface ThemeShowcaseProps {
   expanded?: boolean;
 }
 
 const ThemeShowcase: React.FC<ThemeShowcaseProps> = ({ expanded = false }) => {
-  const { darkMode } = useTheme();
   const theme = useMuiTheme();
+  const darkMode = theme.palette.mode === 'dark';
 
   // Color palette showcase
   const colorPalette = [
@@ -63,9 +63,9 @@ const ThemeShowcase: React.FC<ThemeShowcaseProps> = ({ expanded = false }) => {
       </Typography>
       
       <Typography variant="h6" gutterBottom sx={{ mt: 3 }}>Color Palette</Typography>
-      <Grid container spacing={2}>
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }, gap: 2 }}>
         {colorPalette.map((item) => (
-          <Grid item key={item.name} xs={6} sm={4} md={3}>
+          <Box>
             <Paper
               sx={{
                 bgcolor: item.color,
@@ -86,9 +86,9 @@ const ThemeShowcase: React.FC<ThemeShowcaseProps> = ({ expanded = false }) => {
               <Typography variant="subtitle2">{item.name}</Typography>
               <Typography variant="caption">{item.color}</Typography>
             </Paper>
-          </Grid>
+          </Box>
         ))}
-      </Grid>
+      </Box>
       
       {expanded && (
         <>

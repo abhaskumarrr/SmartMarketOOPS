@@ -11,7 +11,7 @@ import {
   DialogContentText,
   DialogTitle,
   Divider, 
-  Grid, 
+   
   IconButton, 
   Snackbar, 
   Tab, 
@@ -517,9 +517,9 @@ const ApiKeyManagement: React.FC = () => {
               No API keys found in this category
             </Typography>
           ) : (
-            <Grid container spacing={2}>
+            <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }, gap: 2 }}>
               {filteredKeys.map((key) => (
-                <Grid item xs={12} key={key.id}>
+                <Box>
                   <Card variant="outlined">
                     <CardContent>
                       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1 }}>
@@ -601,9 +601,9 @@ const ApiKeyManagement: React.FC = () => {
                       )}
                     </CardContent>
                   </Card>
-                </Grid>
+                </Box>
               ))}
-            </Grid>
+            </Box>
           )}
         </CardContent>
       </Card>

@@ -324,7 +324,7 @@ export default class ReconnectingWebSocket {
    * Try to reconnect
    */
   private _tryReconnect(): void {
-    if (this.options.maxReconnectAttempts > 0 && this.reconnectAttempts >= this.options.maxReconnectAttempts) {
+    if (this.options?.maxReconnectAttempts && this.options.maxReconnectAttempts > 0 && this.reconnectAttempts >= this.options.maxReconnectAttempts) {
       this._debug('Max reconnect attempts reached');
       return;
     }

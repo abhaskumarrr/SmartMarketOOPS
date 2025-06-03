@@ -23,10 +23,15 @@ export default async function handler(
     // Check ML service health
     let mlServiceStatus: 'online' | 'offline' | 'degraded' = 'offline';
     try {
-      const mlResponse = await fetch(`${mlServiceUrl}/`, { 
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 5000);
+
+      const mlResponse = await fetch(`${mlServiceUrl}/`, {
         method: 'GET',
-        timeout: 5000 
+        signal: controller.signal
       });
+
+      clearTimeout(timeoutId);
       mlServiceStatus = mlResponse.ok ? 'online' : 'degraded';
     } catch (error) {
       mlServiceStatus = 'offline';
@@ -35,10 +40,15 @@ export default async function handler(
     // Check market data status (simplified)
     let marketDataStatus: 'connected' | 'disconnected' | 'delayed' = 'connected';
     try {
+      const controller2 = new AbortController();
+      const timeoutId2 = setTimeout(() => controller2.abort(), 3000);
+
       const marketDataResponse = await fetch(`${mlServiceUrl}/api/market-data/status`, {
         method: 'GET',
-        timeout: 3000
+        signal: controller2.signal
       });
+
+      clearTimeout(timeoutId2);
       if (marketDataResponse.ok) {
         const data = await marketDataResponse.json();
         marketDataStatus = data.status || 'connected';
@@ -52,10 +62,15 @@ export default async function handler(
     // Check trading engine status
     let tradingEngineStatus: 'active' | 'paused' | 'error' = 'active';
     try {
+      const controller3 = new AbortController();
+      const timeoutId3 = setTimeout(() => controller3.abort(), 3000);
+
       const tradingResponse = await fetch(`${mlServiceUrl}/api/trading/status`, {
         method: 'GET',
-        timeout: 3000
+        signal: controller3.signal
       });
+
+      clearTimeout(timeoutId3);
       if (tradingResponse.ok) {
         const data = await tradingResponse.json();
         tradingEngineStatus = data.status || 'active';
@@ -69,10 +84,15 @@ export default async function handler(
     // Check risk manager status
     let riskManagerStatus: 'operational' | 'warning' | 'critical' = 'operational';
     try {
+      const controller4 = new AbortController();
+      const timeoutId4 = setTimeout(() => controller4.abort(), 3000);
+
       const riskResponse = await fetch(`${mlServiceUrl}/api/risk/status`, {
         method: 'GET',
-        timeout: 3000
+        signal: controller4.signal
       });
+
+      clearTimeout(timeoutId4);
       if (riskResponse.ok) {
         const data = await riskResponse.json();
         riskManagerStatus = data.status || 'operational';

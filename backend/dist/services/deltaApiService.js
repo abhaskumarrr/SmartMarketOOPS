@@ -52,9 +52,9 @@ const apiKeyService = __importStar(require("./apiKeyService"));
 const logger_1 = require("../utils/logger");
 // Create logger
 const logger = (0, logger_1.createLogger)('DeltaExchangeAPI');
-// Environment configuration
-const MAINNET_BASE_URL = 'https://api.delta.exchange';
-const TESTNET_BASE_URL = 'https://testnet-api.delta.exchange';
+// Environment configuration - Updated with correct URLs from official docs
+const MAINNET_BASE_URL = 'https://api.india.delta.exchange';
+const TESTNET_BASE_URL = 'https://cdn-ind.testnet.deltaex.org';
 // Default rate limit settings
 const DEFAULT_RATE_LIMIT = {
     maxRetries: 3,
@@ -128,14 +128,15 @@ class DeltaExchangeAPI {
     }
     /**
      * Gets server time from Delta Exchange
+     * NOTE: This endpoint doesn't exist on Delta Exchange - commented out
      * @returns {Promise<DeltaExchange.ServerTime>} Server time information
      */
-    async getServerTime() {
-        return this._makeRequest({
-            method: 'GET',
-            endpoint: '/v2/time'
-        });
-    }
+    // async getServerTime(): Promise<DeltaExchange.ServerTime> {
+    //   return this._makeRequest({
+    //     method: 'GET',
+    //     endpoint: '/v2/time'
+    //   });
+    // }
     /**
      * Gets all available markets from Delta Exchange
      * @param {Record<string, any>} params - Query parameters
@@ -360,6 +361,14 @@ class DeltaExchangeAPI {
             this._logRequest(requestConfig);
             // Make the request
             const response = await this.client(requestConfig);
+            // Delta API wraps responses in { result: data, success: boolean, meta: {...} }
+            if (response.data && typeof response.data === 'object') {
+                if (response.data.success === false) {
+                    throw new Error(`Delta API Error: ${JSON.stringify(response.data.error || response.data)}`);
+                }
+                // Return the result if it exists, otherwise return the full response
+                return response.data.result !== undefined ? response.data.result : response.data;
+            }
             return response.data;
         }
         catch (error) {
@@ -400,28 +409,33 @@ class DeltaExchangeAPI {
         if (!this.apiKeys) {
             throw new Error('API keys not initialized');
         }
-        const timestamp = Math.floor(Date.now());
+        // Delta Exchange uses SECONDS timestamp (not milliseconds) - per official docs
+        const timestamp = Math.floor(Date.now() / 1000);
         const method = requestConfig.method ? requestConfig.method.toUpperCase() : 'GET';
         const path = requestConfig.url || '';
-        // Prepare the message to sign
-        let message = timestamp + method + path;
-        // Add params to the message if they exist
+        // Prepare the message to sign according to official Delta Exchange format
+        // Format: method + timestamp + path + query_string + body
+        let message = method + timestamp.toString() + path;
+        // Add query string if it exists
+        let queryString = '';
         if (requestConfig.params) {
-            const queryString = querystring.stringify(requestConfig.params);
+            queryString = querystring.stringify(requestConfig.params);
             if (queryString) {
                 message += '?' + queryString;
             }
         }
-        // Add body to the message if it exists
+        // Add body if it exists
+        let body = '';
         if (requestConfig.data) {
-            message += JSON.stringify(requestConfig.data);
+            body = JSON.stringify(requestConfig.data);
+            message += body;
         }
-        // Create the signature
+        // Create the signature using HMAC SHA256
         const signature = crypto
             .createHmac('sha256', this.apiKeys.secret)
             .update(message)
             .digest('hex');
-        // Add authentication headers
+        // Add authentication headers according to Delta Exchange official format
         if (!requestConfig.headers) {
             requestConfig.headers = {};
         }
@@ -429,9 +443,12 @@ class DeltaExchangeAPI {
             ...requestConfig.headers,
             'api-key': this.apiKeys.key,
             'timestamp': timestamp.toString(),
-            'signature': signature
+            'signature': signature,
+            'User-Agent': 'nodejs-rest-client', // Required per official docs
+            'Content-Type': 'application/json'
         };
-        logger.debug('Added authentication headers');
+        logger.debug(`Delta auth headers added - method: ${method}, timestamp: ${timestamp}, path: ${path}, query: ${queryString}, body length: ${body.length}`);
+        logger.debug(`Signature message: ${message}`);
     }
     /**
      * Logs a request

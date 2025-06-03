@@ -6,7 +6,7 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import prisma from '../utils/prismaClient';
-import { verifyToken, verifyRefreshToken as verifyRefreshTokenUtil } from '../utils/jwt';
+import { verifyToken, verifyRefreshToken as verifyRefreshTokenUtil, extractTokenFromHeader, isTokenExpired } from '../utils/jwt';
 import env from '../utils/env';
 import rateLimit from 'express-rate-limit';
 import csrf from 'csurf';
@@ -37,12 +37,12 @@ export const authRateLimiter = rateLimit({
 /**
  * CSRF protection middleware
  */
-export const csrfProtection = csrf({ 
-  cookie: { 
-    httpOnly: true, 
+export const csrfProtection = csrf({
+  cookie: {
+    httpOnly: true,
     secure: env.NODE_ENV === 'production',
     sameSite: 'strict'
-  } 
+  }
 });
 
 /**
@@ -51,34 +51,52 @@ export const csrfProtection = csrf({
  */
 export const protect = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
-    // Get token from header
+    // Get token from header using utility function
     const authHeader = req.headers.authorization;
-    
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const token = extractTokenFromHeader(authHeader || '');
+
+    if (!token) {
       res.status(401).json({
         success: false,
-        message: 'Not authorized, no token'
+        message: 'Not authorized, no token provided'
       });
       return;
     }
-    
+
     // Verify token
-    const token = authHeader.split(' ')[1];
     const decoded = verifyToken(token);
-    
+
     if (!decoded) {
       res.status(401).json({
         success: false,
-        message: 'Not authorized, token failed'
+        message: 'Not authorized, invalid token'
       });
       return;
     }
-    
+
+    // Check if token is expired (additional safety check)
+    if (isTokenExpired(decoded)) {
+      res.status(401).json({
+        success: false,
+        message: 'Token expired, please refresh'
+      });
+      return;
+    }
+
+    // Validate token type
+    if (decoded.type !== 'access') {
+      res.status(401).json({
+        success: false,
+        message: 'Invalid token type'
+      });
+      return;
+    }
+
     // Get user from database
     const user = await prisma.user.findUnique({
       where: { id: decoded.id }
     });
-    
+
     if (!user) {
       res.status(401).json({
         success: false,
@@ -86,7 +104,7 @@ export const protect = async (req: AuthenticatedRequest, res: Response, next: Ne
       });
       return;
     }
-    
+
     // Attach user to request
     req.user = {
       id: user.id,
@@ -95,7 +113,7 @@ export const protect = async (req: AuthenticatedRequest, res: Response, next: Ne
       role: user.role,
       isVerified: user.isVerified
     };
-    
+
     next();
   } catch (error) {
     console.error('Auth middleware error:', error);
@@ -115,7 +133,7 @@ export const verifyRefreshToken = async (req: AuthenticatedRequest, res: Respons
   try {
     // Get refresh token from request body
     const { refreshToken } = req.body;
-    
+
     if (!refreshToken) {
       res.status(401).json({
         success: false,
@@ -123,10 +141,10 @@ export const verifyRefreshToken = async (req: AuthenticatedRequest, res: Respons
       });
       return;
     }
-    
+
     // Verify refresh token
     const decoded = verifyRefreshTokenUtil(refreshToken);
-    
+
     if (!decoded) {
       res.status(401).json({
         success: false,
@@ -134,12 +152,12 @@ export const verifyRefreshToken = async (req: AuthenticatedRequest, res: Respons
       });
       return;
     }
-    
+
     // Get user from database
     const user = await prisma.user.findUnique({
       where: { id: decoded.id }
     });
-    
+
     if (!user) {
       res.status(401).json({
         success: false,
@@ -147,7 +165,7 @@ export const verifyRefreshToken = async (req: AuthenticatedRequest, res: Respons
       });
       return;
     }
-    
+
     // Attach user to request
     req.user = {
       id: user.id,
@@ -156,7 +174,7 @@ export const verifyRefreshToken = async (req: AuthenticatedRequest, res: Respons
       role: user.role,
       isVerified: user.isVerified
     };
-    
+
     next();
   } catch (error) {
     console.error('Refresh token middleware error:', error);
@@ -180,7 +198,7 @@ export const requireVerified = (req: AuthenticatedRequest, res: Response, next: 
     });
     return;
   }
-  
+
   if (!req.user.isVerified) {
     res.status(403).json({
       success: false,
@@ -188,7 +206,7 @@ export const requireVerified = (req: AuthenticatedRequest, res: Response, next: 
     });
     return;
   }
-  
+
   next();
 };
 
@@ -206,7 +224,7 @@ export const requireRole = (roles: string[]) => {
       });
       return;
     }
-    
+
     if (!roles.includes(req.user.role)) {
       res.status(403).json({
         success: false,
@@ -214,7 +232,7 @@ export const requireRole = (roles: string[]) => {
       });
       return;
     }
-    
+
     next();
   };
 };
@@ -233,7 +251,7 @@ export const requirePermission = (permissions: Permission[]) => {
       });
       return;
     }
-    
+
     if (!authorizationService.hasAllPermissions(req.user.role, permissions)) {
       res.status(403).json({
         success: false,
@@ -241,7 +259,7 @@ export const requirePermission = (permissions: Permission[]) => {
       });
       return;
     }
-    
+
     next();
   };
 };
@@ -260,7 +278,7 @@ export const requireAnyPermission = (permissions: Permission[]) => {
       });
       return;
     }
-    
+
     if (!authorizationService.hasAnyPermission(req.user.role, permissions)) {
       res.status(403).json({
         success: false,
@@ -268,7 +286,7 @@ export const requireAnyPermission = (permissions: Permission[]) => {
       });
       return;
     }
-    
+
     next();
   };
 };
@@ -284,12 +302,12 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
     // Get token from header
     const authHeader = req.headers.authorization;
     const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN format
-    
+
     if (!token) {
       res.status(401).json({ error: 'No authentication token provided' });
       return;
     }
-    
+
     // Verify token
     const secret = process.env.JWT_SECRET;
     if (!secret) {
@@ -297,10 +315,10 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
       res.status(500).json({ error: 'Internal server error' });
       return;
     }
-    
+
     try {
       const decoded: any = jwt.verify(token, secret);
-      
+
       // Find the session to validate it's still active
       const session = await prisma.session.findFirst({
         where: {
@@ -319,25 +337,25 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
           }
         }
       });
-      
+
       if (!session) {
         res.status(401).json({ error: 'Invalid or expired session' });
         return;
       }
-      
+
       // Update last active time
       await prisma.session.update({
         where: { id: session.id },
         data: { lastActiveAt: new Date() }
       });
-      
+
       // Attach user to request
       req.user = {
         id: session.user.id,
         email: session.user.email,
         role: session.user.role
       };
-      
+
       next();
     } catch (error) {
       res.status(401).json({ error: 'Invalid authentication token' });
@@ -358,12 +376,12 @@ export const hasRole = (roles: string[]) => {
       res.status(401).json({ error: 'Authentication required' });
       return;
     }
-    
+
     if (!roles.includes(req.user.role)) {
       res.status(403).json({ error: 'Insufficient permissions' });
       return;
     }
-    
+
     next();
   };
 };
@@ -379,4 +397,4 @@ export default {
   csrfProtection,
   isAuthenticated,
   hasRole
-}; 
+};

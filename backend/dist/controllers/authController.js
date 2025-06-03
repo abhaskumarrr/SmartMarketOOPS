@@ -3,6 +3,39 @@
  * Authentication Controller
  * Handles user registration, login, token management, password reset, and OAuth
  */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -65,9 +98,13 @@ const register = async (req, res) => {
             }
         });
         if (user) {
-            // Generate tokens
-            const token = (0, jwt_1.generateToken)(user.id);
-            const refreshToken = (0, jwt_1.generateRefreshToken)(user.id);
+            // Generate session ID for token rotation
+            const sessionId = crypto_1.default.randomUUID();
+            // Generate token pair with enhanced security
+            const tokenPair = (0, jwt_1.generateTokenPair)(user.id, sessionId, {
+                email: user.email,
+                role: user.role || 'user'
+            });
             // Send verification email
             const verificationUrl = `${env_1.default.CLIENT_URL}/verify-email?token=${verificationToken}`;
             try {
@@ -88,9 +125,10 @@ const register = async (req, res) => {
                     id: user.id,
                     name: user.name,
                     email: user.email,
-                    token,
-                    refreshToken,
+                    role: user.role || 'user',
                     isVerified: false,
+                    ...tokenPair,
+                    sessionId,
                     message: 'Registration successful. Please check your email for verification.'
                 }
             });
@@ -230,7 +268,7 @@ const login = async (req, res) => {
 };
 exports.login = login;
 /**
- * Refresh access token using refresh token
+ * Refresh access token using refresh token with rotation
  * @route POST /api/auth/refresh-token
  * @access Public
  */
@@ -244,21 +282,60 @@ const refreshToken = async (req, res) => {
             });
             return;
         }
-        // Refresh the session
-        const result = await sessionManager_1.default.refreshSession(requestRefreshToken, req);
+        // Try session manager first (for backward compatibility)
+        let result = await sessionManager_1.default.refreshSession(requestRefreshToken, req);
         if (!result) {
-            res.status(401).json({
-                success: false,
-                message: 'Invalid or expired refresh token'
-            });
-            return;
+            // If session manager fails, try direct JWT refresh with rotation
+            const { verifyRefreshToken } = await Promise.resolve().then(() => __importStar(require('../utils/jwt')));
+            try {
+                const decoded = verifyRefreshToken(requestRefreshToken);
+                if (!decoded || decoded.type !== 'refresh') {
+                    res.status(401).json({
+                        success: false,
+                        message: 'Invalid refresh token'
+                    });
+                    return;
+                }
+                // Get user from database
+                const user = await prismaClient_1.default.user.findUnique({
+                    where: { id: decoded.id }
+                });
+                if (!user) {
+                    res.status(401).json({
+                        success: false,
+                        message: 'User not found'
+                    });
+                    return;
+                }
+                // Generate new session ID for token rotation
+                const newSessionId = crypto_1.default.randomUUID();
+                // Generate new token pair
+                const tokenPair = (0, jwt_1.generateTokenPair)(user.id, newSessionId, {
+                    email: user.email,
+                    role: user.role
+                });
+                result = {
+                    token: tokenPair.accessToken,
+                    refreshToken: tokenPair.refreshToken,
+                    session: { id: newSessionId }
+                };
+            }
+            catch (jwtError) {
+                res.status(401).json({
+                    success: false,
+                    message: 'Invalid or expired refresh token'
+                });
+                return;
+            }
         }
         // Return new tokens
         res.status(200).json({
             success: true,
             data: {
-                token: result.token,
+                accessToken: result.token,
                 refreshToken: result.refreshToken,
+                tokenType: 'Bearer',
+                expiresIn: 15 * 60, // 15 minutes
                 sessionId: result.session.id
             }
         });
@@ -461,8 +538,8 @@ const oauthLogin = async (req, res) => {
             });
         }
         // Generate tokens
-        const jwtToken = (0, jwt_1.generateToken)(user.id);
-        const refreshToken = (0, jwt_1.generateRefreshToken)(user.id);
+        const jwtToken = generateToken(user.id);
+        const refreshToken = generateRefreshToken(user.id);
         res.status(200).json({
             success: true,
             data: {

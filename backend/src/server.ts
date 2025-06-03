@@ -38,6 +38,10 @@ import botRoutes from './routes/trading/botRoutes';
 import auditRoutes from './routes/auditRoutes';
 import tradesRoutes from './routes/trading/trades';
 import metricsRoutes from './routes/metricsRoutes';
+import mlRoutes from './routes/mlRoutes';
+import marketDataRoutes from './routes/marketDataRoutes';
+// import tradingRoutes from './routes/tradingRoutes';
+const tradingRoutesWorking = require('./routes/tradingRoutesWorking');
 // Import other routes as needed
 
 // Load socket initialization
@@ -58,18 +62,18 @@ const io = initializeWebsocketServer(server);
 const logStream = createWriteStream(path.join(__dirname, '../logs/server.log'), { flags: 'a' });
 app.use((req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
-  
+
   res.on('finish', () => {
     const duration = Date.now() - start;
     const log = `${new Date().toISOString()} | ${req.method} ${req.url} ${res.statusCode} ${duration}ms\n`;
-    
+
     logStream.write(log);
-    
+
     if (NODE_ENV === 'development') {
       console.log(log);
     }
   });
-  
+
   next();
 });
 
@@ -149,6 +153,10 @@ app.use('/api/bots', botRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/trades', tradesRoutes);
 app.use('/api', metricsRoutes);
+app.use('/api/ml', mlRoutes);
+app.use('/api/market-data', marketDataRoutes);
+// app.use('/api/trading', tradingRoutes);
+app.use('/api/trading', tradingRoutesWorking);
 // Use other routes as needed
 
 // Not found middleware for undefined routes
@@ -176,16 +184,16 @@ process.on('uncaughtException', (err) => {
 // Graceful shutdown
 process.on('SIGTERM', async () => {
   console.log('SIGTERM received, shutting down gracefully');
-  
+
   // Close Prisma connection
   await prisma.$disconnect();
-  
+
   // Close server
   server.close(() => {
     console.log('Server closed');
     process.exit(0);
   });
-  
+
   // Force close after timeout
   setTimeout(() => {
     console.error('Could not close connections in time, forcefully shutting down');
@@ -194,4 +202,4 @@ process.on('SIGTERM', async () => {
 });
 
 // Export for testing
-export { app, server, io, prisma }; 
+export { app, server, io, prisma };

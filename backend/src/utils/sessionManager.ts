@@ -283,11 +283,10 @@ export default {
   updateSessionActivity,
   extendSession,
   invalidateSession,
-  refreshSession,
   getUserSessions,
   cleanupExpiredSessions,
   generateDeviceFingerprint,
   getSessionMetadata,
   updateSessionMetadata,
   sessionConfig
-}; 
+};

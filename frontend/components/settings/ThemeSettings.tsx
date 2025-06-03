@@ -9,7 +9,7 @@ import {
   Slider,
   Typography,
   Divider,
-  Grid,
+  
   FormHelperText,
   useTheme,
   Box as MuiBox,
@@ -104,9 +104,9 @@ const ThemeSettings: React.FC = () => {
       </Typography>
       <Divider sx={{ mb: 3 }} />
       
-      <Grid container spacing={3}>
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }, gap: 3 }}>
         {/* Theme Mode */}
-        <Grid item xs={12}>
+        <Box>
           <FormControl component="fieldset">
             <FormLabel component="legend">Color Mode</FormLabel>
             <RadioGroup
@@ -126,10 +126,10 @@ const ThemeSettings: React.FC = () => {
                 : `${theme.mode.charAt(0).toUpperCase() + theme.mode.slice(1)} mode is active`}
             </FormHelperText>
           </FormControl>
-        </Grid>
+        </Box>
         
         {/* Primary Color */}
-        <Grid item xs={12}>
+        <Box>
           <FormControl component="fieldset" fullWidth>
             <FormLabel component="legend">Primary Color</FormLabel>
             <Box 
@@ -153,10 +153,10 @@ const ThemeSettings: React.FC = () => {
               Used for buttons, tabs, and primary elements
             </FormHelperText>
           </FormControl>
-        </Grid>
+        </Box>
         
         {/* Accent Color */}
-        <Grid item xs={12}>
+        <Box>
           <FormControl component="fieldset" fullWidth>
             <FormLabel component="legend">Accent Color</FormLabel>
             <Box 
@@ -180,10 +180,10 @@ const ThemeSettings: React.FC = () => {
               Used for highlights, links, and secondary elements
             </FormHelperText>
           </FormControl>
-        </Grid>
+        </Box>
         
         {/* Font Scale */}
-        <Grid item xs={12}>
+        <Box>
           <FormControl component="fieldset" fullWidth>
             <FormLabel component="legend">Font Size Scale</FormLabel>
             <Box sx={{ px: 2, pt: 2, pb: 1 }}>
@@ -206,10 +206,10 @@ const ThemeSettings: React.FC = () => {
               Adjust overall text size throughout the application
             </FormHelperText>
           </FormControl>
-        </Grid>
+        </Box>
         
         {/* Theme Preview */}
-        <Grid item xs={12}>
+        <Box>
           <Typography variant="subtitle1" gutterBottom>
             Theme Preview
           </Typography>
@@ -248,8 +248,8 @@ const ThemeSettings: React.FC = () => {
               </Typography>
             </Box>
           </Box>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 };

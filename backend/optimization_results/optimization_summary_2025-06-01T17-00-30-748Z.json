@@ -1,0 +1,306 @@
+{
+  "totalConfigurations": 50,
+  "bestConfiguration": {
+    "config": {
+      "id": "grid_1",
+      "minConfidence": 60,
+      "modelConsensus": 0.5,
+      "decisionCooldown": 5,
+      "riskPerTrade": 1,
+      "stopLossPercent": 1.5,
+      "takeProfitMultiplier": 2.5,
+      "positionSizeMultiplier": 0.8,
+      "trendThreshold": 0.001,
+      "volatilityThreshold": 0.3
+    },
+    "performance": {
+      "totalReturnPercent": -0.10403654710909223,
+      "sharpeRatio": -0.2451748278583062,
+      "maxDrawdownPercent": 0.7518963522231235,
+      "winRate": 0,
+      "profitFactor": 0,
+      "totalTrades": 0,
+      "averageWin": 0,
+      "averageLoss": 0,
+      "volatility": 5.1363666931421506,
+      "calmarRatio": -1.6748423051726251
+    },
+    "trades": [],
+    "score": 52.216282216394966,
+    "rank": 1
+  },
+  "top5Configurations": [
+    {
+      "config": {
+        "id": "grid_1",
+        "minConfidence": 60,
+        "modelConsensus": 0.5,
+        "decisionCooldown": 5,
+        "riskPerTrade": 1,
+        "stopLossPercent": 1.5,
+        "takeProfitMultiplier": 2.5,
+        "positionSizeMultiplier": 0.8,
+        "trendThreshold": 0.001,
+        "volatilityThreshold": 0.3
+      },
+      "performance": {
+        "totalReturnPercent": -0.10403654710909223,
+        "sharpeRatio": -0.2451748278583062,
+        "maxDrawdownPercent": 0.7518963522231235,
+        "winRate": 0,
+        "profitFactor": 0,
+        "totalTrades": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "volatility": 5.1363666931421506,
+        "calmarRatio": -1.6748423051726251
+      },
+      "trades": [],
+      "score": 52.216282216394966,
+      "rank": 1
+    },
+    {
+      "config": {
+        "id": "grid_2",
+        "minConfidence": 60,
+        "modelConsensus": 0.5,
+        "decisionCooldown": 5,
+        "riskPerTrade": 2,
+        "stopLossPercent": 1.5,
+        "takeProfitMultiplier": 2.5,
+        "positionSizeMultiplier": 0.8,
+        "trendThreshold": 0.001,
+        "volatilityThreshold": 0.3
+      },
+      "performance": {
+        "totalReturnPercent": -0.10403654710909223,
+        "sharpeRatio": -0.2451748278583062,
+        "maxDrawdownPercent": 0.7518963522231235,
+        "winRate": 0,
+        "profitFactor": 0,
+        "totalTrades": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "volatility": 5.1363666931421506,
+        "calmarRatio": -1.6748423051726251
+      },
+      "trades": [],
+      "score": 52.216282216394966,
+      "rank": 2
+    },
+    {
+      "config": {
+        "id": "grid_3",
+        "minConfidence": 60,
+        "modelConsensus": 0.5,
+        "decisionCooldown": 5,
+        "riskPerTrade": 3,
+        "stopLossPercent": 1.5,
+        "takeProfitMultiplier": 2.5,
+        "positionSizeMultiplier": 0.8,
+        "trendThreshold": 0.001,
+        "volatilityThreshold": 0.3
+      },
+      "performance": {
+        "totalReturnPercent": -0.10403654710909223,
+        "sharpeRatio": -0.2451748278583062,
+        "maxDrawdownPercent": 0.7518963522231235,
+        "winRate": 0,
+        "profitFactor": 0,
+        "totalTrades": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "volatility": 5.1363666931421506,
+        "calmarRatio": -1.6748423051726251
+      },
+      "trades": [],
+      "score": 52.216282216394966,
+      "rank": 3
+    },
+    {
+      "config": {
+        "id": "grid_4",
+        "minConfidence": 60,
+        "modelConsensus": 0.5,
+        "decisionCooldown": 15,
+        "riskPerTrade": 1,
+        "stopLossPercent": 1.5,
+        "takeProfitMultiplier": 2.5,
+        "positionSizeMultiplier": 0.8,
+        "trendThreshold": 0.001,
+        "volatilityThreshold": 0.3
+      },
+      "performance": {
+        "totalReturnPercent": -0.10403654710909223,
+        "sharpeRatio": -0.2451748278583062,
+        "maxDrawdownPercent": 0.7518963522231235,
+        "winRate": 0,
+        "profitFactor": 0,
+        "totalTrades": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "volatility": 5.1363666931421506,
+        "calmarRatio": -1.6748423051726251
+      },
+      "trades": [],
+      "score": 52.216282216394966,
+      "rank": 4
+    },
+    {
+      "config": {
+        "id": "grid_5",
+        "minConfidence": 60,
+        "modelConsensus": 0.5,
+        "decisionCooldown": 15,
+        "riskPerTrade": 2,
+        "stopLossPercent": 1.5,
+        "takeProfitMultiplier": 2.5,
+        "positionSizeMultiplier": 0.8,
+        "trendThreshold": 0.001,
+        "volatilityThreshold": 0.3
+      },
+      "performance": {
+        "totalReturnPercent": -0.10403654710909223,
+        "sharpeRatio": -0.2451748278583062,
+        "maxDrawdownPercent": 0.7518963522231235,
+        "winRate": 0,
+        "profitFactor": 0,
+        "totalTrades": 0,
+        "averageWin": 0,
+        "averageLoss": 0,
+        "volatility": 5.1363666931421506,
+        "calmarRatio": -1.6748423051726251
+      },
+      "trades": [],
+      "score": 52.216282216394966,
+      "rank": 5
+    }
+  ],
+  "parameterImpacts": [
+    {
+      "parameter": "modelConsensus",
+      "correlation": -0.8461141122266469,
+      "significance": 0.8461141122266469,
+      "optimalRange": [
+        0.5,
+        0.6
+      ],
+      "impact": "HIGH"
+    },
+    {
+      "parameter": "minConfidence",
+      "correlation": 0.1286978904175632,
+      "significance": 0.1286978904175632,
+      "optimalRange": [
+        60,
+        60
+      ],
+      "impact": "LOW"
+    },
+    {
+      "parameter": "decisionCooldown",
+      "correlation": 0.12131925561237528,
+      "significance": 0.12131925561237528,
+      "optimalRange": [
+        5,
+        30
+      ],
+      "impact": "LOW"
+    },
+    {
+      "parameter": "riskPerTrade",
+      "correlation": 0.03948906989604199,
+      "significance": 0.03948906989604199,
+      "optimalRange": [
+        1,
+        3
+      ],
+      "impact": "LOW"
+    },
+    {
+      "parameter": "positionSizeMultiplier",
+      "correlation": 9.632431873062208e-9,
+      "significance": 9.632431873062208e-9,
+      "optimalRange": [
+        0.8,
+        0.8
+      ],
+      "impact": "LOW"
+    },
+    {
+      "parameter": "stopLossPercent",
+      "correlation": 0,
+      "significance": 0,
+      "optimalRange": [
+        1.5,
+        1.5
+      ],
+      "impact": "LOW"
+    },
+    {
+      "parameter": "takeProfitMultiplier",
+      "correlation": 0,
+      "significance": 0,
+      "optimalRange": [
+        2.5,
+        2.5
+      ],
+      "impact": "LOW"
+    },
+    {
+      "parameter": "trendThreshold",
+      "correlation": null,
+      "significance": null,
+      "optimalRange": [
+        0.001,
+        0.001
+      ],
+      "impact": "LOW"
+    },
+    {
+      "parameter": "volatilityThreshold",
+      "correlation": null,
+      "significance": null,
+      "optimalRange": [
+        0.3,
+        0.3
+      ],
+      "impact": "LOW"
+    }
+  ],
+  "performanceDistribution": {
+    "sharpeRatio": {
+      "min": -1.6397722960049441,
+      "max": -0.2451748278583062,
+      "mean": -0.6356621189393651,
+      "std": 0.6261727101920526
+    },
+    "totalReturn": {
+      "min": -0.1962980040667162,
+      "max": -0.10403654710909223,
+      "mean": -0.12986975505722692,
+      "std": 0.041425291432802366
+    },
+    "maxDrawdown": {
+      "min": 0.43336593866129075,
+      "max": 0.7518963522231235,
+      "mean": 0.6627078364258102,
+      "std": 0.14301980097789477
+    }
+  },
+  "insights": [
+    "Sharpe ratio varied by 1.395 across configurations (-1.640 to -0.245)",
+    "Total return varied by 0.1% across configurations (-0.2% to -0.1%)",
+    "High-impact parameters: modelConsensus",
+    "modelConsensus showed strongest correlation with performance (-0.846)",
+    "Best configuration avoided trading, preserving capital in unfavorable market conditions",
+    "Excellent risk control achieved with maximum drawdown of only 0.75%"
+  ],
+  "recommendations": [
+    "Focus on optimizing modelConsensus within range 0.5 - 0.6 for maximum impact",
+    "Low trade frequency - consider testing on longer time periods or multiple assets",
+    "Use configuration grid_1 as baseline for further optimization",
+    "Test best parameters on different market regimes and time periods",
+    "Consider ensemble approach combining top 3-5 configurations"
+  ]
+}

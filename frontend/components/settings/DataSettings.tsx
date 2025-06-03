@@ -14,7 +14,7 @@ import {
   Divider,
   Alert,
   Button,
-  Grid,
+  
   FormHelperText,
 } from '@mui/material';
 import { usePreferences } from '../../lib/contexts/PreferencesContext';
@@ -63,9 +63,9 @@ const DataSettings: React.FC = () => {
       </Typography>
       <Divider sx={{ mb: 3 }} />
       
-      <Grid container spacing={3}>
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }, gap: 3 }}>
         {/* Refresh Rate */}
-        <Grid item xs={12} md={6}>
+        <Box>
           <FormControl fullWidth>
             <FormLabel id="refresh-rate-label">Data Refresh Rate</FormLabel>
             <Select
@@ -86,10 +86,10 @@ const DataSettings: React.FC = () => {
               How frequently to update dashboard data
             </FormHelperText>
           </FormControl>
-        </Grid>
+        </Box>
         
         {/* Historical Data Range */}
-        <Grid item xs={12} md={6}>
+        <Box>
           <FormControl fullWidth>
             <FormLabel id="data-range-label">Historical Data Range</FormLabel>
             <Select
@@ -110,10 +110,10 @@ const DataSettings: React.FC = () => {
               Default time range for charts and metrics
             </FormHelperText>
           </FormControl>
-        </Grid>
+        </Box>
         
         {/* Data Source */}
-        <Grid item xs={12}>
+        <Box>
           <FormControl component="fieldset">
             <FormLabel component="legend">Data Source</FormLabel>
             <RadioGroup
@@ -126,11 +126,11 @@ const DataSettings: React.FC = () => {
               <FormControlLabel value="custom" control={<Radio />} label="Custom API Endpoint" />
             </RadioGroup>
           </FormControl>
-        </Grid>
+        </Box>
         
         {/* Custom API Endpoint */}
         {showEndpointField && (
-          <Grid item xs={12}>
+          <Box>
             <Box sx={{ display: 'flex', alignItems: 'flex-start', gap: 1 }}>
               <TextField
                 fullWidth
@@ -154,9 +154,9 @@ const DataSettings: React.FC = () => {
               Using a custom API endpoint may require additional authentication. 
               Make sure your endpoint supports all required data formats.
             </Alert>
-          </Grid>
+          </Box>
         )}
-      </Grid>
+      </Box>
     </Box>
   );
 };

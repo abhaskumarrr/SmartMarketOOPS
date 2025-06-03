@@ -1,0 +1,6 @@
+Rank,Config_ID,Sharpe_Ratio,Total_Return_Percent,Max_Drawdown_Percent,Win_Rate,Total_Trades,Profit_Factor,Score,Min_Confidence,Model_Consensus,Decision_Cooldown,Risk_Per_Trade,Stop_Loss_Percent,Take_Profit_Multiplier,Position_Size_Multiplier,Trend_Threshold,Volatility_Threshold
+1,grid_1,-0.2452,-0.10,0.75,0.0,0,0.00,52.22,60,0.5,5,1,1.5,2.5,0.8,0.001,0.3
+2,grid_2,-0.2452,-0.10,0.75,0.0,0,0.00,52.22,60,0.5,5,2,1.5,2.5,0.8,0.001,0.3
+3,grid_3,-0.2452,-0.10,0.75,0.0,0,0.00,52.22,60,0.5,5,3,1.5,2.5,0.8,0.001,0.3
+4,grid_4,-0.2452,-0.10,0.75,0.0,0,0.00,52.22,60,0.5,15,1,1.5,2.5,0.8,0.001,0.3
+5,grid_5,-0.2452,-0.10,0.75,0.0,0,0.00,52.22,60,0.5,15,2,1.5,2.5,0.8,0.001,0.3

@@ -10,7 +10,7 @@ import {
   Switch,
   Typography,
   Divider,
-  Grid,
+  
   Chip,
   OutlinedInput,
   SelectChangeEvent,
@@ -70,9 +70,9 @@ const ChartSettings: React.FC = () => {
       </Typography>
       <Divider sx={{ mb: 3 }} />
       
-      <Grid container spacing={3}>
+      <Box sx={{ display: "grid", gridTemplateColumns: { xs: "1fr", sm: "repeat(2, 1fr)", md: "repeat(3, 1fr)" }, gap: 3 }}>
         {/* Default Timeframe */}
-        <Grid item xs={12} sm={6}>
+        <Box>
           <FormControl fullWidth>
             <FormLabel id="default-timeframe-label">Default Timeframe</FormLabel>
             <Select
@@ -94,10 +94,10 @@ const ChartSettings: React.FC = () => {
               Sets the default time interval for chart candles
             </FormHelperText>
           </FormControl>
-        </Grid>
+        </Box>
         
         {/* Chart Style */}
-        <Grid item xs={12} sm={6}>
+        <Box>
           <FormControl fullWidth>
             <FormLabel id="chart-style-label">Chart Style</FormLabel>
             <Select
@@ -115,10 +115,10 @@ const ChartSettings: React.FC = () => {
               Sets how price data is visualized
             </FormHelperText>
           </FormControl>
-        </Grid>
+        </Box>
         
         {/* Chart Theme */}
-        <Grid item xs={12} sm={6}>
+        <Box>
           <FormControl fullWidth>
             <FormLabel id="chart-theme-label">Chart Theme</FormLabel>
             <Select
@@ -136,10 +136,10 @@ const ChartSettings: React.FC = () => {
               Chart-specific theme (can differ from app theme)
             </FormHelperText>
           </FormControl>
-        </Grid>
+        </Box>
         
         {/* Toggle Options */}
-        <Grid item xs={12}>
+        <Box>
           <FormControl component="fieldset" variant="standard">
             <FormLabel component="legend">Display Options</FormLabel>
             <FormGroup>
@@ -165,10 +165,10 @@ const ChartSettings: React.FC = () => {
               />
             </FormGroup>
           </FormControl>
-        </Grid>
+        </Box>
         
         {/* Default Indicators */}
-        <Grid item xs={12}>
+        <Box>
           <FormControl fullWidth>
             <FormLabel id="default-indicators-label">Default Indicators</FormLabel>
             <Select
@@ -201,8 +201,8 @@ const ChartSettings: React.FC = () => {
               Select indicators to show by default when opening a chart
             </FormHelperText>
           </FormControl>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
     </Box>
   );
 };

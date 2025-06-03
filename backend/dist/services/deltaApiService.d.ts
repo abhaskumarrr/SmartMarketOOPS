@@ -30,9 +30,9 @@ declare class DeltaExchangeAPI {
     initialize(credentials?: DeltaExchange.ApiCredentials | null): Promise<this>;
     /**
      * Gets server time from Delta Exchange
+     * NOTE: This endpoint doesn't exist on Delta Exchange - commented out
      * @returns {Promise<DeltaExchange.ServerTime>} Server time information
      */
-    getServerTime(): Promise<DeltaExchange.ServerTime>;
     /**
      * Gets all available markets from Delta Exchange
      * @param {Record<string, any>} params - Query parameters

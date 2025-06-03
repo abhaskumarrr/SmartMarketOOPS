@@ -1,351 +1,399 @@
+"use strict";
 /**
- * Delta Exchange Service
- * Handles all interactions with Delta Exchange API based on CCXT documentation
+ * Delta Exchange India Trading Service
+ * Comprehensive integration with Delta Exchange India API
  */
-const axios = require('axios');
-const crypto = require('crypto');
-const { env } = require('../utils/env');
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.DeltaExchangeService = void 0;
+const axios_1 = __importDefault(require("axios"));
+const crypto_1 = __importDefault(require("crypto"));
+// Simple console logger
+const logger = {
+    info: (message, ...args) => console.log(`[INFO] ${message}`, ...args),
+    error: (message, ...args) => console.error(`[ERROR] ${message}`, ...args),
+    warn: (message, ...args) => console.warn(`[WARN] ${message}`, ...args),
+    debug: (message, ...args) => console.log(`[DEBUG] ${message}`, ...args)
+};
 class DeltaExchangeService {
-    constructor(apiKey, apiSecret, isTestnet = false) {
-        this.apiKey = apiKey;
-        this.apiSecret = apiSecret;
-        this.baseUrl = isTestnet
-            ? 'https://testnet.delta.exchange/api/v2'
-            : 'https://api.delta.exchange/v2';
+    constructor(credentials) {
+        this.isInitialized = false;
+        this.productCache = new Map();
+        this.symbolToProductId = new Map();
+        this.credentials = credentials;
+        this.baseUrl = credentials.testnet
+            ? 'https://cdn-ind.testnet.deltaex.org'
+            : 'https://api.india.delta.exchange';
+        this.client = axios_1.default.create({
+            baseURL: this.baseUrl,
+            timeout: 30000,
+            headers: {
+                'Content-Type': 'application/json',
+                'User-Agent': 'SmartMarketOOPS-v1.0'
+            }
+        });
+        // Initialize product ID mappings for perpetual futures (correct IDs from testnet)
+        this.symbolToProductId.set('BTCUSD', 84);
+        this.symbolToProductId.set('ETHUSD', 1699);
+        // Start initialization but don't wait for it
+        this.initializeService().catch(error => {
+            logger.error('Failed to initialize Delta Exchange Service:', error instanceof Error ? error.message : 'Unknown error');
+        });
     }
     /**
-     * Sign a request with HMAC signature
-     * @param {string} method - HTTP method
-     * @param {string} path - Endpoint path
-     * @param {Object} params - Query params or body data
-     * @returns {Object} - Headers with signature
+     * Initialize the service and load products
      */
-    createSignedHeaders(method, path, params = {}) {
-        const timestamp = Math.floor(Date.now() / 1000);
-        let message = timestamp + method + path;
-        // Add query params or body params if present
-        if (Object.keys(params).length > 0) {
-            const sortedParams = Object.keys(params).sort().reduce((acc, key) => {
-                acc[key] = params[key];
-                return acc;
-            }, {});
-            const paramString = new URLSearchParams(sortedParams).toString();
-            message += paramString;
-        }
-        // Create HMAC signature
-        const signature = crypto
-            .createHmac('sha256', this.apiSecret)
-            .update(message)
-            .digest('hex');
-        return {
-            'api-key': this.apiKey,
-            'timestamp': timestamp.toString(),
-            'signature': signature
-        };
-    }
-    /**
-     * Execute a request to Delta Exchange API
-     * @param {string} method - HTTP method
-     * @param {string} endpoint - API endpoint
-     * @param {Object} params - Query params or body data
-     * @returns {Promise<Object>} - API response
-     */
-    async request(method, endpoint, params = {}) {
+    async initializeService() {
         try {
-            const url = `${this.baseUrl}${endpoint}`;
-            const headers = this.createSignedHeaders(method, endpoint, params);
-            const config = {
-                method,
-                url,
-                headers
-            };
-            // Add params as query or body depending on method
-            if (method === 'GET' && Object.keys(params).length > 0) {
-                config.params = params;
-            }
-            else if (Object.keys(params).length > 0) {
-                config.data = params;
-            }
-            const response = await axios(config);
-            return response.data;
+            await this.loadProducts();
+            this.isInitialized = true;
+            logger.info(`✅ Delta Exchange Service initialized (${this.credentials.testnet ? 'TESTNET' : 'PRODUCTION'})`);
+            logger.info(`🔗 Base URL: ${this.baseUrl}`);
+            logger.info(`📊 Loaded ${this.productCache.size} products`);
         }
         catch (error) {
-            if (error.response) {
-                throw new Error(JSON.stringify({
-                    status: error.response.status,
-                    message: error.response.data.message || 'API error',
-                    data: error.response.data
-                }));
+            logger.error('❌ Failed to initialize Delta Exchange Service:', error instanceof Error ? error.message : 'Unknown error');
+            this.isInitialized = false;
+        }
+    }
+    /**
+     * Load and cache all available products
+     */
+    async loadProducts() {
+        try {
+            const response = await this.client.get('/v2/products');
+            if (response.data.success) {
+                const products = response.data.result;
+                for (const product of products) {
+                    this.productCache.set(product.symbol, product);
+                    this.symbolToProductId.set(product.symbol, product.id);
+                }
+                logger.info(`📦 Cached ${products.length} products`);
+                // Log major trading pairs
+                const majorPairs = ['BTCUSD', 'ETHUSD', 'ADAUSD', 'SOLUSD', 'DOTUSD'];
+                const availablePairs = majorPairs.filter(pair => this.symbolToProductId.has(pair));
+                logger.info(`🎯 Available major pairs: ${availablePairs.join(', ')}`);
             }
+            else {
+                throw new Error(`API Error: ${response.data.error}`);
+            }
+        }
+        catch (error) {
+            logger.error('Failed to load products:', error instanceof Error ? error.message : 'Unknown error');
             throw error;
         }
     }
     /**
-     * Fetches all available markets
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Array>} - List of available markets
-     * @see https://docs.delta.exchange/#get-list-of-products
+     * Generate HMAC-SHA256 signature for authentication
      */
-    async fetchMarkets(params = {}) {
-        return this.request('GET', '/products', params);
+    generateSignature(method, path, queryString, body, timestamp) {
+        const message = method + timestamp + path + queryString + body;
+        return crypto_1.default.createHmac('sha256', this.credentials.apiSecret).update(message).digest('hex');
     }
     /**
-     * Fetches ticker information for a specific market
-     * @param {string} symbol - Market symbol
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Object>} - Ticker information
-     * @see https://docs.delta.exchange/#get-ticker-for-a-product-by-symbol
+     * Make authenticated request to Delta Exchange API
      */
-    async fetchTicker(symbol, params = {}) {
-        return this.request('GET', `/products/${symbol}/ticker`, params);
+    async makeAuthenticatedRequest(method, path, params = {}, data = null) {
+        const timestamp = Math.floor(Date.now() / 1000).toString();
+        const queryString = Object.keys(params).length > 0 ? '?' + new URLSearchParams(params).toString() : '';
+        const body = data ? JSON.stringify(data) : '';
+        const signature = this.generateSignature(method, path, queryString, body, timestamp);
+        const headers = {
+            'api-key': this.credentials.apiKey,
+            'signature': signature,
+            'timestamp': timestamp,
+            'User-Agent': 'SmartMarketOOPS-v1.0',
+            'Content-Type': 'application/json'
+        };
+        try {
+            const response = await this.client.request({
+                method,
+                url: path + queryString,
+                data: data,
+                headers
+            });
+            return response.data;
+        }
+        catch (error) {
+            if (error.response) {
+                logger.error(`API Error: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
+                throw new Error(`Delta API Error: ${error.response.data.error || error.response.statusText}`);
+            }
+            else {
+                logger.error(`Request Error: ${error.message}`);
+                throw error;
+            }
+        }
     }
     /**
-     * Fetches account balance information
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Object>} - Balance information
-     * @see https://docs.delta.exchange/#get-wallet-balances
+     * Check if service is ready
      */
-    async fetchBalance(params = {}) {
-        return this.request('GET', '/wallet/balances', params);
+    isReady() {
+        return this.isInitialized;
     }
     /**
-     * Fetches data on a single open position
-     * @param {string} symbol - Market symbol
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Object>} - Position information
-     * @see https://docs.delta.exchange/#get-position
+     * Get product ID from symbol
      */
-    async fetchPosition(symbol, params = {}) {
-        return this.request('GET', '/positions', {
-            product_id: symbol,
-            ...params
-        });
+    getProductId(symbol) {
+        return this.symbolToProductId.get(symbol) || null;
     }
     /**
-     * Fetches the status of the exchange API
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Object>} - Status information
+     * Get product information
      */
-    async fetchStatus(params = {}) {
-        return this.request('GET', '/system-status', params);
+    getProduct(symbol) {
+        return this.productCache.get(symbol) || null;
     }
     /**
-     * Fetches all available currencies
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Object>} - Currencies information
-     * @see https://docs.delta.exchange/#get-list-of-all-assets
+     * Get all available products
      */
-    async fetchCurrencies(params = {}) {
-        return this.request('GET', '/assets', params);
+    getAllProducts() {
+        return Array.from(this.productCache.values());
     }
     /**
-     * Closes all open positions for a market type
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Array>} - List of closed positions
-     * @see https://docs.delta.exchange/#close-all-positions
+     * Get supported symbols
      */
-    async closeAllPositions(params = {}) {
-        return this.request('POST', '/positions/close_all', params);
+    getSupportedSymbols() {
+        return Array.from(this.symbolToProductId.keys());
     }
     /**
-     * Fetches the margin mode of a trading pair
-     * @param {string} symbol - Market symbol
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Object>} - Margin mode information
-     * @see https://docs.delta.exchange/#get-user
+     * Get real-time market data for a symbol
      */
-    async fetchMarginMode(symbol, params = {}) {
-        // First get user info
-        const user = await this.request('GET', '/users/me', params);
-        // Then check margin mode for the specified symbol
+    async getMarketData(symbol) {
+        try {
+            // Get product ID for the symbol
+            const productId = this.symbolToProductId.get(symbol);
+            if (!productId) {
+                logger.warn(`Product ID not found for symbol: ${symbol}`);
+                return this.getMockMarketData(symbol);
+            }
+            // Use the correct Delta Exchange API endpoint with symbol (not product ID)
+            const response = await this.client.get(`/v2/tickers/${symbol}`);
+            if (response.data.success) {
+                const ticker = response.data.result;
+                return {
+                    symbol,
+                    price: parseFloat(ticker.close || ticker.last_price || '0'),
+                    change: parseFloat(ticker.change || '0'),
+                    changePercent: parseFloat(ticker.change_percent || '0'),
+                    volume: parseFloat(ticker.volume || '0'),
+                    high24h: parseFloat(ticker.high || '0'),
+                    low24h: parseFloat(ticker.low || '0'),
+                    timestamp: Date.now(),
+                    source: 'delta_exchange_india',
+                    markPrice: parseFloat(ticker.mark_price || '0'),
+                    indexPrice: parseFloat(ticker.spot_price || '0'),
+                    openInterest: parseFloat(ticker.open_interest || '0')
+                };
+            }
+            else {
+                logger.error(`Failed to get market data for ${symbol}:`, response.data.error);
+                return this.getMockMarketData(symbol);
+            }
+        }
+        catch (error) {
+            logger.error(`Error fetching market data for ${symbol}:`, error instanceof Error ? error.message : 'Unknown error');
+            return this.getMockMarketData(symbol);
+        }
+    }
+    /**
+     * Get mock market data as fallback
+     */
+    getMockMarketData(symbol) {
+        const mockPrices = {
+            'BTCUSD': 105563.43,
+            'ETHUSD': 2579.39
+        };
         return {
-            user,
             symbol,
-            marginMode: user.isolated_margin_enabled ? 'isolated' : 'cross'
+            price: mockPrices[symbol] || 50000,
+            change: 0,
+            changePercent: 0,
+            volume: 0,
+            high24h: 0,
+            low24h: 0,
+            timestamp: Date.now(),
+            source: 'mock_fallback',
+            markPrice: 0,
+            indexPrice: 0,
+            openInterest: 0
         };
     }
     /**
-     * Fetches funding rates for multiple markets
-     * @param {Array<string>} symbols - List of market symbols
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Array>} - List of funding rate information
-     * @see https://docs.delta.exchange/#get-tickers-for-products
+     * Get market data for multiple symbols
      */
-    async fetchFundingRates(symbols, params = {}) {
-        const query = symbols && symbols.length > 0
-            ? { symbols: symbols.join(','), ...params }
-            : params;
-        return this.request('GET', '/tickers', query);
-    }
-    /**
-     * Adds margin to a position
-     * @param {string} symbol - Market symbol
-     * @param {number} amount - Amount of margin to add
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Object>} - Updated position information
-     * @see https://docs.delta.exchange/#add-remove-position-margin
-     */
-    async addMargin(symbol, amount, params = {}) {
-        return this.request('POST', '/positions/add_margin', {
-            product_id: symbol,
-            margin: amount,
-            ...params
-        });
-    }
-    /**
-     * Fetches the set leverage for a market
-     * @param {string} symbol - Market symbol
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Object>} - Leverage information
-     * @see https://docs.delta.exchange/#get-order-leverage
-     */
-    async fetchLeverage(symbol, params = {}) {
-        return this.request('GET', '/orders/leverage', {
-            product_id: symbol,
-            ...params
-        });
-    }
-    /**
-     * Sets the level of leverage for a market
-     * @param {number} leverage - The rate of leverage
-     * @param {string} symbol - Market symbol
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Object>} - Response from the exchange
-     * @see https://docs.delta.exchange/#change-order-leverage
-     */
-    async setLeverage(leverage, symbol, params = {}) {
-        return this.request('POST', '/orders/leverage', {
-            product_id: symbol,
-            leverage,
-            ...params
-        });
-    }
-    /**
-     * Creates a new order
-     * @param {string} symbol - Market symbol
-     * @param {string} type - Order type (limit, market, etc.)
-     * @param {string} side - Order side (buy, sell)
-     * @param {number} amount - Order amount
-     * @param {number} price - Order price (for limit orders)
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Object>} - New order information
-     * @see https://docs.delta.exchange/#place-order
-     */
-    async createOrder(symbol, type, side, amount, price, params = {}) {
-        const orderParams = {
-            product_id: symbol,
-            side: side.toLowerCase(),
-            size: amount.toString(),
-            ...params
-        };
-        if (type.toLowerCase() === 'limit') {
-            orderParams.limit_price = price.toString();
-            orderParams.order_type = 'limit_order';
+    async getMultipleMarketData(symbols) {
+        const results = [];
+        // Use batch ticker API if available, otherwise fetch individually
+        try {
+            const response = await this.client.get('/v2/tickers');
+            if (response.data.success) {
+                const tickers = response.data.result;
+                for (const symbol of symbols) {
+                    const ticker = tickers.find((t) => t.symbol === symbol);
+                    if (ticker) {
+                        results.push({
+                            symbol,
+                            price: parseFloat(ticker.close || ticker.last || '0'),
+                            change: parseFloat(ticker.change || '0'),
+                            changePercent: parseFloat(ticker.change_percent || '0'),
+                            volume: parseFloat(ticker.volume || '0'),
+                            high24h: parseFloat(ticker.high || '0'),
+                            low24h: parseFloat(ticker.low || '0'),
+                            timestamp: Date.now(),
+                            source: 'delta_exchange_india',
+                            markPrice: parseFloat(ticker.mark_price || '0'),
+                            indexPrice: parseFloat(ticker.spot_price || '0'),
+                            openInterest: parseFloat(ticker.open_interest || '0')
+                        });
+                    }
+                }
+            }
         }
-        else if (type.toLowerCase() === 'market') {
-            orderParams.order_type = 'market_order';
+        catch (error) {
+            logger.error('Error fetching multiple market data:', error instanceof Error ? error.message : 'Unknown error');
+            // Fallback to individual requests
+            for (const symbol of symbols) {
+                const data = await this.getMarketData(symbol);
+                if (data) {
+                    results.push(data);
+                }
+                // Add delay to respect rate limits
+                await this.delay(100);
+            }
         }
-        return this.request('POST', '/orders', orderParams);
+        return results;
     }
     /**
-     * Cancels an existing order
-     * @param {string} id - Order ID
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Object>} - Cancelled order information
-     * @see https://docs.delta.exchange/#cancel-order
+     * Place a new order
      */
-    async cancelOrder(id, params = {}) {
-        return this.request('DELETE', `/orders/${id}`, params);
+    async placeOrder(orderRequest) {
+        if (!this.isReady()) {
+            throw new Error('Delta Exchange Service not initialized');
+        }
+        try {
+            const response = await this.makeAuthenticatedRequest('POST', '/v2/orders', {}, orderRequest);
+            if (response.success) {
+                logger.info(`✅ Order placed: ${orderRequest.side} ${orderRequest.size} @ ${orderRequest.limit_price || 'market'}`);
+                return response.result;
+            }
+            else {
+                logger.error('Failed to place order:', response.error);
+                throw new Error(`Order placement failed: ${response.error.code || 'Unknown error'}`);
+            }
+        }
+        catch (error) {
+            logger.error('Error placing order:', error instanceof Error ? error.message : 'Unknown error');
+            throw error;
+        }
     }
     /**
-     * Fetches an order by ID
-     * @param {string} id - Order ID
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Object>} - Order information
-     * @see https://docs.delta.exchange/#get-order-by-id
+     * Cancel an order
      */
-    async fetchOrder(id, params = {}) {
-        return this.request('GET', `/orders/${id}`, params);
+    async cancelOrder(productId, orderId) {
+        if (!this.isReady()) {
+            throw new Error('Delta Exchange Service not initialized');
+        }
+        try {
+            const response = await this.makeAuthenticatedRequest('DELETE', `/v2/orders/${orderId}`, { product_id: productId });
+            if (response.success) {
+                logger.info(`✅ Order cancelled: ${orderId}`);
+                return true;
+            }
+            else {
+                logger.error('Failed to cancel order:', response.error);
+                return false;
+            }
+        }
+        catch (error) {
+            logger.error('Error cancelling order:', error instanceof Error ? error.message : 'Unknown error');
+            return false;
+        }
     }
     /**
-     * Fetches open orders
-     * @param {string} symbol - Market symbol (optional)
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Array>} - List of open orders
-     * @see https://docs.delta.exchange/#get-open-orders
+     * Get open orders
      */
-    async fetchOpenOrders(symbol = undefined, params = {}) {
-        const query = symbol ? { product_id: symbol, ...params } : params;
-        return this.request('GET', '/orders', query);
+    async getOpenOrders(productId) {
+        if (!this.isReady()) {
+            throw new Error('Delta Exchange Service not initialized');
+        }
+        try {
+            const params = productId ? { product_id: productId, state: 'open' } : { state: 'open' };
+            const response = await this.makeAuthenticatedRequest('GET', '/v2/orders', params);
+            if (response.success) {
+                return response.result;
+            }
+            else {
+                logger.error('Failed to get open orders:', response.error);
+                return [];
+            }
+        }
+        catch (error) {
+            logger.error('Error getting open orders:', error instanceof Error ? error.message : 'Unknown error');
+            return [];
+        }
     }
     /**
-     * Fetches order history
-     * @param {string} symbol - Market symbol (optional)
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Array>} - List of historical orders
-     * @see https://docs.delta.exchange/#get-order-history
+     * Get positions
      */
-    async fetchOrderHistory(symbol = undefined, params = {}) {
-        const query = symbol ? { product_id: symbol, ...params } : params;
-        return this.request('GET', '/orders/history', query);
+    async getPositions() {
+        if (!this.isReady()) {
+            throw new Error('Delta Exchange Service not initialized');
+        }
+        try {
+            const response = await this.makeAuthenticatedRequest('GET', '/v2/positions');
+            if (response.success) {
+                return response.result;
+            }
+            else {
+                logger.error('Failed to get positions:', response.error);
+                return [];
+            }
+        }
+        catch (error) {
+            logger.error('Error getting positions:', error instanceof Error ? error.message : 'Unknown error');
+            return [];
+        }
     }
     /**
-     * Fetches trade history
-     * @param {string} symbol - Market symbol (optional)
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Array>} - List of trades
-     * @see https://docs.delta.exchange/#get-trade-history
+     * Get wallet balances
      */
-    async fetchMyTrades(symbol = undefined, params = {}) {
-        const query = symbol ? { product_id: symbol, ...params } : params;
-        return this.request('GET', '/fills', query);
+    async getBalances() {
+        if (!this.isReady()) {
+            throw new Error('Delta Exchange Service not initialized');
+        }
+        try {
+            const response = await this.makeAuthenticatedRequest('GET', '/v2/wallet/balances');
+            if (response.success) {
+                return response.result;
+            }
+            else {
+                logger.error('Failed to get balances:', response.error);
+                return [];
+            }
+        }
+        catch (error) {
+            logger.error('Error getting balances:', error instanceof Error ? error.message : 'Unknown error');
+            return [];
+        }
     }
     /**
-     * Fetches the orderbook for a market
-     * @param {string} symbol - Market symbol
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Object>} - Orderbook information
-     * @see https://docs.delta.exchange/#get-l2-orderbook
+     * Utility delay function
      */
-    async fetchOrderBook(symbol, params = {}) {
-        return this.request('GET', `/orderbooks/${symbol}`, params);
+    delay(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
     }
     /**
-     * Fetches recent trades for a market
-     * @param {string} symbol - Market symbol
-     * @param {number} limit - Number of trades to fetch
-     * @param {Object} params - Optional parameters
-     * @returns {Promise<Array>} - List of recent trades
-     * @see https://docs.delta.exchange/#get-trade-history-for-a-product
+     * Cleanup resources
      */
-    async fetchTrades(symbol, limit = 100, params = {}) {
-        return this.request('GET', '/trades', {
-            product_id: symbol,
-            limit: limit.toString(),
-            ...params
-        });
+    async cleanup() {
+        this.productCache.clear();
+        this.symbolToProductId.clear();
+        this.isInitialized = false;
+        logger.info('Delta Exchange Service cleaned up');
     }
 }
-/**
- * Creates a Delta Exchange service instance using environment credentials
- * @returns {DeltaExchangeService} - Service instance
- */
-function createDefaultService() {
-    return new DeltaExchangeService(env.DELTA_EXCHANGE_API_KEY, env.DELTA_EXCHANGE_API_SECRET, env.DELTA_EXCHANGE_TESTNET);
-}
-/**
- * Creates a Delta Exchange service instance using provided credentials
- * @param {string} apiKey - API Key
- * @param {string} apiSecret - API Secret
- * @param {boolean} isTestnet - Whether to use testnet
- * @returns {DeltaExchangeService} - Service instance
- */
-function createService(apiKey, apiSecret, isTestnet = false) {
-    return new DeltaExchangeService(apiKey, apiSecret, isTestnet);
-}
-module.exports = {
-    DeltaExchangeService,
-    createDefaultService,
-    createService
-};
+exports.DeltaExchangeService = DeltaExchangeService;
+exports.default = DeltaExchangeService;
 //# sourceMappingURL=deltaExchangeService.js.map

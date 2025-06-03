@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   Box,
-  Grid,
+  
   Card,
   CardContent,
   Typography,
@@ -251,8 +251,8 @@ const EnhancedMonitoringDashboard: React.FC = () => {
 
       {/* System Health Status */}
       {systemHealth && (
-        <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} md={3}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 3 }}>
+          <Box>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -266,8 +266,8 @@ const EnhancedMonitoringDashboard: React.FC = () => {
                 />
               </CardContent>
             </Card>
-          </Grid>
-          <Grid item xs={12} md={3}>
+          </Box>
+          <Box>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -281,8 +281,8 @@ const EnhancedMonitoringDashboard: React.FC = () => {
                 />
               </CardContent>
             </Card>
-          </Grid>
-          <Grid item xs={12} md={3}>
+          </Box>
+          <Box>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -296,8 +296,8 @@ const EnhancedMonitoringDashboard: React.FC = () => {
                 />
               </CardContent>
             </Card>
-          </Grid>
-          <Grid item xs={12} md={3}>
+          </Box>
+          <Box>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
@@ -311,14 +311,14 @@ const EnhancedMonitoringDashboard: React.FC = () => {
                 />
               </CardContent>
             </Card>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       )}
 
       {/* Performance Metrics */}
       {performanceMetrics && (
-        <Grid container spacing={3} sx={{ mb: 3 }}>
-          <Grid item xs={12} md={3}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(4, 1fr)' }, gap: 3, mb: 3 }}>
+          <Box>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
@@ -335,8 +335,8 @@ const EnhancedMonitoringDashboard: React.FC = () => {
                 />
               </CardContent>
             </Card>
-          </Grid>
-          <Grid item xs={12} md={3}>
+          </Box>
+          <Box>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
@@ -354,8 +354,8 @@ const EnhancedMonitoringDashboard: React.FC = () => {
                 />
               </CardContent>
             </Card>
-          </Grid>
-          <Grid item xs={12} md={3}>
+          </Box>
+          <Box>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
@@ -373,8 +373,8 @@ const EnhancedMonitoringDashboard: React.FC = () => {
                 />
               </CardContent>
             </Card>
-          </Grid>
-          <Grid item xs={12} md={3}>
+          </Box>
+          <Box>
             <Card>
               <CardContent>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
@@ -390,13 +390,13 @@ const EnhancedMonitoringDashboard: React.FC = () => {
                 </Typography>
               </CardContent>
             </Card>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       )}
 
       {/* Charts */}
-      <Grid container spacing={3} sx={{ mb: 3 }}>
-        <Grid item xs={12} md={8}>
+      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' }, gap: 3, mb: 3 }}>
+        <Box>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -419,8 +419,8 @@ const EnhancedMonitoringDashboard: React.FC = () => {
               </Box>
             </CardContent>
           </Card>
-        </Grid>
-        <Grid item xs={12} md={4}>
+        </Box>
+        <Box>
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
@@ -437,8 +437,8 @@ const EnhancedMonitoringDashboard: React.FC = () => {
               </Box>
             </CardContent>
           </Card>
-        </Grid>
-      </Grid>
+        </Box>
+      </Box>
 
       {/* Signal Quality Table */}
       <Card>

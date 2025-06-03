@@ -123,4 +123,5 @@ export function createLogger(moduleName: string): Logger {
 }
 
 // Export a default logger for use in places where a specific module name isn't needed
-export default new Logger('App'); 
+export const logger = new Logger('App');
+export default logger;

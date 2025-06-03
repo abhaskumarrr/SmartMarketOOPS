@@ -41,6 +41,10 @@ const botRoutes_1 = __importDefault(require("./routes/trading/botRoutes"));
 const auditRoutes_1 = __importDefault(require("./routes/auditRoutes"));
 const trades_1 = __importDefault(require("./routes/trading/trades"));
 const metricsRoutes_1 = __importDefault(require("./routes/metricsRoutes"));
+const mlRoutes_1 = __importDefault(require("./routes/mlRoutes"));
+const marketDataRoutes_1 = __importDefault(require("./routes/marketDataRoutes"));
+// import tradingRoutes from './routes/tradingRoutes';
+const tradingRoutesWorking = require('./routes/tradingRoutesWorking');
 // Import other routes as needed
 // Load socket initialization
 const initializeWebsocketServer = require('./sockets/websocketServer').initializeWebsocketServer;
@@ -136,6 +140,10 @@ app.use('/api/bots', botRoutes_1.default);
 app.use('/api/audit', auditRoutes_1.default);
 app.use('/api/trades', trades_1.default);
 app.use('/api', metricsRoutes_1.default);
+app.use('/api/ml', mlRoutes_1.default);
+app.use('/api/market-data', marketDataRoutes_1.default);
+// app.use('/api/trading', tradingRoutes);
+app.use('/api/trading', tradingRoutesWorking);
 // Use other routes as needed
 // Not found middleware for undefined routes
 app.use(errorHandler_1.notFoundHandler);

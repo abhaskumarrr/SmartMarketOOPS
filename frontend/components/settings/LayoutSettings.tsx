@@ -119,7 +119,8 @@ const LayoutSettings: React.FC = () => {
                 return (
                   <ListItem
                     key={widget.id}
-                    button
+                    component="div"
+                    sx={{ cursor: 'pointer' }}
                     onClick={() => handleWidgetToggle(widget.id)}
                   >
                     <ListItemIcon>

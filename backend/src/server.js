@@ -47,6 +47,9 @@ const botRoutes = require('./routes/botRoutes');
 const deltaApiRoutes = require('./routes/deltaApiRoutes');
 const apiKeyRoutes = require('./routes/apiKeyRoutes');
 
+// Import paper trading routes
+const paperTradingRoutes = require('./routes/paperTradingRoutes');
+
 // Initialize Express app
 const app = express();
 const server = http.createServer(app);
@@ -107,6 +110,7 @@ app.use('/api/market', marketRoutes);
 app.use('/api/bots', botRoutes);
 app.use('/api/delta', deltaApiRoutes);
 app.use('/api/keys', apiKeyRoutes);
+app.use('/api/paper-trading', paperTradingRoutes);
 
 // Root route handler to fix 404 error
 app.get('/', (req, res) => {

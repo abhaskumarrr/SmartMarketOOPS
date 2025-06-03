@@ -52,5 +52,5 @@ export declare class Logger {
  * @returns A logger instance
  */
 export declare function createLogger(moduleName: string): Logger;
-declare const _default: Logger;
-export default _default;
+export declare const logger: Logger;
+export default logger;

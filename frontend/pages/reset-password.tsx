@@ -138,8 +138,8 @@ const ResetPasswordPage: React.FC = () => {
                       Please enter and confirm your new password.
                     </Typography>
                     
-                    <Grid container spacing={2}>
-                      <Grid item xs={12}>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+                      <Box>
                         <TextField
                           margin="normal"
                           required
@@ -154,8 +154,8 @@ const ResetPasswordPage: React.FC = () => {
                           disabled={loading}
                           helperText="Minimum 8 characters"
                         />
-                      </Grid>
-                      <Grid item xs={12}>
+                      </Box>
+                      <Box>
                         <TextField
                           margin="normal"
                           required
@@ -169,8 +169,8 @@ const ResetPasswordPage: React.FC = () => {
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           disabled={loading}
                         />
-                      </Grid>
-                    </Grid>
+                      </Box>
+                    </Box>
 
                     <Button
                       type="submit"

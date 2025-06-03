@@ -225,7 +225,6 @@ exports.default = {
     updateSessionActivity: exports.updateSessionActivity,
     extendSession: exports.extendSession,
     invalidateSession: exports.invalidateSession,
-    refreshSession,
     getUserSessions: exports.getUserSessions,
     cleanupExpiredSessions: exports.cleanupExpiredSessions,
     generateDeviceFingerprint: exports.generateDeviceFingerprint,

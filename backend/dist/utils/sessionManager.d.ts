@@ -92,7 +92,6 @@ declare const _default: {
     updateSessionActivity: (token: string) => Promise<void>;
     extendSession: (token: string, extendBy?: number) => Promise<void>;
     invalidateSession: (token: string) => Promise<boolean>;
-    refreshSession: any;
     getUserSessions: (userId: string) => Promise<Session[]>;
     cleanupExpiredSessions: () => Promise<number>;
     generateDeviceFingerprint: (req: Request) => string;

@@ -1,0 +1,243 @@
+{
+  "modelName": "MultiAsset_Decisive_LSTM",
+  "parameters": {
+    "weights": {
+      "input_0": 0.07613155627687064,
+      "input_1": 0.014535361615260969,
+      "input_2": 0.019475393286136088,
+      "input_3": 0.15683598502177126,
+      "input_4": 0.17282993356840748,
+      "input_5": -0.06910988070743763,
+      "input_6": -0.08658757898877432,
+      "input_7": 0.17941060688903931,
+      "input_8": 0.10463468124129277,
+      "input_9": 0.17706850510631997,
+      "input_10": 0.09868504963838384,
+      "input_11": -0.10369677622155098,
+      "input_12": -0.05662005681742095,
+      "input_13": 0.16202824772807742,
+      "input_14": -0.1180742639314144,
+      "input_15": -0.02716972153149954,
+      "input_16": -0.045926393851642135,
+      "input_17": -0.05478908589179036,
+      "input_18": 0.04273904002304049,
+      "input_19": -0.056760814752261864,
+      "input_20": 0.13179969917491163,
+      "input_21": -0.03234817373663159,
+      "input_22": -0.15437700983520136,
+      "input_23": 0.14822157538451533
+    },
+    "biases": [
+      0,
+      0
+    ],
+    "learningRate": 0.0005,
+    "epochs": 150,
+    "batchSize": 64,
+    "regularization": 0.005,
+    "dropout": 0.3
+  },
+  "trainingHistory": [
+    {
+      "epoch": 1,
+      "trainLoss": 0.3617439798237721,
+      "validationLoss": 0.33150137816848846,
+      "trainAccuracy": 0.6469780543932171,
+      "validationAccuracy": 0.8223674677286315,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 2,
+      "trainLoss": 0.34040921229859705,
+      "validationLoss": 0.4368416017987913,
+      "trainAccuracy": 0.6560081403108717,
+      "validationAccuracy": 0.6622121018589444,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 3,
+      "trainLoss": 0.3459086845213771,
+      "validationLoss": 0.4204057859488308,
+      "trainAccuracy": 0.6422893933964714,
+      "validationAccuracy": 0.6473357474915423,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 4,
+      "trainLoss": 0.3447773542589919,
+      "validationLoss": 0.1715343408566839,
+      "trainAccuracy": 0.6512980847831946,
+      "validationAccuracy": 0.8436680306274452,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 5,
+      "trainLoss": 0.3539735207203853,
+      "validationLoss": 0.4631682244156621,
+      "trainAccuracy": 0.6593522936972275,
+      "validationAccuracy": 0.738852822155041,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 6,
+      "trainLoss": 0.33728974434374426,
+      "validationLoss": 0.2812936944990045,
+      "trainAccuracy": 0.6495112675117888,
+      "validationAccuracy": 0.7635166546301269,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 7,
+      "trainLoss": 0.3554974153878616,
+      "validationLoss": 0.46110003417143675,
+      "trainAccuracy": 0.6573313469186545,
+      "validationAccuracy": 0.7717286506022774,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 8,
+      "trainLoss": 0.35142189231795984,
+      "validationLoss": 0.4141704450322402,
+      "trainAccuracy": 0.6576074564622879,
+      "validationAccuracy": 0.6289112139640447,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 9,
+      "trainLoss": 0.3444926777098583,
+      "validationLoss": 0.39680068285573766,
+      "trainAccuracy": 0.6512958427807806,
+      "validationAccuracy": 0.622786070790767,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 10,
+      "trainLoss": 0.3329669697763065,
+      "validationLoss": 0.24147063346530775,
+      "trainAccuracy": 0.6402918121734968,
+      "validationAccuracy": 0.7357652293537242,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 11,
+      "trainLoss": 0.3578508887662667,
+      "validationLoss": 0.39921635638923936,
+      "trainAccuracy": 0.6431140398205815,
+      "validationAccuracy": 0.7485241915504971,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 12,
+      "trainLoss": 0.3553045320505293,
+      "validationLoss": 0.5366716444884599,
+      "trainAccuracy": 0.6330664589953369,
+      "validationAccuracy": 0.7458204934094752,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 13,
+      "trainLoss": 0.3379350614715078,
+      "validationLoss": 0.3369624137606191,
+      "trainAccuracy": 0.6341193970789258,
+      "validationAccuracy": 0.7757110331928266,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 14,
+      "trainLoss": 0.3400958279129129,
+      "validationLoss": 0.5198623313925888,
+      "trainAccuracy": 0.644703806244986,
+      "validationAccuracy": 0.7887441627793091,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 15,
+      "trainLoss": 0.3440513247846701,
+      "validationLoss": 0.30198751494666676,
+      "trainAccuracy": 0.6452293205600744,
+      "validationAccuracy": 0.7016405303495605,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 16,
+      "trainLoss": 0.35229654359239965,
+      "validationLoss": 0.5221690936249718,
+      "trainAccuracy": 0.6534517730090511,
+      "validationAccuracy": 0.6654221922438357,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 17,
+      "trainLoss": 0.3673465418863761,
+      "validationLoss": 0.20593331978660095,
+      "trainAccuracy": 0.653803696985545,
+      "validationAccuracy": 0.8047981617099084,
+      "learningRate": 0.0005
+    }
+  ],
+  "finalMetrics": {
+    "trainAccuracy": 0.7503928776059454,
+    "validationAccuracy": 0.7107253232820997,
+    "testAccuracy": 0.7749769789641666,
+    "precision": 0.7139111418697093,
+    "recall": 0.6810294308554896,
+    "f1Score": 0.678656166029822
+  },
+  "featureImportance": {
+    "open": null,
+    "high": null,
+    "low": null,
+    "close": null,
+    "volume": null,
+    "rsi_14": null,
+    "ema_12": null,
+    "ema_26": null,
+    "macd": null,
+    "volume_sma_20": null,
+    "sma_20": null,
+    "sma_50": null,
+    "bollinger_upper": null,
+    "bollinger_lower": null,
+    "asset_type": null,
+    "btc_correlation": null,
+    "eth_correlation": null,
+    "sol_correlation": null,
+    "volatility_ratio": null,
+    "volume_profile": null,
+    "cross_asset_momentum": null,
+    "relative_strength": null,
+    "hour_of_day": null,
+    "day_of_week": null
+  },
+  "trainingTime": 0.001,
+  "version": "2.1.0",
+  "trainedAt": "2025-06-01T17:49:43.784Z",
+  "multiAssetMetadata": {
+    "supportedAssets": [
+      "BTCUSD",
+      "ETHUSD",
+      "SOLUSD"
+    ],
+    "crossAssetFeatures": true,
+    "portfolioOptimization": true,
+    "correlationAnalysis": true
+  },
+  "datasetMetadata": {
+    "assets": [
+      "BTCUSD",
+      "ETHUSD",
+      "SOLUSD"
+    ],
+    "totalSamples": 12738,
+    "assetBreakdown": {
+      "btc": 4246,
+      "eth": 4246,
+      "sol": 4246
+    },
+    "correlationStats": {
+      "btc_eth": 0.846578882274355,
+      "btc_sol": 0.846578882274355,
+      "eth_sol": 0.8532131519350903
+    }
+  }
+}
