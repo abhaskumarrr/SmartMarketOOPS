@@ -139,14 +139,39 @@ class BotService {
     };
   }
 
+  // Backtesting operations
+  async runBacktest(botId: string, config: {
+    symbol: string;
+    timeframe: string;
+    startDate: string;
+    endDate: string;
+    initialCapital: number;
+    leverage: number;
+    riskPerTrade: number;
+    commission: number;
+  }): Promise<{ success: boolean; data: any; message: string }> {
+    return this.request<{ success: boolean; data: any; message: string }>(`/api/bots/${botId}/backtest`, {
+      method: 'POST',
+      body: JSON.stringify(config),
+    });
+  }
+
+  async getBacktestHistory(botId: string, limit?: number, offset?: number): Promise<{ success: boolean; data: any; message: string }> {
+    const params = new URLSearchParams();
+    if (limit) params.append('limit', limit.toString());
+    if (offset) params.append('offset', offset.toString());
+
+    return this.request<{ success: boolean; data: any; message: string }>(`/api/bots/${botId}/backtests?${params.toString()}`);
+  }
+
   // WebSocket connection for real-time updates
   connectToBot(botId: string, onUpdate: (status: BotStatus) => void): WebSocket | null {
     try {
       const token = localStorage.getItem('token');
       const wsUrl = `${API_BASE_URL.replace('http', 'ws')}/ws/bots/${botId}?token=${token}`;
-      
+
       const ws = new WebSocket(wsUrl);
-      
+
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);

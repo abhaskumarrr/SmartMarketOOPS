@@ -784,10 +784,124 @@ export const updateBotHealth = async (
     
     // Update registry
     botStatusRegistry.set(botId, status);
-    
+
     return true;
   } catch (error) {
     console.error('Error updating bot health:', error);
     return false;
   }
-}; 
+};
+
+/**
+ * Run backtest for a bot
+ */
+export const runBacktest = async (
+  botId: string,
+  userId: string,
+  config: {
+    symbol: string;
+    timeframe: string;
+    startDate: Date;
+    endDate: Date;
+    initialCapital: number;
+    leverage: number;
+    riskPerTrade: number;
+    commission: number;
+  }
+) => {
+  try {
+    // Find bot first to check existence and ownership
+    const bot = await prisma.bot.findFirst({
+      where: {
+        id: botId,
+        userId
+      }
+    });
+
+    if (!bot) {
+      throw new Error('Bot not found or access denied');
+    }
+
+    // Call backtesting engine
+    const backtestingEngine = await import('./backtestingEngine');
+    const result = await backtestingEngine.runBacktest({
+      botId,
+      strategy: bot.strategy,
+      parameters: bot.parameters as Record<string, any>,
+      ...config
+    });
+
+    // Create audit log entry
+    await createAuditLog({
+      userId,
+      action: 'bot.backtest',
+      details: {
+        botId,
+        symbol: config.symbol,
+        timeframe: config.timeframe,
+        performance: result.performance
+      }
+    });
+
+    return result;
+  } catch (error) {
+    console.error('Error running backtest:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get backtest history for a bot
+ */
+export const getBacktestHistory = async (
+  botId: string,
+  userId: string,
+  limit: number = 10,
+  offset: number = 0
+) => {
+  try {
+    // Find bot first to check existence and ownership
+    const bot = await prisma.bot.findFirst({
+      where: {
+        id: botId,
+        userId
+      }
+    });
+
+    if (!bot) {
+      throw new Error('Bot not found or access denied');
+    }
+
+    // For now, return mock data since we don't have a backtest table
+    // TODO: Implement proper backtest storage in database
+    const mockBacktests = [
+      {
+        id: `backtest_${Date.now()}`,
+        botId,
+        symbol: bot.symbol,
+        timeframe: bot.timeframe,
+        startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+        endDate: new Date(),
+        performance: {
+          totalReturn: 1250.75,
+          totalReturnPercent: 12.51,
+          sharpeRatio: 1.85,
+          winRate: 68.5,
+          totalTrades: 127
+        },
+        createdAt: new Date()
+      }
+    ];
+
+    return {
+      backtests: mockBacktests.slice(offset, offset + limit),
+      total: mockBacktests.length,
+      limit,
+      offset,
+      hasMore: offset + limit < mockBacktests.length
+    };
+  } catch (error) {
+    console.error('Error getting backtest history:', error);
+    throw error;
+  }
+};

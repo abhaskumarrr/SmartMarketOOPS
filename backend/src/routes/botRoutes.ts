@@ -3,19 +3,22 @@
  * Endpoints for configuring and managing trading bots
  */
 
-const express = require('express');
-const router = express.Router();
-const { 
-  createBot, 
-  getBots, 
-  getBot, 
+import express from 'express';
+import {
+  createBot,
+  getBots,
+  getBot,
   updateBot,
   deleteBot,
   startBot,
   stopBot,
-  getBotStatus
-} = require('../controllers/botController');
-const { auth } = require('../middleware/auth');
+  getBotStatus,
+  runBacktest,
+  getBacktestHistory
+} from '../controllers/botController';
+import { auth } from '../middleware/auth';
+
+const router = express.Router();
 
 // All routes require authentication
 router.use(auth);
@@ -32,4 +35,8 @@ router.post('/:id/start', startBot);
 router.post('/:id/stop', stopBot);
 router.get('/:id/status', getBotStatus);
 
-module.exports = router; 
+// Backtesting endpoints
+router.post('/:id/backtest', runBacktest);
+router.get('/:id/backtests', getBacktestHistory);
+
+export default router;
