@@ -307,11 +307,28 @@ function broadcastSignal(signal) {
         connection.socket.emit('signal', signalWithTimestamp);
     }
 }
+/**
+ * Generic broadcast function to all clients
+ * @param {string} event - Event name
+ * @param {object} data - Data to broadcast
+ */
+function broadcastToClients(event, data) {
+    // Add timestamp to data
+    const dataWithTimestamp = {
+        ...data,
+        timestamp: new Date().toISOString()
+    };
+    // Broadcast to all connected users
+    for (const [socketId, connection] of activeConnections.entries()) {
+        connection.socket.emit(event, dataWithTimestamp);
+    }
+}
 module.exports = {
     initializeWebsocketServer,
     broadcastMarketData,
     broadcastBotUpdate,
     broadcastSignal,
+    broadcastToClients,
     realTimeRouter
 };
 //# sourceMappingURL=websocketServer.js.map

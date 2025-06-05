@@ -1,9 +1,51 @@
-// Optional: configure or set up a testing framework before each test.
-// If you delete this file, remove `setupFilesAfterEnv` from `jest.config.js`
+/**
+ * Jest Setup File
+ * Configures testing environment and global mocks
+ */
 
-// Used for __tests__/testing-library.js
-// Learn more: https://github.com/testing-library/jest-dom
 import '@testing-library/jest-dom';
+import 'jest-fetch-mock';
+
+// Enable fetch mocks
+require('jest-fetch-mock').enableMocks();
+
+// Global test utilities
+global.testUtils = {
+  // Mock user data
+  mockUser: {
+    id: 'test-user-id',
+    email: 'test@example.com',
+    name: 'Test User',
+    role: 'user',
+  },
+
+  // Mock bot data
+  mockBot: {
+    id: 'test-bot-id',
+    name: 'Test Bot',
+    symbol: 'BTCUSD',
+    strategy: 'ML_PREDICTION',
+    timeframe: '1h',
+    isActive: false,
+    parameters: {},
+  },
+
+  // Mock market data
+  mockMarketData: {
+    symbol: 'BTCUSD',
+    price: 50000,
+    change24h: 2.5,
+    volume24h: 1000000,
+    timestamp: Date.now(),
+  },
+
+  // Mock API responses
+  mockApiResponse: (data, success = true) => ({
+    success,
+    data,
+    message: success ? 'Success' : 'Error',
+  }),
+};
 
 // Mock next/router
 jest.mock('next/router', () => ({

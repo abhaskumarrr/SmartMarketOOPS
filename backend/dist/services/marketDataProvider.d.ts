@@ -12,6 +12,16 @@ export declare class MockMarketDataProvider implements MarketDataProvider {
     fetchHistoricalData(request: MarketDataRequest): Promise<MarketDataResponse>;
 }
 /**
+ * Delta Exchange Data Provider for live market data
+ */
+export declare class DeltaExchangeDataProvider implements MarketDataProvider {
+    readonly name = "delta-exchange";
+    private deltaService;
+    constructor();
+    isAvailable(): boolean;
+    fetchHistoricalData(request: MarketDataRequest): Promise<MarketDataResponse>;
+}
+/**
  * Enhanced Mock Provider with more realistic market patterns
  */
 export declare class EnhancedMockMarketDataProvider implements MarketDataProvider {
@@ -36,5 +46,17 @@ export declare class MarketDataService {
     private getProvider;
     getAvailableProviders(): string[];
     setDefaultProvider(providerName: string): void;
+    /**
+     * Force live data mode - prevents any mock data usage
+     */
+    enforceLiveDataMode(): void;
+    /**
+     * Get current provider info for validation
+     */
+    getCurrentProviderInfo(): {
+        name: string;
+        isLive: boolean;
+        isMock: boolean;
+    };
 }
 export declare const marketDataService: MarketDataService;

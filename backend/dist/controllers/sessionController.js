@@ -9,7 +9,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.revokeAllSessions = exports.revokeSession = exports.checkSession = exports.getUserSessions = void 0;
 const sessionManager_1 = __importDefault(require("../utils/sessionManager"));
-const errorHandler_1 = require("../middleware/errorHandler");
 const prismaClient_1 = __importDefault(require("../utils/prismaClient"));
 const logger_1 = require("../utils/logger");
 // Create logger
@@ -19,112 +18,184 @@ const logger = (0, logger_1.createLogger)('SessionController');
  * @route GET /api/sessions
  * @access Private
  */
-exports.getUserSessions = (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    if (!req.user) {
-        throw new errorHandler_1.AppError('Not authenticated', 401);
+const getUserSessions = async (req, res) => {
+    try {
+        if (!req.user) {
+            res.status(401).json({
+                success: false,
+                message: 'Not authenticated'
+            });
+            return;
+        }
+        const sessions = await sessionManager_1.default.getUserSessions(req.user.id);
+        // Map sessions to a more user-friendly format with device info
+        const sessionsData = sessions.map(session => ({
+            id: session.id,
+            device: parseUserAgent(session.userAgent || 'Unknown'),
+            ipAddress: session.ipAddress,
+            lastActive: session.lastActiveAt,
+            createdAt: session.createdAt,
+            isCurrentSession: req.user?.sessionId === session.id,
+        }));
+        res.status(200).json({
+            success: true,
+            data: sessionsData
+        });
     }
-    const sessions = await sessionManager_1.default.getUserSessions(req.user.id);
-    // Map sessions to a more user-friendly format with device info
-    const sessionsData = sessions.map(session => ({
-        id: session.id,
-        device: parseUserAgent(session.userAgent || 'Unknown'),
-        ipAddress: session.ipAddress,
-        lastActive: session.lastActiveAt,
-        createdAt: session.createdAt,
-        isCurrentSession: req.user?.sessionId === session.id,
-    }));
-    res.status(200).json({
-        success: true,
-        data: sessionsData
-    });
-});
+    catch (error) {
+        console.error('Get user sessions error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error while fetching sessions',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+};
+exports.getUserSessions = getUserSessions;
 /**
  * Check current session status
  * @route GET /api/sessions/check
  * @access Private
  */
-exports.checkSession = (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    if (!req.user || !req.user.sessionId) {
-        throw new errorHandler_1.AppError('Not authenticated', 401);
-    }
-    // Get session info
-    const session = await prismaClient_1.default.session.findUnique({
-        where: { id: req.user.sessionId }
-    });
-    if (!session) {
-        throw new errorHandler_1.AppError('Session not found', 404);
-    }
-    // Check for suspicious activity
-    const suspiciousActivity = req.suspiciousActivity || false;
-    res.status(200).json({
-        success: true,
-        data: {
-            active: session.isValid && new Date() < session.expiresAt,
-            expiresAt: session.expiresAt,
-            lastActive: session.lastActiveAt,
-            rememberMe: session.rememberMe,
-            suspiciousActivity
+const checkSession = async (req, res) => {
+    try {
+        if (!req.user || !req.user.sessionId) {
+            res.status(401).json({
+                success: false,
+                message: 'Not authenticated'
+            });
+            return;
         }
-    });
-});
+        // Get session info
+        const session = await prismaClient_1.default.session.findUnique({
+            where: { id: req.user.sessionId }
+        });
+        if (!session) {
+            res.status(404).json({
+                success: false,
+                message: 'Session not found'
+            });
+            return;
+        }
+        // Check for suspicious activity
+        const suspiciousActivity = req.suspiciousActivity || false;
+        res.status(200).json({
+            success: true,
+            data: {
+                active: session.isValid && new Date() < session.expiresAt,
+                expiresAt: session.expiresAt,
+                lastActive: session.lastActiveAt,
+                rememberMe: session.rememberMe,
+                suspiciousActivity
+            }
+        });
+    }
+    catch (error) {
+        console.error('Check session error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error while checking session',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+};
+exports.checkSession = checkSession;
 /**
  * Revoke a specific session
  * @route DELETE /api/sessions/:sessionId
  * @access Private
  */
-exports.revokeSession = (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    if (!req.user) {
-        throw new errorHandler_1.AppError('Not authenticated', 401);
-    }
-    const { sessionId } = req.params;
-    // Prevent revoking current session through this endpoint
-    if (req.user.sessionId === sessionId) {
-        throw new errorHandler_1.AppError('Cannot revoke current session. Use logout instead.', 400);
-    }
-    // Check if session belongs to the user
-    const session = await prismaClient_1.default.session.findFirst({
-        where: {
-            id: sessionId,
-            userId: req.user.id
+const revokeSession = async (req, res) => {
+    try {
+        if (!req.user) {
+            res.status(401).json({
+                success: false,
+                message: 'Not authenticated'
+            });
+            return;
         }
-    });
-    if (!session) {
-        throw new errorHandler_1.AppError('Session not found or does not belong to user', 404);
+        const { sessionId } = req.params;
+        // Prevent revoking current session through this endpoint
+        if (req.user.sessionId === sessionId) {
+            res.status(400).json({
+                success: false,
+                message: 'Cannot revoke current session. Use logout instead.'
+            });
+            return;
+        }
+        // Check if session belongs to the user
+        const session = await prismaClient_1.default.session.findFirst({
+            where: {
+                id: sessionId,
+                userId: req.user.id
+            }
+        });
+        if (!session) {
+            res.status(404).json({
+                success: false,
+                message: 'Session not found or does not belong to user'
+            });
+            return;
+        }
+        // Invalidate the session
+        await prismaClient_1.default.session.update({
+            where: { id: sessionId },
+            data: { isValid: false }
+        });
+        res.status(200).json({
+            success: true,
+            message: 'Session revoked successfully'
+        });
     }
-    // Invalidate the session
-    await prismaClient_1.default.session.update({
-        where: { id: sessionId },
-        data: { isValid: false }
-    });
-    res.status(200).json({
-        success: true,
-        message: 'Session revoked successfully'
-    });
-});
+    catch (error) {
+        console.error('Revoke session error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error while revoking session',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+};
+exports.revokeSession = revokeSession;
 /**
  * Revoke all other sessions except current one
  * @route DELETE /api/sessions
  * @access Private
  */
-exports.revokeAllSessions = (0, errorHandler_1.asyncHandler)(async (req, res) => {
-    if (!req.user || !req.user.sessionId) {
-        throw new errorHandler_1.AppError('Not authenticated', 401);
+const revokeAllSessions = async (req, res) => {
+    try {
+        if (!req.user || !req.user.sessionId) {
+            res.status(401).json({
+                success: false,
+                message: 'Not authenticated'
+            });
+            return;
+        }
+        const currentSessionId = req.user.sessionId;
+        // Invalidate all other sessions
+        const result = await prismaClient_1.default.session.updateMany({
+            where: {
+                userId: req.user.id,
+                id: { not: currentSessionId },
+                isValid: true
+            },
+            data: { isValid: false }
+        });
+        res.status(200).json({
+            success: true,
+            message: `${result.count} sessions revoked successfully`
+        });
     }
-    const currentSessionId = req.user.sessionId;
-    // Invalidate all other sessions
-    const result = await prismaClient_1.default.session.updateMany({
-        where: {
-            userId: req.user.id,
-            id: { not: currentSessionId },
-            isValid: true
-        },
-        data: { isValid: false }
-    });
-    res.status(200).json({
-        success: true,
-        message: `${result.count} sessions revoked successfully`
-    });
-});
+    catch (error) {
+        console.error('Revoke all sessions error:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Server error while revoking sessions',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+};
+exports.revokeAllSessions = revokeAllSessions;
 /**
  * Helper function to parse user agent into a readable device description
  * @param userAgent - Browser user agent string

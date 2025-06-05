@@ -35,6 +35,7 @@ import {
   Menu as MenuIcon,
   FlashOn as ZapIcon,
   Circle,
+  CurrencyExchange as DeltaIcon,
 } from '@mui/icons-material';
 
 interface NavigationItem {
@@ -53,10 +54,16 @@ const navigationItems: NavigationItem[] = [
     description: 'Overview & Analytics',
   },
   {
+    label: 'Delta Trading',
+    href: '/delta-trading',
+    icon: <DeltaIcon />,
+    badge: 'Live',
+    description: 'Delta Exchange Bots',
+  },
+  {
     label: 'Paper Trading',
     href: '/paper-trading',
     icon: <TradingIcon />,
-    badge: 'Live',
     description: 'Delta Exchange Testnet',
   },
   {

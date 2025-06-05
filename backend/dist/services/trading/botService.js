@@ -3,15 +3,57 @@
  * Bot Management Service
  * Handles bot configuration, lifecycle, and monitoring
  */
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || (function () {
+    var ownKeys = function(o) {
+        ownKeys = Object.getOwnPropertyNames || function (o) {
+            var ar = [];
+            for (var k in o) if (Object.prototype.hasOwnProperty.call(o, k)) ar[ar.length] = k;
+            return ar;
+        };
+        return ownKeys(o);
+    };
+    return function (mod) {
+        if (mod && mod.__esModule) return mod;
+        var result = {};
+        if (mod != null) for (var k = ownKeys(mod), i = 0; i < k.length; i++) if (k[i] !== "default") __createBinding(result, mod, k[i]);
+        __setModuleDefault(result, mod);
+        return result;
+    };
+})();
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateBotHealth = exports.configureBotRiskSettings = exports.getBotStatus = exports.pauseBot = exports.stopBot = exports.startBot = exports.deleteBot = exports.updateBot = exports.getBotById = exports.getBotsByUser = exports.createBot = void 0;
+exports.getBacktestHistory = exports.runBacktest = exports.updateBotHealth = exports.configureBotRiskSettings = exports.getBotStatus = exports.pauseBot = exports.stopBot = exports.startBot = exports.deleteBot = exports.updateBot = exports.getBotById = exports.getBotsByUser = exports.createBot = void 0;
 const prismaClient_1 = __importDefault(require("../../utils/prismaClient"));
 const axios_1 = __importDefault(require("axios"));
 const auditLog_1 = require("../../utils/auditLog");
 const decisionLogService_1 = require("../decisionLogService");
+// Import WebSocket broadcasting function
+let broadcastBotUpdate = null;
+try {
+    const websocketModule = require('../../sockets/websocketServer');
+    broadcastBotUpdate = websocketModule.broadcastBotUpdate;
+}
+catch (error) {
+    console.warn('WebSocket module not available for bot broadcasting');
+}
 // In-memory storage for bot status and health
 const botStatusRegistry = new Map();
 // Default bot status
@@ -264,6 +306,26 @@ const startBot = async (botId, userId) => {
                 strategy: bot.strategy
             }
         });
+        // Broadcast bot status update via WebSocket
+        if (broadcastBotUpdate) {
+            const status = botStatusRegistry.get(botId) || getDefaultBotStatus();
+            status.isRunning = true;
+            status.lastUpdate = new Date().toISOString();
+            status.logs.push({
+                timestamp: new Date().toISOString(),
+                level: 'info',
+                message: 'Bot started successfully'
+            });
+            botStatusRegistry.set(botId, status);
+            broadcastBotUpdate(botId, {
+                status: 'started',
+                isRunning: true,
+                botName: bot.name,
+                symbol: bot.symbol,
+                strategy: bot.strategy,
+                timestamp: new Date().toISOString()
+            });
+        }
         return true;
     }
     catch (error) {
@@ -326,6 +388,24 @@ const stopBot = async (botId, userId) => {
                 botName: bot.name
             }
         });
+        // Broadcast bot status update via WebSocket
+        if (broadcastBotUpdate) {
+            const status = botStatusRegistry.get(botId) || getDefaultBotStatus();
+            status.isRunning = false;
+            status.lastUpdate = new Date().toISOString();
+            status.logs.push({
+                timestamp: new Date().toISOString(),
+                level: 'info',
+                message: 'Bot stopped successfully'
+            });
+            botStatusRegistry.set(botId, status);
+            broadcastBotUpdate(botId, {
+                status: 'stopped',
+                isRunning: false,
+                botName: bot.name,
+                timestamp: new Date().toISOString()
+            });
+        }
         return true;
     }
     catch (error) {
@@ -364,7 +444,7 @@ const pauseBot = async (botId, userId, duration) => {
         botStatusRegistry.set(botId, status);
         // Call ML service to pause bot
         try {
-            await axios_1.default.post(`${process.env.ML_SERVICE_URL || 'http://ml:5000'}/api/bots/pause`, {
+            await axios_1.default.post(`${process.env.ML_SERVICE_URL || 'http://localhost:8000'}/api/bots/pause`, {
                 botId,
                 duration
             });
@@ -584,7 +664,7 @@ async function startBotProcess(bot) {
         botStatusRegistry.set(bot.id, status);
         // Try to call ML service to start bot
         try {
-            await axios_1.default.post(`${process.env.ML_SERVICE_URL || 'http://ml:5000'}/api/bots/start`, {
+            await axios_1.default.post(`${process.env.ML_SERVICE_URL || 'http://localhost:8000'}/api/bots/start`, {
                 botId: bot.id,
                 config: {
                     symbol: bot.symbol,
@@ -629,7 +709,7 @@ async function stopBotProcess(botId) {
         botStatusRegistry.set(botId, status);
         // Try to call ML service to stop bot
         try {
-            await axios_1.default.post(`${process.env.ML_SERVICE_URL || 'http://ml:5000'}/api/bots/stop`, {
+            await axios_1.default.post(`${process.env.ML_SERVICE_URL || 'http://localhost:8000'}/api/bots/stop`, {
                 botId
             });
         }
@@ -689,4 +769,95 @@ const updateBotHealth = async (botId, healthData) => {
     }
 };
 exports.updateBotHealth = updateBotHealth;
+/**
+ * Run backtest for a bot
+ */
+const runBacktest = async (botId, userId, config) => {
+    try {
+        // Find bot first to check existence and ownership
+        const bot = await prismaClient_1.default.bot.findFirst({
+            where: {
+                id: botId,
+                userId
+            }
+        });
+        if (!bot) {
+            throw new Error('Bot not found or access denied');
+        }
+        // Call backtesting engine
+        const backtestingEngine = await Promise.resolve().then(() => __importStar(require('./backtestingEngine')));
+        const result = await backtestingEngine.runBacktest({
+            botId,
+            strategy: bot.strategy,
+            parameters: bot.parameters,
+            ...config
+        });
+        // Create audit log entry
+        await (0, auditLog_1.createAuditLog)({
+            userId,
+            action: 'bot.backtest',
+            details: {
+                botId,
+                symbol: config.symbol,
+                timeframe: config.timeframe,
+                performance: result.performance
+            }
+        });
+        return result;
+    }
+    catch (error) {
+        console.error('Error running backtest:', error);
+        throw error;
+    }
+};
+exports.runBacktest = runBacktest;
+/**
+ * Get backtest history for a bot
+ */
+const getBacktestHistory = async (botId, userId, limit = 10, offset = 0) => {
+    try {
+        // Find bot first to check existence and ownership
+        const bot = await prismaClient_1.default.bot.findFirst({
+            where: {
+                id: botId,
+                userId
+            }
+        });
+        if (!bot) {
+            throw new Error('Bot not found or access denied');
+        }
+        // For now, return mock data since we don't have a backtest table
+        // TODO: Implement proper backtest storage in database
+        const mockBacktests = [
+            {
+                id: `backtest_${Date.now()}`,
+                botId,
+                symbol: bot.symbol,
+                timeframe: bot.timeframe,
+                startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+                endDate: new Date(),
+                performance: {
+                    totalReturn: 1250.75,
+                    totalReturnPercent: 12.51,
+                    sharpeRatio: 1.85,
+                    winRate: 68.5,
+                    totalTrades: 127
+                },
+                createdAt: new Date()
+            }
+        ];
+        return {
+            backtests: mockBacktests.slice(offset, offset + limit),
+            total: mockBacktests.length,
+            limit,
+            offset,
+            hasMore: offset + limit < mockBacktests.length
+        };
+    }
+    catch (error) {
+        console.error('Error getting backtest history:', error);
+        throw error;
+    }
+};
+exports.getBacktestHistory = getBacktestHistory;
 //# sourceMappingURL=botService.js.map

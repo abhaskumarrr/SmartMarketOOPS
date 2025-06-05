@@ -1,30 +1,25 @@
 /**
- * Create a new API key
- * @route POST /api/keys
- * @access Private
+ * API Key Controller
+ * Wrapper controller that delegates to the trading API key controller
  */
-export function createApiKey(req: any, res: any): Promise<any>;
+import { Request, Response } from 'express';
+/**
+ * Create a new API key
+ */
+export declare const createApiKey: (req: Request, res: Response) => Promise<void>;
 /**
  * Get all API keys for current user
- * @route GET /api/keys
- * @access Private
  */
-export function getApiKeys(req: any, res: any): Promise<void>;
+export declare const getApiKeys: (req: Request, res: Response) => Promise<void>;
 /**
  * Get a specific API key
- * @route GET /api/keys/:id
- * @access Private
  */
-export function getApiKey(req: any, res: any): Promise<any>;
+export declare const getApiKey: (req: Request, res: Response) => Promise<void>;
 /**
  * Delete an API key
- * @route DELETE /api/keys/:id
- * @access Private
  */
-export function deleteApiKey(req: any, res: any): Promise<any>;
+export declare const deleteApiKey: (req: Request, res: Response) => Promise<void>;
 /**
  * Validate an API key with Delta Exchange
- * @route POST /api/keys/validate
- * @access Private
  */
-export function validateApiKey(req: any, res: any): Promise<any>;
+export declare const validateApiKey: (req: Request, res: Response) => Promise<void>;

@@ -1,8 +1,10 @@
 /**
- * Paper Trading Engine
- * Simulates live trading with real market data but virtual money
+ * Enhanced Paper Trading Engine with 75% Balance Allocation
+ * Simulates live trading with real Delta Exchange market data
+ * Implements frequency-optimized trading strategy with 85% ML accuracy
  */
 import { TakeProfitLevel } from '../types/marketData';
+import { DeltaCredentials } from './deltaExchangeService';
 export interface PaperTrade {
     id: string;
     symbol: string;
@@ -34,6 +36,8 @@ export interface PartialExit {
 export interface PaperPortfolio {
     initialBalance: number;
     currentBalance: number;
+    allocatedBalance: number;
+    totalBalance: number;
     totalPnl: number;
     totalTrades: number;
     winningTrades: number;
@@ -43,6 +47,20 @@ export interface PaperPortfolio {
     currentDrawdown: number;
     leverage: number;
     riskPerTrade: number;
+    dailyTrades: number;
+    targetTradesPerDay: number;
+    mlAccuracy: number;
+    peakBalance: number;
+}
+export interface FrequencyOptimizedConfig {
+    mlConfidenceThreshold: number;
+    signalScoreThreshold: number;
+    qualityScoreThreshold: number;
+    targetTradesPerDay: number;
+    targetWinRate: number;
+    mlAccuracy: number;
+    maxConcurrentTrades: number;
+    balanceAllocationPercent: number;
 }
 export declare class PaperTradingEngine {
     private takeProfitManager;
@@ -51,25 +69,46 @@ export declare class PaperTradingEngine {
     private portfolio;
     private isRunning;
     private tradingAssets;
-    constructor(initialBalance?: number, leverage?: number, riskPerTrade?: number);
+    private deltaService;
+    private config;
+    private dailyTradeCount;
+    private lastTradeDate;
+    private sessionStartTime;
+    constructor(deltaCredentials: DeltaCredentials, config?: Partial<FrequencyOptimizedConfig>);
     /**
-     * Start paper trading system
+     * Start enhanced paper trading system with 75% balance allocation
      */
     startPaperTrading(): Promise<void>;
+    /**
+     * Initialize balance from Delta Exchange (75% allocation)
+     */
+    private initializeBalanceFromDelta;
     /**
      * Stop paper trading system
      */
     stopPaperTrading(): void;
     /**
-     * Main trading loop
+     * Enhanced trading loop with frequency optimization
      */
     private runTradingLoop;
     /**
-     * Process trading for a specific asset
+     * Update daily trade tracking
      */
-    private processAsset;
+    private updateDailyTradeTracking;
     /**
-     * Get current price for asset from Delta Exchange
+     * Update dynamic risk management based on performance
+     */
+    private updateDynamicRiskManagement;
+    /**
+     * Process trading for a specific asset with frequency optimization
+     */
+    private processAssetWithFrequencyOptimization;
+    /**
+     * Get current market data from Delta Exchange - REAL DATA ONLY
+     */
+    private getCurrentMarketData;
+    /**
+     * Get current price for asset (legacy method for compatibility)
      */
     private getCurrentPrice;
     /**
@@ -85,13 +124,17 @@ export declare class PaperTradingEngine {
      */
     private checkStopLoss;
     /**
-     * Check for new trading opportunities
+     * Check for frequency-optimized trading opportunities
      */
-    private checkNewTradingOpportunity;
+    private checkFrequencyOptimizedTradingOpportunity;
     /**
-     * Generate trading signal for paper trading
+     * Check if signal passes frequency-optimized filters
      */
-    private generatePaperTradingSignal;
+    private passesFrequencyOptimizedFilters;
+    /**
+     * Generate frequency-optimized trading signal
+     */
+    private generateFrequencyOptimizedSignal;
     /**
      * Open a new paper trade
      */
@@ -125,7 +168,15 @@ export declare class PaperTradingEngine {
      */
     getClosedTrades(): PaperTrade[];
     /**
-     * Sleep utility
+     * Generate progress report during trading
+     */
+    private generateProgressReport;
+    /**
+     * Delay utility
+     */
+    private delay;
+    /**
+     * Sleep utility (legacy compatibility)
      */
     private sleep;
 }

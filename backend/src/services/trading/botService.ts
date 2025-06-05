@@ -9,6 +9,15 @@ import axios from 'axios';
 import { createAuditLog } from '../../utils/auditLog';
 import { createDecisionLog } from '../decisionLogService';
 
+// Import WebSocket broadcasting function
+let broadcastBotUpdate: ((botId: string, data: any) => void) | null = null;
+try {
+  const websocketModule = require('../../sockets/websocketServer');
+  broadcastBotUpdate = websocketModule.broadcastBotUpdate;
+} catch (error) {
+  console.warn('WebSocket module not available for bot broadcasting');
+}
+
 // In-memory storage for bot status and health
 const botStatusRegistry = new Map<string, BotStatus>();
 
@@ -325,6 +334,28 @@ export const startBot = async (botId: string, userId: string) => {
       }
     });
 
+    // Broadcast bot status update via WebSocket
+    if (broadcastBotUpdate) {
+      const status = botStatusRegistry.get(botId) || getDefaultBotStatus();
+      status.isRunning = true;
+      status.lastUpdate = new Date().toISOString();
+      status.logs.push({
+        timestamp: new Date().toISOString(),
+        level: 'info',
+        message: 'Bot started successfully'
+      });
+      botStatusRegistry.set(botId, status);
+
+      broadcastBotUpdate(botId, {
+        status: 'started',
+        isRunning: true,
+        botName: bot.name,
+        symbol: bot.symbol,
+        strategy: bot.strategy,
+        timestamp: new Date().toISOString()
+      });
+    }
+
     return true;
   } catch (error) {
     console.error('Error starting bot:', error);
@@ -394,6 +425,26 @@ export const stopBot = async (botId: string, userId: string) => {
       }
     });
 
+    // Broadcast bot status update via WebSocket
+    if (broadcastBotUpdate) {
+      const status = botStatusRegistry.get(botId) || getDefaultBotStatus();
+      status.isRunning = false;
+      status.lastUpdate = new Date().toISOString();
+      status.logs.push({
+        timestamp: new Date().toISOString(),
+        level: 'info',
+        message: 'Bot stopped successfully'
+      });
+      botStatusRegistry.set(botId, status);
+
+      broadcastBotUpdate(botId, {
+        status: 'stopped',
+        isRunning: false,
+        botName: bot.name,
+        timestamp: new Date().toISOString()
+      });
+    }
+
     return true;
   } catch (error) {
     console.error('Error stopping bot:', error);
@@ -437,7 +488,7 @@ export const pauseBot = async (botId: string, userId: string, duration?: number)
 
     // Call ML service to pause bot
     try {
-      await axios.post(`${process.env.ML_SERVICE_URL || 'http://ml:5000'}/api/bots/pause`, {
+      await axios.post(`${process.env.ML_SERVICE_URL || 'http://localhost:8000'}/api/bots/pause`, {
         botId,
         duration
       });
@@ -674,7 +725,7 @@ async function startBotProcess(bot: Bot & { riskSettings: RiskSettings[] }): Pro
 
     // Try to call ML service to start bot
     try {
-      await axios.post(`${process.env.ML_SERVICE_URL || 'http://ml:5000'}/api/bots/start`, {
+      await axios.post(`${process.env.ML_SERVICE_URL || 'http://localhost:8000'}/api/bots/start`, {
         botId: bot.id,
         config: {
           symbol: bot.symbol,
@@ -720,7 +771,7 @@ async function stopBotProcess(botId: string): Promise<boolean> {
 
     // Try to call ML service to stop bot
     try {
-      await axios.post(`${process.env.ML_SERVICE_URL || 'http://ml:5000'}/api/bots/stop`, {
+      await axios.post(`${process.env.ML_SERVICE_URL || 'http://localhost:8000'}/api/bots/stop`, {
         botId
       });
     } catch (error) {

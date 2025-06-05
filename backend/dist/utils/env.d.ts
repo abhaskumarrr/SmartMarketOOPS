@@ -21,6 +21,8 @@ interface EnvironmentConfig {
     ENCRYPTION_MASTER_KEY: string;
     DELTA_EXCHANGE_TESTNET: boolean;
     DELTA_EXCHANGE_API_URL: string;
+    DELTA_EXCHANGE_API_KEY: string;
+    DELTA_EXCHANGE_API_SECRET: string;
     ML_SERVICE_URL: string;
     LOG_LEVEL: string;
     COOKIE_DOMAIN?: string;

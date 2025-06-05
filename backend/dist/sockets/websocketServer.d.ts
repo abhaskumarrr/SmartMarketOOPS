@@ -21,4 +21,10 @@ export function broadcastBotUpdate(botId: string, data: object): void;
  * @param {object} signal - Trading signal data
  */
 export function broadcastSignal(signal: object): void;
+/**
+ * Generic broadcast function to all clients
+ * @param {string} event - Event name
+ * @param {object} data - Data to broadcast
+ */
+export function broadcastToClients(event: string, data: object): void;
 export const realTimeRouter: import("express-serve-static-core").Router;

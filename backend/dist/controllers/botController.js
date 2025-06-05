@@ -37,7 +37,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateBotHealth = exports.configureBotRiskSettings = exports.getBotStatus = exports.pauseBot = exports.stopBot = exports.startBot = exports.deleteBot = exports.updateBot = exports.getBot = exports.getBots = exports.createBot = void 0;
+exports.updateBotHealth = exports.configureBotRiskSettings = exports.getBotStatus = exports.getBacktestHistory = exports.runBacktest = exports.pauseBot = exports.stopBot = exports.startBot = exports.deleteBot = exports.updateBot = exports.getBot = exports.getBots = exports.createBot = void 0;
 const botService = __importStar(require("../services/trading/botService"));
 const validator_1 = require("../utils/validator");
 const express_validator_1 = require("express-validator");
@@ -468,6 +468,118 @@ const pauseBot = async (req, res) => {
     }
 };
 exports.pauseBot = pauseBot;
+/**
+ * Run backtest for a bot
+ * @route POST /api/bots/:id/backtest
+ * @access Private
+ */
+const runBacktest = async (req, res) => {
+    try {
+        // Validate request
+        const validationRules = [
+            (0, express_validator_1.param)('id').notEmpty().withMessage('Bot ID is required'),
+            (0, express_validator_1.body)('symbol').notEmpty().withMessage('Symbol is required'),
+            (0, express_validator_1.body)('timeframe').notEmpty().withMessage('Timeframe is required'),
+            (0, express_validator_1.body)('startDate').isISO8601().withMessage('Valid start date is required'),
+            (0, express_validator_1.body)('endDate').isISO8601().withMessage('Valid end date is required'),
+            (0, express_validator_1.body)('initialCapital').isFloat({ min: 100 }).withMessage('Initial capital must be at least $100'),
+            (0, express_validator_1.body)('leverage').isFloat({ min: 1, max: 100 }).withMessage('Leverage must be between 1 and 100'),
+            (0, express_validator_1.body)('riskPerTrade').isFloat({ min: 0.1, max: 10 }).withMessage('Risk per trade must be between 0.1% and 10%'),
+            (0, express_validator_1.body)('commission').isFloat({ min: 0, max: 1 }).withMessage('Commission must be between 0% and 1%')
+        ];
+        const validationErrors = await (0, validator_1.validateRequest)(req, validationRules);
+        if (validationErrors) {
+            return res.status(400).json({
+                success: false,
+                errors: validationErrors
+            });
+        }
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'User not authenticated'
+            });
+        }
+        const botId = req.params.id;
+        const backtestConfig = {
+            symbol: req.body.symbol,
+            timeframe: req.body.timeframe,
+            startDate: new Date(req.body.startDate),
+            endDate: new Date(req.body.endDate),
+            initialCapital: req.body.initialCapital,
+            leverage: req.body.leverage,
+            riskPerTrade: req.body.riskPerTrade,
+            commission: req.body.commission,
+        };
+        const result = await botService.runBacktest(botId, userId, backtestConfig);
+        return res.status(200).json({
+            success: true,
+            message: 'Backtest completed successfully',
+            data: result
+        });
+    }
+    catch (error) {
+        // Handle specific errors
+        if (error.message === 'Bot not found or access denied') {
+            return res.status(404).json({
+                success: false,
+                message: 'Bot not found or access denied'
+            });
+        }
+        console.error('Run backtest error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error while running backtest',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+};
+exports.runBacktest = runBacktest;
+/**
+ * Get backtest history for a bot
+ * @route GET /api/bots/:id/backtests
+ * @access Private
+ */
+const getBacktestHistory = async (req, res) => {
+    try {
+        // Validate request
+        const validationRules = [
+            (0, express_validator_1.param)('id').notEmpty().withMessage('Bot ID is required')
+        ];
+        const validationErrors = await (0, validator_1.validateRequest)(req, validationRules);
+        if (validationErrors) {
+            return res.status(400).json({
+                success: false,
+                errors: validationErrors
+            });
+        }
+        const userId = req.user?.id;
+        if (!userId) {
+            return res.status(401).json({
+                success: false,
+                message: 'User not authenticated'
+            });
+        }
+        const botId = req.params.id;
+        const limit = parseInt(req.query.limit) || 10;
+        const offset = parseInt(req.query.offset) || 0;
+        const results = await botService.getBacktestHistory(botId, userId, limit, offset);
+        return res.status(200).json({
+            success: true,
+            data: results
+        });
+    }
+    catch (error) {
+        console.error('Get backtest history error:', error);
+        return res.status(500).json({
+            success: false,
+            message: 'Server error while fetching backtest history',
+            error: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
+    }
+};
+exports.getBacktestHistory = getBacktestHistory;
 /**
  * Get bot status
  * @route GET /api/bots/:id/status

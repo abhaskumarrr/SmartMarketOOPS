@@ -14,6 +14,7 @@ from typing import Dict, Any, List, Optional
 
 # Import project modules
 from .model_service import router as model_router
+from .bot_service import router as bot_router
 from ..models.model_registry import get_registry, ModelRegistry
 from ..monitoring.api import router as monitoring_router
 
@@ -39,6 +40,7 @@ app.add_middleware(
 
 # Include routers
 app.include_router(model_router, prefix="/api/models", tags=["Models"])
+app.include_router(bot_router, prefix="/api/bots", tags=["Bots"])
 app.include_router(monitoring_router, prefix="/api/monitoring", tags=["Monitoring"])
 
 # Mount static files for reports

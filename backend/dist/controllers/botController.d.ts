@@ -52,6 +52,18 @@ export declare const stopBot: (req: Request, res: Response) => Promise<Response<
  */
 export declare const pauseBot: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
 /**
+ * Run backtest for a bot
+ * @route POST /api/bots/:id/backtest
+ * @access Private
+ */
+export declare const runBacktest: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+/**
+ * Get backtest history for a bot
+ * @route GET /api/bots/:id/backtests
+ * @access Private
+ */
+export declare const getBacktestHistory: (req: Request, res: Response) => Promise<Response<any, Record<string, any>>>;
+/**
  * Get bot status
  * @route GET /api/bots/:id/status
  * @access Private

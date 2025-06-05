@@ -1,8 +1,1 @@
-{
-  "/_not-found/page": "app/_not-found/page.js",
-  "/api/paper-trading/market-data/route": "app/api/paper-trading/market-data/route.js",
-  "/api/paper-trading/portfolio/route": "app/api/paper-trading/portfolio/route.js",
-  "/api/paper-trading/chart-data/route": "app/api/paper-trading/chart-data/route.js",
-  "/paper-trading/page": "app/paper-trading/page.js",
-  "/bots/page": "app/bots/page.js"
-}
+{}

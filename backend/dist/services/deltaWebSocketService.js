@@ -16,9 +16,9 @@ const events_1 = require("events");
 const logger_1 = require("../utils/logger");
 // Create logger
 const logger = (0, logger_1.createLogger)('DeltaExchangeWebSocket');
-// Environment configuration
-const MAINNET_WS_URL = 'wss://socket.delta.exchange';
-const TESTNET_WS_URL = 'wss://testnet-socket.delta.exchange';
+// Environment configuration - Updated for Delta Exchange India
+const MAINNET_WS_URL = 'wss://ws.india.delta.exchange';
+const TESTNET_WS_URL = 'wss://testnet-ws.delta.exchange';
 // Default reconnection settings
 const DEFAULT_RECONNECT_OPTIONS = {
     maxRetries: 10,

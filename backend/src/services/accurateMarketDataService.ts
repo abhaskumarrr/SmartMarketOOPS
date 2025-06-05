@@ -51,8 +51,8 @@ class AccurateMarketDataService {
           sandbox: false,
         }),
         
-        // Coinbase Pro - good for USD pairs
-        coinbasepro: new ccxt.coinbasepro({
+        // Coinbase - good for USD pairs (coinbasepro is deprecated)
+        coinbase: new ccxt.coinbase({
           enableRateLimit: true,
           sandbox: false,
         }),
@@ -152,27 +152,27 @@ class AccurateMarketDataService {
     const symbolMap: { [key: string]: { [exchange: string]: string } } = {
       'BTCUSD': {
         'binance': 'BTC/USDT',
-        'coinbasepro': 'BTC/USD',
+        'coinbase': 'BTC/USD',
         'kraken': 'BTC/USD'
       },
       'ETHUSD': {
         'binance': 'ETH/USDT',
-        'coinbasepro': 'ETH/USD',
+        'coinbase': 'ETH/USD',
         'kraken': 'ETH/USD'
       },
       'ADAUSD': {
         'binance': 'ADA/USDT',
-        'coinbasepro': 'ADA/USD',
+        'coinbase': 'ADA/USD',
         'kraken': 'ADA/USD'
       },
       'SOLUSD': {
         'binance': 'SOL/USDT',
-        'coinbasepro': 'SOL/USD',
+        'coinbase': 'SOL/USD',
         'kraken': 'SOL/USD'
       },
       'DOTUSD': {
         'binance': 'DOT/USDT',
-        'coinbasepro': 'DOT/USD',
+        'coinbase': 'DOT/USD',
         'kraken': 'DOT/USD'
       }
     };
@@ -243,8 +243,8 @@ class AccurateMarketDataService {
       return prices[0]; // Return first price as fallback
     }
 
-    // Use the most reliable source (prefer coinbasepro, then binance, then others)
-    const sourcePreference = ['coinbasepro', 'binance', 'kraken', 'coingecko'];
+    // Use the most reliable source (prefer coinbase, then binance, then others)
+    const sourcePreference = ['coinbase', 'binance', 'kraken', 'coingecko'];
     
     for (const preferredSource of sourcePreference) {
       const preferredPrice = validPrices.find(p => p.source === preferredSource);

@@ -1,140 +1,132 @@
-const express = require('express');
-const router = express.Router();
-const { authenticateJWT } = require('../../middleware/authMiddleware');
-// Sample trade data
-const sampleTrades = [
-    {
-        id: 'trade-1',
-        symbol: 'BTC/USDT',
-        side: 'buy',
-        type: 'market',
-        price: 58432.15,
-        quantity: 0.25,
-        timestamp: Date.now() - 3600000 * 2,
-        status: 'completed',
-        fee: 3.65,
-        totalValue: 14608.04
-    },
-    {
-        id: 'trade-2',
-        symbol: 'ETH/USDT',
-        side: 'sell',
-        type: 'limit',
-        price: 3245.78,
-        quantity: 1.5,
-        timestamp: Date.now() - 3600000 * 5,
-        status: 'completed',
-        fee: 2.43,
-        totalValue: 4868.67
-    },
-    {
-        id: 'trade-3',
-        symbol: 'SOL/USDT',
-        side: 'buy',
-        type: 'market',
-        price: 124.35,
-        quantity: 10,
-        timestamp: Date.now() - 3600000 * 8,
-        status: 'completed',
-        fee: 0.62,
-        totalValue: 1243.50
-    },
-    {
-        id: 'trade-4',
-        symbol: 'BTC/USDT',
-        side: 'sell',
-        type: 'limit',
-        price: 59102.45,
-        quantity: 0.15,
-        timestamp: Date.now() - 3600000 * 12,
-        status: 'completed',
-        fee: 2.22,
-        totalValue: 8865.37
-    },
-    {
-        id: 'trade-5',
-        symbol: 'ETH/USDT',
-        side: 'buy',
-        type: 'market',
-        price: 3198.22,
-        quantity: 0.75,
-        timestamp: Date.now() - 3600000 * 24,
-        status: 'completed',
-        fee: 1.20,
-        totalValue: 2398.67
-    }
-];
-// Function to handle trade listing with filtering and pagination
-const handleTradesList = (req, res, next) => {
+"use strict";
+/**
+ * Trading Trades Routes
+ * Endpoints for managing trade history and execution
+ */
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = __importDefault(require("express"));
+const router = express_1.default.Router();
+/**
+ * GET /api/trades/history
+ * Get trade history
+ */
+router.get('/history', async (req, res) => {
     try {
-        // Add pagination
-        const page = parseInt(req.query.page) || 1;
-        const limit = parseInt(req.query.limit) || 10;
-        const startIndex = (page - 1) * limit;
-        const endIndex = page * limit;
-        // Add filtering
-        const symbol = req.query.symbol;
-        const side = req.query.side;
-        let filteredTrades = [...sampleTrades];
-        if (symbol) {
-            filteredTrades = filteredTrades.filter(trade => trade.symbol === symbol);
-        }
-        if (side) {
-            filteredTrades = filteredTrades.filter(trade => trade.side === side);
-        }
-        // Add sorting
-        const sortBy = req.query.sortBy || 'timestamp';
-        const sortDir = req.query.sortDir === 'asc' ? 1 : -1;
-        filteredTrades.sort((a, b) => {
-            if (a[sortBy] < b[sortBy])
-                return -1 * sortDir;
-            if (a[sortBy] > b[sortBy])
-                return 1 * sortDir;
-            return 0;
-        });
-        // Prepare pagination result
-        const paginatedTrades = filteredTrades.slice(startIndex, endIndex);
-        // Return trades with pagination info
+        const mockTrades = [
+            {
+                id: 'trade_001',
+                symbol: 'BTCUSD',
+                side: 'buy',
+                size: '0.1',
+                price: '45000',
+                timestamp: new Date().toISOString(),
+                status: 'filled',
+                fee: '2.25'
+            },
+            {
+                id: 'trade_002',
+                symbol: 'ETHUSD',
+                side: 'sell',
+                size: '1.0',
+                price: '3000',
+                timestamp: new Date(Date.now() - 3600000).toISOString(),
+                status: 'filled',
+                fee: '1.50'
+            }
+        ];
         res.json({
             success: true,
-            data: paginatedTrades,
-            pagination: {
-                total: filteredTrades.length,
-                page,
-                limit,
-                pages: Math.ceil(filteredTrades.length / limit)
+            data: mockTrades,
+            meta: {
+                total: mockTrades.length,
+                timestamp: Date.now()
             }
         });
     }
     catch (error) {
-        next(error);
+        console.error('Error getting trade history:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to get trade history',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        });
     }
-};
-// Function to handle single trade fetch
-const handleSingleTrade = (req, res, next) => {
+});
+/**
+ * GET /api/trades/:id
+ * Get specific trade details
+ */
+router.get('/:id', async (req, res) => {
     try {
-        const tradeId = req.params.id;
-        const trade = sampleTrades.find(t => t.id === tradeId);
-        if (!trade) {
-            return res.status(404).json({
-                success: false,
-                message: `Trade with ID ${tradeId} not found`
-            });
-        }
+        const { id } = req.params;
+        const mockTrade = {
+            id,
+            symbol: 'BTCUSD',
+            side: 'buy',
+            size: '0.1',
+            price: '45000',
+            timestamp: new Date().toISOString(),
+            status: 'filled',
+            fee: '2.25',
+            order_id: 'order_123',
+            execution_details: {
+                fills: [
+                    {
+                        price: '45000',
+                        size: '0.1',
+                        timestamp: new Date().toISOString()
+                    }
+                ]
+            }
+        };
         res.json({
             success: true,
-            data: trade
+            data: mockTrade,
+            timestamp: Date.now()
         });
     }
     catch (error) {
-        next(error);
+        console.error(`Error getting trade ${req.params.id}:`, error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to get trade',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        });
     }
-};
-// Public routes (no auth required)
-router.get('/public', handleTradesList);
-router.get('/public/:id', handleSingleTrade);
-// Authenticated routes
-router.get('/', authenticateJWT, handleTradesList);
-router.get('/:id', authenticateJWT, handleSingleTrade);
-module.exports = router;
+});
+/**
+ * GET /api/trades/stats
+ * Get trading statistics
+ */
+router.get('/stats', async (req, res) => {
+    try {
+        const mockStats = {
+            total_trades: 150,
+            total_volume: '1250000.00',
+            total_pnl: '5250.75',
+            win_rate: 0.68,
+            avg_trade_size: '8333.33',
+            best_trade: '850.25',
+            worst_trade: '-320.50',
+            total_fees: '125.50'
+        };
+        res.json({
+            success: true,
+            data: mockStats,
+            timestamp: Date.now()
+        });
+    }
+    catch (error) {
+        console.error('Error getting trade stats:', error);
+        res.status(500).json({
+            success: false,
+            error: 'Failed to get trade stats',
+            message: error instanceof Error ? error.message : 'Unknown error'
+        });
+    }
+});
+exports.default = router;
 //# sourceMappingURL=trades.js.map

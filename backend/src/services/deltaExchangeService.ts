@@ -195,12 +195,37 @@ class DeltaExchangeService {
       'Content-Type': 'application/json'
     };
 
+    // Debug logging
+    console.log('🔍 Service signature generation:', {
+      method,
+      timestamp,
+      path,
+      queryString,
+      body,
+      message: method + timestamp + path + queryString + body,
+      signature,
+      apiKey: this.credentials.apiKey,
+      apiSecret: this.credentials.apiSecret ? '***' + this.credentials.apiSecret.slice(-4) : 'undefined'
+    });
+
     try {
-      const response = await this.client.request({
-        method,
-        url: path + queryString,
-        data: data,
+      // Use axios directly instead of the client instance to avoid conflicts
+      const fullUrl = this.baseUrl + path + queryString;
+
+      console.log('🌐 Service URL construction:', {
+        baseUrl: this.baseUrl,
+        path,
+        queryString,
+        fullUrl,
         headers
+      });
+
+      const response = await axios.request({
+        method,
+        url: fullUrl,
+        data: data,
+        headers,
+        timeout: 30000
       });
 
       return response.data;
@@ -448,7 +473,11 @@ class DeltaExchangeService {
     }
 
     try {
-      const response = await this.makeAuthenticatedRequest('GET', '/v2/positions');
+      // Delta Exchange requires either product_id or underlying_asset_symbol
+      // Get positions for BTC by default
+      const response = await this.makeAuthenticatedRequest('GET', '/v2/positions', {
+        underlying_asset_symbol: 'BTC'
+      });
 
       if (response.success) {
         return response.result;
@@ -463,7 +492,7 @@ class DeltaExchangeService {
   }
 
   /**
-   * Get wallet balances
+   * Get wallet balances using proper Delta Exchange API
    */
   public async getBalances(): Promise<Balance[]> {
     if (!this.isReady()) {
@@ -471,14 +500,26 @@ class DeltaExchangeService {
     }
 
     try {
+      logger.info('🔍 Fetching balances from Delta Exchange...');
+
+      // Use the simple balance endpoint that we know works
       const response = await this.makeAuthenticatedRequest('GET', '/v2/wallet/balances');
 
-      if (response.success) {
-        return response.result;
+      logger.debug('Balance response:', JSON.stringify(response, null, 2));
+
+      if (response && response.success && response.result) {
+        const balances = Array.isArray(response.result) ? response.result : [response.result];
+        const nonZeroBalances = balances.filter((balance: any) =>
+          balance.balance && parseFloat(balance.balance) > 0
+        );
+
+        logger.info(`✅ Successfully fetched ${nonZeroBalances.length} non-zero balances from Delta Exchange`);
+        return nonZeroBalances;
       } else {
-        logger.error('Failed to get balances:', response.error);
+        logger.error('Failed to get balances - API response:', response);
         return [];
       }
+
     } catch (error) {
       logger.error('Error getting balances:', error instanceof Error ? error.message : 'Unknown error');
       return [];

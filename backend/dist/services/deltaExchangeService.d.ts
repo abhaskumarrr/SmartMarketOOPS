@@ -139,7 +139,7 @@ declare class DeltaExchangeService {
      */
     getPositions(): Promise<Position[]>;
     /**
-     * Get wallet balances
+     * Get wallet balances using proper Delta Exchange API
      */
     getBalances(): Promise<Balance[]>;
     /**

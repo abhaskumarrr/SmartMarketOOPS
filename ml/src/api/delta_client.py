@@ -40,10 +40,11 @@ class DeltaExchangeClient:
         self.api_secret = api_secret or API_CONFIG["delta_exchange"]["api_secret"]
         self.testnet = testnet if testnet is not None else API_CONFIG["delta_exchange"]["testnet"]
         
+        # Use correct Delta Exchange India URLs from official documentation
         self.base_url = (
-            "https://testnet-api.delta.exchange" 
-            if self.testnet 
-            else "https://api.delta.exchange"
+            "https://cdn-ind.testnet.deltaex.org"
+            if self.testnet
+            else "https://api.india.delta.exchange"
         )
         
         # Default request headers
@@ -434,8 +435,9 @@ class DeltaExchangeWebSocketClient:
         self.api_key = api_key or API_CONFIG["delta_exchange"]["api_key"]
         self.api_secret = api_secret or API_CONFIG["delta_exchange"]["api_secret"]
         self.testnet = testnet if testnet is not None else API_CONFIG["delta_exchange"]["testnet"]
+        # Use correct Delta Exchange India WebSocket URLs
         self.base_url = (
-            "wss://testnet-ws.delta.exchange" if self.testnet else "wss://ws.delta.exchange"
+            "wss://testnet-ws.delta.exchange" if self.testnet else "wss://ws.india.delta.exchange"
         )
         self.symbols = symbols if isinstance(symbols, list) else [symbols]
         self.channels = channels or ["trades", "orderbook", "ticker"]

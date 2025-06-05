@@ -11,10 +11,31 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const path_1 = __importDefault(require("path"));
 const fs_1 = __importDefault(require("fs"));
 // Load environment variables from the root .env file
-dotenv_1.default.config({ path: path_1.default.join(process.cwd(), '..', '.env') });
-// Check for root-level .env file
-if (!fs_1.default.existsSync(path_1.default.join(process.cwd(), '..', '.env'))) {
-    console.warn('\x1b[33m%s\x1b[0m', 'WARNING: No .env file found at project root. Using default values.');
+// Try multiple possible paths for the .env file
+const possibleEnvPaths = [
+    path_1.default.join(process.cwd(), '.env'), // Current directory
+    path_1.default.join(process.cwd(), '..', '.env'), // Parent directory
+    path_1.default.join(__dirname, '..', '..', '..', '.env'), // Project root from backend/src/utils
+];
+let envPath = '';
+for (const envFilePath of possibleEnvPaths) {
+    if (fs_1.default.existsSync(envFilePath)) {
+        envPath = envFilePath;
+        break;
+    }
+}
+if (envPath) {
+    console.log(`🔧 Loading environment from: ${envPath}`);
+    dotenv_1.default.config({ path: envPath });
+    // Debug: Check if Delta Exchange variables are loaded
+    console.log('🔍 Environment variables loaded:');
+    console.log(`- DELTA_EXCHANGE_API_KEY: ${process.env.DELTA_EXCHANGE_API_KEY ? process.env.DELTA_EXCHANGE_API_KEY.substring(0, 8) + '...' : 'NOT SET'}`);
+    console.log(`- DELTA_EXCHANGE_API_SECRET: ${process.env.DELTA_EXCHANGE_API_SECRET ? process.env.DELTA_EXCHANGE_API_SECRET.substring(0, 8) + '...' : 'NOT SET'}`);
+    console.log(`- DELTA_EXCHANGE_TESTNET: ${process.env.DELTA_EXCHANGE_TESTNET}`);
+}
+else {
+    console.warn('\x1b[33m%s\x1b[0m', 'WARNING: No .env file found. Using default values.');
+    console.warn('Searched paths:', possibleEnvPaths);
 }
 // Environment variables with defaults
 const env = {
@@ -45,6 +66,8 @@ const env = {
     // Exchange configuration
     DELTA_EXCHANGE_TESTNET: process.env.DELTA_EXCHANGE_TESTNET === 'false' ? false : true,
     DELTA_EXCHANGE_API_URL: process.env.DELTA_EXCHANGE_API_URL || 'https://testnet-api.delta.exchange',
+    DELTA_EXCHANGE_API_KEY: process.env.DELTA_EXCHANGE_API_KEY || '',
+    DELTA_EXCHANGE_API_SECRET: process.env.DELTA_EXCHANGE_API_SECRET || '',
     // ML service configuration
     ML_SERVICE_URL: process.env.ML_SERVICE_URL || 'http://localhost:3002',
     // Logging configuration

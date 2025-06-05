@@ -11,6 +11,10 @@ const express_1 = __importDefault(require("express"));
 const userController_1 = require("../controllers/userController");
 const auth_1 = require("../middleware/auth");
 const router = express_1.default.Router();
+// Health check for user routes
+router.get('/health', (req, res) => {
+    res.json({ status: 'User routes working', timestamp: new Date().toISOString() });
+});
 // Get current user profile
 router.get('/profile', auth_1.protect, (0, auth_1.requirePermission)(['profile:read']), userController_1.getProfile);
 // Update current user profile

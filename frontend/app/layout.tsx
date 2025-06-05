@@ -1,6 +1,6 @@
 /**
  * SmartMarketOOPS Professional Trading Platform
- * Unified layout with consistent theming across all pages
+ * Unified layout with consistent theming and performance optimizations
  */
 
 'use client';
@@ -10,6 +10,9 @@ import { Inter } from 'next/font/google';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
 import { CssBaseline } from '@mui/material';
 import { useState, useEffect } from 'react';
+import { usePerformanceMonitor } from '../lib/hooks/usePerformanceMonitor';
+import { registerServiceWorker, preloadResources } from '../lib/services/performanceService';
+import { preloadCriticalComponents } from '../components/lazy/index';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -111,9 +114,37 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   const [mounted, setMounted] = useState(false);
+  const { metrics, getPerformanceScore } = usePerformanceMonitor('RootLayout');
 
   useEffect(() => {
     setMounted(true);
+
+    // Initialize performance optimizations
+    const initializeOptimizations = async () => {
+      // Register service worker for caching
+      await registerServiceWorker();
+
+      // Preload critical resources
+      preloadResources([
+        { href: '/manifest.json', as: 'manifest' },
+        { href: '/_next/static/css/app/layout.css', as: 'style' },
+        { href: '/_next/static/chunks/main.js', as: 'script' },
+      ]);
+
+      // Preload critical components
+      preloadCriticalComponents();
+    };
+
+    initializeOptimizations();
+
+    // Log performance metrics in development
+    if (process.env.NODE_ENV === 'development') {
+      setTimeout(() => {
+        const score = getPerformanceScore();
+        console.log('Performance Score:', score);
+        console.log('Performance Metrics:', metrics);
+      }, 3000);
+    }
   }, []);
 
   if (!mounted) {
@@ -125,6 +156,41 @@ export default function RootLayout({
       <head>
         <title>SmartMarketOOPS - Professional Trading Platform</title>
         <meta name="description" content="Advanced AI-powered trading platform with real-time market data and Delta Exchange integration" />
+        <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+        <meta name="theme-color" content="#1976d2" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+        <meta name="apple-mobile-web-app-title" content="SmartMarket" />
+
+        {/* PWA Manifest */}
+        <link rel="manifest" href="/manifest.json" />
+
+        {/* Preconnect to external domains */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+
+        {/* DNS prefetch for external resources */}
+        <link rel="dns-prefetch" href="//api.delta.exchange" />
+        <link rel="dns-prefetch" href="//cdn.jsdelivr.net" />
+
+        {/* Favicon and icons */}
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/icon-192x192.png" />
+
+        {/* Critical CSS inlining would go here in production */}
+        <style dangerouslySetInnerHTML={{
+          __html: `
+            /* Critical CSS for above-the-fold content */
+            body { margin: 0; padding: 0; }
+            .loading-spinner {
+              display: flex;
+              justify-content: center;
+              align-items: center;
+              height: 100vh;
+              background: #020617;
+            }
+          `
+        }} />
       </head>
       <body
         className={`${inter.className} bg-slate-950 text-white antialiased`}
@@ -136,6 +202,25 @@ export default function RootLayout({
             {children}
           </div>
         </ThemeProvider>
+
+        {/* Performance monitoring script */}
+        {process.env.NODE_ENV === 'production' && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `
+                // Basic performance monitoring
+                window.addEventListener('load', function() {
+                  setTimeout(function() {
+                    const perfData = performance.getEntriesByType('navigation')[0];
+                    if (perfData && perfData.loadEventEnd > 2000) {
+                      console.warn('Slow page load detected:', perfData.loadEventEnd + 'ms');
+                    }
+                  }, 0);
+                });
+              `
+            }}
+          />
+        )}
       </body>
     </html>
   );

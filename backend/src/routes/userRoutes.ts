@@ -9,6 +9,11 @@ import { protect, requirePermission } from '../middleware/auth';
 
 const router = express.Router();
 
+// Health check for user routes
+router.get('/health', (req, res) => {
+  res.json({ status: 'User routes working', timestamp: new Date().toISOString() });
+});
+
 // Get current user profile
 router.get('/profile', protect, requirePermission(['profile:read']), getProfile);
 
@@ -21,4 +26,4 @@ router.get('/', protect, requirePermission(['users:read']), getUsers);
 // Admin only: Update a user's role
 router.put('/:id/role', protect, requirePermission(['admin:manageRoles']), updateUserRole);
 
-export default router; 
+export default router;
