@@ -249,6 +249,18 @@ export declare class DeltaExchangeUnified extends EventEmitter {
      */
     getCandleData(symbol: string, timeframe: Timeframe, limit?: number): Promise<DeltaCandle[]>;
     /**
+     * Get candles data (alias for getCandleData for compatibility)
+     */
+    getCandles(productId: number, timeframe: string, limit?: number): Promise<any[]>;
+    /**
+     * Get symbol by product ID (Environment-aware mapping)
+     */
+    private getSymbolByProductId;
+    /**
+     * Convert timeframe string to Timeframe type
+     */
+    private convertTimeframeFromString;
+    /**
      * Get multi-timeframe data for a symbol
      */
     getMultiTimeframeData(symbol: string, timeframes?: Timeframe[]): Promise<MultiTimeframeData>;

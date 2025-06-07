@@ -1,0 +1,101 @@
+{
+  "meta": {
+    "generatedAt": "2025-06-06T03:57:52.132Z",
+    "tasksAnalyzed": 11,
+    "totalTasks": 12,
+    "analysisCount": 11,
+    "thresholdScore": 6,
+    "projectName": "Taskmaster",
+    "usedResearch": true
+  },
+  "complexityAnalysis": [
+    {
+      "taskId": 1,
+      "taskTitle": "Setup Project Repository",
+      "complexityScore": 3,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Break down the repository setup into specific steps for each configuration and dependency.",
+      "reasoning": "The task involves multiple discrete steps that can be easily broken down into subtasks."
+    },
+    {
+      "taskId": 2,
+      "taskTitle": "Enhance Delta Exchange Integration",
+      "complexityScore": 5,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Identify key areas for improvement such as retry mechanisms, rate limiting, and secure storage of API keys.",
+      "reasoning": "The task requires implementing several specific enhancements that can be managed as separate subtasks."
+    },
+    {
+      "taskId": 3,
+      "taskTitle": "Implement Multi-Timeframe Data Collection",
+      "complexityScore": 6,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Define subtasks for each timeframe data collection, caching mechanism, and data synchronization.",
+      "reasoning": "The task involves multiple timeframes and synchronization, which can be managed as separate subtasks."
+    },
+    {
+      "taskId": 4,
+      "taskTitle": "Develop Trading Decision Engine",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the core logic into entry and exit strategies, data manipulation, and calculations.",
+      "reasoning": "The task involves complex decision-making logic that can be broken down into detailed subtasks."
+    },
+    {
+      "taskId": 6,
+      "taskTitle": "Build Analysis-Execution Bridge",
+      "complexityScore": 6,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Define subtasks for creating the REST API, WebSocket implementation, and error handling.",
+      "reasoning": "The task involves multiple technical components that can be managed as separate subtasks."
+    },
+    {
+      "taskId": 7,
+      "taskTitle": "Implement ML-Powered Position Management",
+      "complexityScore": 8,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the task into model training, dynamic calculations, and risk assessment.",
+      "reasoning": "The task involves machine learning and dynamic calculations, which can be broken down into detailed subtasks."
+    },
+    {
+      "taskId": 8,
+      "taskTitle": "Develop Performance Monitoring System",
+      "complexityScore": 6,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Define subtasks for metrics collection, visualization, and alert implementation.",
+      "reasoning": "The task involves multiple components that can be managed as separate subtasks."
+    },
+    {
+      "taskId": 9,
+      "taskTitle": "Enhance Risk Management Systems",
+      "complexityScore": 7,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Break down the task into dynamic position sizing, risk calculations, and failsafe mechanisms.",
+      "reasoning": "The task involves complex risk management strategies that can be broken down into detailed subtasks."
+    },
+    {
+      "taskId": 10,
+      "taskTitle": "Build User Dashboard",
+      "complexityScore": 5,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Define subtasks for frontend development, backend integration, and mobile responsiveness.",
+      "reasoning": "The task involves multiple technical components that can be managed as separate subtasks."
+    },
+    {
+      "taskId": 11,
+      "taskTitle": "Conduct Comprehensive Testing",
+      "complexityScore": 6,
+      "recommendedSubtasks": 3,
+      "expansionPrompt": "Break down the testing into unit tests, load testing, and validation against acceptance criteria.",
+      "reasoning": "The task involves different types of testing that can be managed as separate subtasks."
+    },
+    {
+      "taskId": 12,
+      "taskTitle": "Deploy to Production",
+      "complexityScore": 7,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Define subtasks for containerization, orchestration, CI/CD pipeline setup, and post-deployment monitoring.",
+      "reasoning": "The task involves multiple deployment steps that can be managed as separate subtasks."
+    }
+  ]
+}

@@ -116,8 +116,8 @@ export class DeltaExchangeDataProvider implements MarketDataProvider {
   constructor() {
     // Create Delta Exchange service with credentials from environment
     const credentials = {
-      apiKey: process.env.DELTA_API_KEY || '',
-      apiSecret: process.env.DELTA_API_SECRET || '',
+      apiKey: process.env.DELTA_EXCHANGE_API_KEY || '',
+      apiSecret: process.env.DELTA_EXCHANGE_API_SECRET || '',
       testnet: true
     };
     this.deltaService = new DeltaExchangeUnified(credentials);

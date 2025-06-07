@@ -1,0 +1,243 @@
+{
+  "modelName": "Decisive_LSTM",
+  "parameters": {
+    "weights": {
+      "input_0": 0.15475427965311198,
+      "input_1": -0.15128392467765756,
+      "input_2": 0.08914125719972747,
+      "input_3": -0.02694460922358759,
+      "input_4": -0.07871717331852125,
+      "input_5": -0.04035182760826484,
+      "input_6": 0.03814575468528031,
+      "input_7": 0.04525821200080746,
+      "input_8": 0.15230287539009774,
+      "input_9": 0.15010163177990346,
+      "input_10": -0.0439439157528751,
+      "input_11": -0.14035093554317124,
+      "input_12": 0.06255240079932768,
+      "input_13": -0.051536881192841465,
+      "input_14": -0.0032217760265247147,
+      "input_15": 0.12532764864684418,
+      "input_16": -0.039455276836349244,
+      "input_17": -0.11418757164837456,
+      "input_18": -0.03205168041633675,
+      "input_19": -0.028805823066240882,
+      "input_20": -0.09187791959027247,
+      "input_21": -0.15018780238625404,
+      "input_22": -0.053330723120313867,
+      "input_23": -0.09927020898693843,
+      "input_24": -0.01715979879520902,
+      "input_25": 0.09368843935357779,
+      "input_26": -0.047493439321859586,
+      "input_27": 0.007720471577476171,
+      "input_28": -0.14524982627548855,
+      "input_29": 0.042691818505630884,
+      "input_30": 0.09910748930818049,
+      "input_31": 0.05891392928712673,
+      "input_32": 0.10452033022881269,
+      "input_33": -0.02946820175667947,
+      "input_34": 0.07208096227257677,
+      "input_35": 0.07729176074627733,
+      "input_36": 0.15481380755630814,
+      "input_37": -0.04094532760809715
+    },
+    "biases": [
+      0,
+      0
+    ],
+    "learningRate": 0.0005,
+    "epochs": 150,
+    "batchSize": 64,
+    "regularization": 0.005,
+    "dropout": 0.3
+  },
+  "trainingHistory": [
+    {
+      "epoch": 1,
+      "trainLoss": 0.35134565915114474,
+      "validationLoss": 0.28141000879180983,
+      "trainAccuracy": 0.6501525677866896,
+      "validationAccuracy": 0.7435410081416439,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 2,
+      "trainLoss": 0.35878808126216244,
+      "validationLoss": 0.2142231246226598,
+      "trainAccuracy": 0.6714872311014449,
+      "validationAccuracy": 0.7238884725961503,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 3,
+      "trainLoss": 0.34201762049422074,
+      "validationLoss": 0.2859141148926899,
+      "trainAccuracy": 0.660535687435614,
+      "validationAccuracy": 0.7412725505538595,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 4,
+      "trainLoss": 0.3142720049630002,
+      "validationLoss": 0.3846423206378855,
+      "trainAccuracy": 0.6404686140699357,
+      "validationAccuracy": 0.6864752907854814,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 5,
+      "trainLoss": 0.3574652052737585,
+      "validationLoss": 0.2730938890064688,
+      "trainAccuracy": 0.6664623487504027,
+      "validationAccuracy": 0.6855393245548788,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 6,
+      "trainLoss": 0.33507215100335447,
+      "validationLoss": 0.37258986890437495,
+      "trainAccuracy": 0.6619909744277258,
+      "validationAccuracy": 0.7881312025556587,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 7,
+      "trainLoss": 0.35646266941694577,
+      "validationLoss": 0.4458025919312394,
+      "trainAccuracy": 0.6446924047489038,
+      "validationAccuracy": 0.6577909587807953,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 8,
+      "trainLoss": 0.34184206362364516,
+      "validationLoss": 0.15943345722434782,
+      "trainAccuracy": 0.6350449665781865,
+      "validationAccuracy": 0.6297804874597245,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 9,
+      "trainLoss": 0.3505065730577869,
+      "validationLoss": 0.2857916002484145,
+      "trainAccuracy": 0.6670913882746923,
+      "validationAccuracy": 0.6926965304912651,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 10,
+      "trainLoss": 0.3684271819548765,
+      "validationLoss": 0.3657833829701417,
+      "trainAccuracy": 0.6349716636989071,
+      "validationAccuracy": 0.8445038774092595,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 11,
+      "trainLoss": 0.34515297541706613,
+      "validationLoss": 0.5012352736797284,
+      "trainAccuracy": 0.6439637107084243,
+      "validationAccuracy": 0.6258755594858224,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 12,
+      "trainLoss": 0.3514507949978857,
+      "validationLoss": 0.47194634675370595,
+      "trainAccuracy": 0.6470018132007952,
+      "validationAccuracy": 0.6033678209802902,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 13,
+      "trainLoss": 0.301263341812793,
+      "validationLoss": 0.24727217127572354,
+      "trainAccuracy": 0.6629640952454285,
+      "validationAccuracy": 0.69796210078552,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 14,
+      "trainLoss": 0.33332400959779673,
+      "validationLoss": 0.4697982335930637,
+      "trainAccuracy": 0.6427197608865346,
+      "validationAccuracy": 0.6384770116295104,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 15,
+      "trainLoss": 0.3838844769481744,
+      "validationLoss": 0.3547603387084318,
+      "trainAccuracy": 0.6532173616370133,
+      "validationAccuracy": 0.6321419592373407,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 16,
+      "trainLoss": 0.3521516838269799,
+      "validationLoss": 0.20312043499765214,
+      "trainAccuracy": 0.6475167624027457,
+      "validationAccuracy": 0.7873383190928238,
+      "learningRate": 0.0005
+    },
+    {
+      "epoch": 17,
+      "trainLoss": 0.36153927019112525,
+      "validationLoss": 0.5248752802234647,
+      "trainAccuracy": 0.6580265196768176,
+      "validationAccuracy": 0.6793780161908424,
+      "learningRate": 0.0005
+    }
+  ],
+  "finalMetrics": {
+    "trainAccuracy": 0.860950477772383,
+    "validationAccuracy": 0.7101537737769558,
+    "testAccuracy": 0.7528393325402527,
+    "precision": 0.7174017308803214,
+    "recall": 0.6473309409219794,
+    "f1Score": 0.7364740361503846
+  },
+  "featureImportance": {
+    "open": null,
+    "high": null,
+    "low": null,
+    "close": null,
+    "volume": null,
+    "rsi_14": null,
+    "rsi_7": null,
+    "rsi_21": null,
+    "sma_10": null,
+    "sma_20": null,
+    "sma_50": null,
+    "ema_12": null,
+    "ema_26": null,
+    "ema_50": null,
+    "macd": null,
+    "macd_signal": null,
+    "macd_histogram": null,
+    "bb_upper": null,
+    "bb_middle": null,
+    "bb_lower": null,
+    "bb_width": null,
+    "bb_position": null,
+    "volume_sma_20": null,
+    "volume_ratio": null,
+    "body_size": null,
+    "upper_wick": null,
+    "lower_wick": null,
+    "atr_14": null,
+    "volatility_10": null,
+    "momentum_5": null,
+    "momentum_10": null,
+    "higher_tf_trend": null,
+    "lower_tf_momentum": null,
+    "support_level": null,
+    "resistance_level": null,
+    "trend_strength": null,
+    "hour_of_day": null,
+    "day_of_week": null
+  },
+  "trainingTime": 0.001,
+  "version": "2.0.0",
+  "trainedAt": "2025-06-01T17:37:58.443Z"
+}

@@ -25,12 +25,15 @@ const logger = createLogger('DeltaExchangeAPI');
 const MAINNET_BASE_URL = 'https://api.india.delta.exchange';
 const TESTNET_BASE_URL = 'https://cdn-ind.testnet.deltaex.org';
 
-// Default rate limit settings
+// Enhanced rate limit settings based on Delta Exchange documentation
 const DEFAULT_RATE_LIMIT: DeltaExchange.RateLimitSettings = {
-  maxRetries: 3,
-  initialDelay: 1000, // ms
-  maxDelay: 10000, // ms
-  factor: 2 // exponential backoff factor
+  maxRetries: 5, // Increased retries for better reliability
+  initialDelay: 2000, // Increased initial delay (2s)
+  maxDelay: 30000, // Increased max delay (30s)
+  factor: 2.5, // More aggressive backoff
+  requestsPerWindow: 8000, // Conservative limit (80% of 10,000)
+  windowDuration: 300000, // 5 minutes in ms
+  productRateLimit: 400 // Conservative product limit (80% of 500)
 };
 
 /**
@@ -56,6 +59,12 @@ class DeltaExchangeAPI {
   private apiKeys: DeltaExchange.ApiCredentials | null;
   private client: AxiosInstance | null;
 
+  // Enhanced rate limiting tracking
+  private requestCount: number = 0;
+  private windowStartTime: number = Date.now();
+  private lastRequestTime: number = 0;
+  private productRequestCounts: Map<string, { count: number; windowStart: number }> = new Map();
+
   /**
    * Creates a new instance of the Delta Exchange API client
    * @param {DeltaExchange.ApiOptions} options - Configuration options
@@ -67,9 +76,18 @@ class DeltaExchangeAPI {
     this.userId = options.userId;
     this.apiKeys = null;
     this.client = null;
-    
-    // Log initialization
-    logger.info(`Initializing Delta Exchange API client with ${this.testnet ? 'testnet' : 'mainnet'} environment`);
+
+    // Initialize rate limiting tracking
+    this.requestCount = 0;
+    this.windowStartTime = Date.now();
+    this.lastRequestTime = 0;
+    this.productRequestCounts = new Map();
+
+    // Log initialization with enhanced details
+    logger.info(`🚀 Initializing Enhanced Delta Exchange API client`);
+    logger.info(`   Environment: ${this.testnet ? 'TESTNET' : 'PRODUCTION'}`);
+    logger.info(`   Base URL: ${this.baseUrl}`);
+    logger.info(`   Rate Limits: ${this.rateLimit.requestsPerWindow} req/5min, ${this.rateLimit.productRateLimit} req/sec/product`);
   }
 
   /**
@@ -100,11 +118,19 @@ class DeltaExchangeAPI {
       throw new Error('No credentials provided and no userId to retrieve keys');
     }
 
-    // Set up axios instance with default configuration
+    // Set up axios instance with enhanced configuration
     this.client = axios.create({
       baseURL: this.baseUrl,
+      timeout: 30000, // 30 second timeout
       headers: {
-        'Content-Type': 'application/json'
+        'Content-Type': 'application/json',
+        'User-Agent': 'SmartMarketOOPS-v2.0', // Required by Delta Exchange
+        'Accept': 'application/json'
+      },
+      // Enhanced retry configuration
+      validateStatus: (status) => {
+        // Accept 2xx and specific error codes for retry logic
+        return (status >= 200 && status < 300) || status === 429 || status === 502 || status === 503;
       }
     });
 
@@ -137,16 +163,87 @@ class DeltaExchangeAPI {
   // }
 
   /**
-   * Gets all available markets from Delta Exchange
+   * Enhanced market data retrieval with caching and error handling
    * @param {Record<string, any>} params - Query parameters
    * @returns {Promise<DeltaExchange.Market[]>} Available markets
    */
   async getMarkets(params: Record<string, any> = {}): Promise<DeltaExchange.Market[]> {
-    return this._makeRequest({
-      method: 'GET',
-      endpoint: '/v2/products',
-      params
-    });
+    try {
+      logger.info('📊 Fetching markets from Delta Exchange...');
+      const markets = await this._makeRequest({
+        method: 'GET',
+        endpoint: '/v2/products',
+        params
+      });
+
+      logger.info(`✅ Retrieved ${markets.length} markets from Delta Exchange`);
+
+      // Log important perpetual contracts for debugging
+      const perpetuals = markets.filter((m: any) =>
+        m.contract_type === 'perpetual_futures' && m.is_active
+      );
+      logger.info(`📈 Active perpetual contracts: ${perpetuals.length}`);
+
+      // Log BTC and ETH contracts specifically
+      const btcContract = perpetuals.find((m: any) => m.symbol === 'BTCUSD');
+      const ethContract = perpetuals.find((m: any) => m.symbol === 'ETHUSD');
+
+      if (btcContract) {
+        logger.info(`🟠 BTC Contract: ID=${btcContract.id}, Symbol=${btcContract.symbol}`);
+      }
+      if (ethContract) {
+        logger.info(`🔵 ETH Contract: ID=${ethContract.id}, Symbol=${ethContract.symbol}`);
+      }
+
+      return markets;
+    } catch (error: any) {
+      logger.error('❌ Failed to fetch markets:', error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Enhanced symbol to product ID mapping
+   * @param {string} symbol - Market symbol (e.g., 'BTCUSD')
+   * @returns {Promise<number>} Product ID
+   */
+  async getProductIdBySymbol(symbol: string): Promise<number> {
+    try {
+      const markets = await this.getMarkets();
+      const market = markets.find((m: any) => m.symbol === symbol);
+
+      if (!market) {
+        throw new Error(`Product not found for symbol: ${symbol}`);
+      }
+
+      logger.debug(`🔍 Symbol ${symbol} mapped to Product ID: ${market.id}`);
+      return market.id;
+    } catch (error: any) {
+      logger.error(`❌ Failed to get product ID for symbol ${symbol}:`, error.message);
+      throw error;
+    }
+  }
+
+  /**
+   * Enhanced product ID to symbol mapping
+   * @param {number} productId - Product ID
+   * @returns {Promise<string>} Market symbol
+   */
+  async getSymbolByProductId(productId: number): Promise<string> {
+    try {
+      const markets = await this.getMarkets();
+      const market = markets.find((m: any) => m.id === productId);
+
+      if (!market) {
+        throw new Error(`Product not found for ID: ${productId}`);
+      }
+
+      logger.debug(`🔍 Product ID ${productId} mapped to Symbol: ${market.symbol}`);
+      return market.symbol;
+    } catch (error: any) {
+      logger.error(`❌ Failed to get symbol for product ID ${productId}:`, error.message);
+      throw error;
+    }
   }
 
   /**
@@ -239,38 +336,95 @@ class DeltaExchangeAPI {
   }
 
   /**
-   * Places a new order
+   * Enhanced order placement with comprehensive validation and error handling
    * @param {DeltaExchange.OrderParams} order - Order details
    * @returns {Promise<DeltaExchange.Order>} Order information
    */
   async placeOrder(order: DeltaExchange.OrderParams): Promise<DeltaExchange.Order> {
-    // Basic validation
-    if (!order.symbol) throw new Error('Symbol is required');
-    if (!order.side) throw new Error('Side is required');
-    if (!order.size) throw new Error('Size is required');
-    if (order.type === 'limit' && !order.price) throw new Error('Price is required for limit orders');
+    try {
+      // Enhanced validation
+      if (!order.symbol) throw new Error('Symbol is required');
+      if (!order.side) throw new Error('Side is required');
+      if (!order.size || order.size <= 0) throw new Error('Size must be positive');
+      if (order.type === 'limit' && (!order.price || order.price <= 0)) {
+        throw new Error('Price is required and must be positive for limit orders');
+      }
 
-    const payload: Record<string, any> = {
-      symbol: order.symbol,
-      side: order.side.toUpperCase(),
-      size: order.size,
-      order_type: order.type || 'limit',
-      time_in_force: order.timeInForce || 'gtc'
-    };
+      // Validate side
+      if (!['buy', 'sell'].includes(order.side.toLowerCase())) {
+        throw new Error('Side must be "buy" or "sell"');
+      }
 
-    if (order.price) payload.price = order.price;
-    if (order.reduceOnly) payload.reduce_only = order.reduceOnly;
-    if (order.postOnly) payload.post_only = order.postOnly;
-    if (order.clientOrderId) payload.client_order_id = order.clientOrderId;
+      // Validate order type
+      const validTypes = ['limit', 'market', 'stop_loss_order', 'take_profit_order'];
+      if (order.type && !validTypes.includes(order.type)) {
+        throw new Error(`Invalid order type. Must be one of: ${validTypes.join(', ')}`);
+      }
 
-    logger.info(`Placing ${order.side} order for ${order.size} ${order.symbol}`);
-    
-    return this._makeRequest({
-      method: 'POST',
-      endpoint: '/v2/orders',
-      data: payload,
-      authenticated: true
-    });
+      // Get product ID for the symbol (Delta Exchange uses product_id in orders)
+      let productId: number;
+      try {
+        productId = await this.getProductIdBySymbol(order.symbol);
+      } catch (error) {
+        throw new Error(`Invalid symbol: ${order.symbol}. ${error.message}`);
+      }
+
+      // Build payload with proper Delta Exchange format
+      const payload: Record<string, any> = {
+        product_id: productId, // Delta Exchange uses product_id, not symbol
+        side: order.side.toLowerCase(), // Delta Exchange expects lowercase
+        size: order.size,
+        order_type: order.type === 'limit' ? 'limit_order' :
+                   order.type === 'market' ? 'market_order' : order.type,
+        time_in_force: order.timeInForce || 'gtc'
+      };
+
+      // Add price for limit orders
+      if (order.type === 'limit' || !order.type) {
+        payload.limit_price = order.price?.toString(); // Delta Exchange expects string
+      }
+
+      // Add optional parameters
+      if (order.reduceOnly) payload.reduce_only = order.reduceOnly;
+      if (order.postOnly) payload.post_only = order.postOnly;
+      if (order.clientOrderId) payload.client_order_id = order.clientOrderId;
+
+      logger.info(`🚀 Placing enhanced ${order.side.toUpperCase()} order:`);
+      logger.info(`   Symbol: ${order.symbol} (Product ID: ${productId})`);
+      logger.info(`   Size: ${order.size} contracts`);
+      logger.info(`   Type: ${payload.order_type}`);
+      if (order.price) logger.info(`   Price: $${order.price}`);
+      logger.info(`   Time in Force: ${payload.time_in_force}`);
+
+      const result = await this._makeRequest({
+        method: 'POST',
+        endpoint: '/v2/orders',
+        data: payload,
+        authenticated: true
+      });
+
+      logger.info(`✅ Order placed successfully! Order ID: ${result.id}`);
+      return result;
+
+    } catch (error: any) {
+      logger.error(`❌ Failed to place order for ${order.symbol}:`, error.message);
+
+      // Enhanced error handling for common Delta Exchange order errors
+      if (error.message.includes('insufficient')) {
+        throw new Error(`Insufficient balance to place order: ${error.message}`);
+      }
+      if (error.message.includes('invalid_product')) {
+        throw new Error(`Invalid product/symbol: ${order.symbol}`);
+      }
+      if (error.message.includes('invalid_size')) {
+        throw new Error(`Invalid order size: ${order.size}`);
+      }
+      if (error.message.includes('invalid_price')) {
+        throw new Error(`Invalid order price: ${order.price}`);
+      }
+
+      throw error;
+    }
   }
 
   /**
@@ -333,7 +487,73 @@ class DeltaExchangeAPI {
   }
 
   /**
-   * Makes a request to the Delta Exchange API with retries and rate limit handling
+   * Enhanced rate limiting check before making requests
+   * @private
+   * @param {string} productId - Product ID for product-level rate limiting
+   */
+  private async _checkRateLimit(productId?: string): Promise<void> {
+    const now = Date.now();
+
+    // Check global rate limit (10,000 requests per 5 minutes)
+    if (now - this.windowStartTime >= this.rateLimit.windowDuration!) {
+      // Reset window
+      this.requestCount = 0;
+      this.windowStartTime = now;
+    }
+
+    if (this.requestCount >= this.rateLimit.requestsPerWindow!) {
+      const waitTime = this.rateLimit.windowDuration! - (now - this.windowStartTime);
+      logger.warn(`🚫 Global rate limit reached. Waiting ${waitTime}ms`);
+      await new Promise(resolve => setTimeout(resolve, waitTime));
+
+      // Reset after waiting
+      this.requestCount = 0;
+      this.windowStartTime = Date.now();
+    }
+
+    // Check product-level rate limit (500 operations per second per product)
+    if (productId) {
+      const productKey = productId;
+      const productLimit = this.productRequestCounts.get(productKey);
+
+      if (productLimit) {
+        const timeSinceLastRequest = now - productLimit.windowStart;
+        if (timeSinceLastRequest < 1000) { // Within 1 second
+          if (productLimit.count >= this.rateLimit.productRateLimit!) {
+            const waitTime = 1000 - timeSinceLastRequest;
+            logger.warn(`🚫 Product rate limit reached for ${productId}. Waiting ${waitTime}ms`);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+
+            // Reset product counter
+            this.productRequestCounts.set(productKey, { count: 0, windowStart: Date.now() });
+          }
+        } else {
+          // Reset if more than 1 second has passed
+          this.productRequestCounts.set(productKey, { count: 0, windowStart: now });
+        }
+      } else {
+        this.productRequestCounts.set(productKey, { count: 0, windowStart: now });
+      }
+
+      // Increment product counter
+      const current = this.productRequestCounts.get(productKey)!;
+      current.count++;
+    }
+
+    // Increment global counter
+    this.requestCount++;
+
+    // Ensure minimum delay between requests (prevent signature expiration)
+    const timeSinceLastRequest = now - this.lastRequestTime;
+    if (timeSinceLastRequest < 100) { // Minimum 100ms between requests
+      await new Promise(resolve => setTimeout(resolve, 100 - timeSinceLastRequest));
+    }
+
+    this.lastRequestTime = Date.now();
+  }
+
+  /**
+   * Enhanced request method with comprehensive retry logic and rate limiting
    * @private
    * @param {RequestOptions} options - Request options
    * @param {number} retryCount - Current retry count
@@ -341,12 +561,18 @@ class DeltaExchangeAPI {
    */
   private async _makeRequest(options: RequestOptions, retryCount: number = 0): Promise<any> {
     const { method, endpoint, params, data, authenticated } = options;
-    
+
     if (!this.client) {
-      logger.error('API client not initialized');
+      logger.error('❌ API client not initialized');
       throw new Error('API client not initialized. Call initialize() first.');
     }
-    
+
+    // Extract product ID for rate limiting (if available)
+    const productId = params?.product_id || data?.product_id || params?.symbol || data?.symbol;
+
+    // Check rate limits before making request
+    await this._checkRateLimit(productId);
+
     try {
       // Prepare request config
       const requestConfig: AxiosRequestConfig = {
@@ -390,22 +616,66 @@ class DeltaExchangeAPI {
 
       return response.data;
     } catch (error: any) {
-      // Handle rate limiting errors
-      if (error.response && error.response.status === 429) {
-        // Rate limit exceeded
-        if (retryCount < (this.rateLimit.maxRetries || 3)) {
-          // Calculate delay with exponential backoff
-          const delay = Math.min(
-            (this.rateLimit.initialDelay || 1000) * Math.pow((this.rateLimit.factor || 2), retryCount),
-            (this.rateLimit.maxDelay || 10000)
-          );
-          
-          // Log the retry
-          logger.warn(`Rate limit exceeded. Retrying in ${delay}ms (attempt ${retryCount + 1}/${this.rateLimit.maxRetries})`);
-          
-          // Wait and retry
+      // Enhanced error handling with specific Delta Exchange error codes
+      if (error.response) {
+        const status = error.response.status;
+        const errorData = error.response.data;
+
+        // Handle rate limiting (429)
+        if (status === 429) {
+          if (retryCount < (this.rateLimit.maxRetries || 5)) {
+            // Check for X-RATE-LIMIT-RESET header
+            const resetTime = error.response.headers['x-rate-limit-reset'];
+            let delay = resetTime ? parseInt(resetTime) :
+              Math.min(
+                (this.rateLimit.initialDelay || 2000) * Math.pow((this.rateLimit.factor || 2.5), retryCount),
+                (this.rateLimit.maxDelay || 30000)
+              );
+
+            logger.warn(`🚫 Rate limit exceeded (429). Retrying in ${delay}ms (attempt ${retryCount + 1}/${this.rateLimit.maxRetries})`);
+            await new Promise(resolve => setTimeout(resolve, delay));
+            return this._makeRequest(options, retryCount + 1);
+          }
+        }
+
+        // Handle server errors (502, 503, 504)
+        if ([502, 503, 504].includes(status) && retryCount < 3) {
+          const delay = 1000 * Math.pow(2, retryCount); // 1s, 2s, 4s
+          logger.warn(`🔄 Server error ${status}. Retrying in ${delay}ms (attempt ${retryCount + 1}/3)`);
           await new Promise(resolve => setTimeout(resolve, delay));
           return this._makeRequest(options, retryCount + 1);
+        }
+
+        // Handle specific Delta Exchange errors
+        if (errorData && errorData.error) {
+          const errorCode = errorData.error.code || errorData.error;
+
+          // Handle signature expiration
+          if (errorCode === 'SignatureExpired' || errorCode === 'signature_expired') {
+            if (retryCount < 2) {
+              logger.warn(`🔐 Signature expired. Regenerating and retrying (attempt ${retryCount + 1}/2)`);
+              await new Promise(resolve => setTimeout(resolve, 1000));
+              return this._makeRequest(options, retryCount + 1);
+            }
+          }
+
+          // Handle IP whitelisting errors
+          if (errorCode === 'ip_not_whitelisted_for_api_key' || errorCode === 'ip_not_whitelisted') {
+            logger.error('🚫 IP not whitelisted for API key. Please whitelist your IP in Delta Exchange settings.');
+            throw new Error(`IP not whitelisted: ${JSON.stringify(errorData)}`);
+          }
+
+          // Handle invalid API key
+          if (errorCode === 'InvalidApiKey' || errorCode === 'invalid_api_key') {
+            logger.error('🔑 Invalid API key. Please check your credentials.');
+            throw new Error(`Invalid API key: ${JSON.stringify(errorData)}`);
+          }
+
+          // Handle unauthorized access
+          if (errorCode === 'UnauthorizedApiAccess' || errorCode === 'unauthorized') {
+            logger.error('🚫 Unauthorized API access. Check API key permissions.');
+            throw new Error(`Unauthorized access: ${JSON.stringify(errorData)}`);
+          }
         }
       }
       
@@ -424,47 +694,60 @@ class DeltaExchangeAPI {
   }
 
   /**
-   * Adds authentication headers to a request
+   * Enhanced authentication header generation with improved signature handling
    * @private
    * @param {AxiosRequestConfig} requestConfig - Axios request configuration
    */
   private _addAuthHeaders(requestConfig: AxiosRequestConfig): void {
     if (!this.apiKeys) {
-      throw new Error('API keys not initialized');
+      throw new Error('🔑 API keys not initialized');
     }
 
-    // Delta Exchange uses SECONDS timestamp (not milliseconds) - per official docs
+    // Generate fresh timestamp (SECONDS, not milliseconds) - Critical for Delta Exchange
     const timestamp = Math.floor(Date.now() / 1000);
     const method = requestConfig.method ? requestConfig.method.toUpperCase() : 'GET';
     const path = requestConfig.url || '';
 
-    // Prepare the message to sign according to official Delta Exchange format
+    // Enhanced signature generation following Delta Exchange official format
     // Format: method + timestamp + path + query_string + body
     let message = method + timestamp.toString() + path;
 
-    // Add query string if it exists
+    // Handle query parameters with proper encoding
     let queryString = '';
-    if (requestConfig.params) {
-      queryString = querystring.stringify(requestConfig.params);
+    if (requestConfig.params && Object.keys(requestConfig.params).length > 0) {
+      // Sort parameters for consistent signature generation
+      const sortedParams = Object.keys(requestConfig.params)
+        .sort()
+        .reduce((result: any, key: string) => {
+          result[key] = requestConfig.params![key];
+          return result;
+        }, {});
+
+      queryString = querystring.stringify(sortedParams);
       if (queryString) {
         message += '?' + queryString;
       }
     }
 
-    // Add body if it exists
+    // Handle request body with proper JSON formatting
     let body = '';
     if (requestConfig.data) {
-      body = JSON.stringify(requestConfig.data);
+      // Ensure consistent JSON formatting (no extra spaces)
+      if (typeof requestConfig.data === 'string') {
+        body = requestConfig.data;
+      } else {
+        body = JSON.stringify(requestConfig.data, null, 0); // No formatting
+      }
       message += body;
     }
 
-    // Create the signature using HMAC SHA256
+    // Generate signature using HMAC SHA256
     const signature = crypto
       .createHmac('sha256', this.apiKeys.secret)
-      .update(message)
+      .update(message, 'utf8')
       .digest('hex');
 
-    // Add authentication headers according to Delta Exchange official format
+    // Set enhanced authentication headers
     if (!requestConfig.headers) {
       requestConfig.headers = {};
     }
@@ -474,12 +757,20 @@ class DeltaExchangeAPI {
       'api-key': this.apiKeys.key,
       'timestamp': timestamp.toString(),
       'signature': signature,
-      'User-Agent': 'nodejs-rest-client', // Required per official docs
-      'Content-Type': 'application/json'
+      'User-Agent': 'SmartMarketOOPS-v2.0', // Enhanced user agent
+      'Content-Type': 'application/json',
+      'Accept': 'application/json'
     };
 
-    logger.debug(`Delta auth headers added - method: ${method}, timestamp: ${timestamp}, path: ${path}, query: ${queryString}, body length: ${body.length}`);
-    logger.debug(`Signature message: ${message}`);
+    // Enhanced logging for debugging
+    logger.debug(`🔐 Enhanced Delta auth headers generated:`);
+    logger.debug(`   Method: ${method}`);
+    logger.debug(`   Timestamp: ${timestamp}`);
+    logger.debug(`   Path: ${path}`);
+    logger.debug(`   Query: ${queryString || 'none'}`);
+    logger.debug(`   Body length: ${body.length}`);
+    logger.debug(`   Signature message: ${message}`);
+    logger.debug(`   API Key: ${this.apiKeys.key.substring(0, 8)}...`);
   }
 
   /**

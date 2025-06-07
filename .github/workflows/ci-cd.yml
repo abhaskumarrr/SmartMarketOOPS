@@ -1,0 +1,301 @@
+name: SmartMarketOOPS CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  release:
+    types: [ published ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Code Quality and Testing
+  test:
+    name: Test Suite
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        component: [ml-system, frontend, backend]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js (for frontend)
+      if: matrix.component == 'frontend'
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: frontend/package-lock.json
+        
+    - name: Setup Python (for ML system)
+      if: matrix.component == 'ml-system'
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+        
+    - name: Install dependencies (Frontend)
+      if: matrix.component == 'frontend'
+      working-directory: ./frontend
+      run: |
+        npm ci
+        
+    - name: Install dependencies (ML System)
+      if: matrix.component == 'ml-system'
+      run: |
+        pip install -r requirements.txt
+        pip install -r tests/requirements-test.txt
+        
+    - name: Run linting (Frontend)
+      if: matrix.component == 'frontend'
+      working-directory: ./frontend
+      run: |
+        npm run lint
+        npm run type-check
+        
+    - name: Run linting (ML System)
+      if: matrix.component == 'ml-system'
+      run: |
+        flake8 ml_models/ data_collection/ --max-line-length=100
+        black --check ml_models/ data_collection/
+        mypy ml_models/ data_collection/
+        
+    - name: Run unit tests (Frontend)
+      if: matrix.component == 'frontend'
+      working-directory: ./frontend
+      run: |
+        npm run test:ci
+        
+    - name: Run unit tests (ML System)
+      if: matrix.component == 'ml-system'
+      run: |
+        pytest tests/test_ml_models.py -v --cov=ml_models --cov-report=xml
+        
+    - name: Upload coverage reports
+      if: matrix.component == 'ml-system'
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: ml-system
+        name: ml-system-coverage
+
+  # Security Scanning
+  security:
+    name: Security Scan
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Run Trivy vulnerability scanner
+      uses: aquasecurity/trivy-action@master
+      with:
+        scan-type: 'fs'
+        scan-ref: '.'
+        format: 'sarif'
+        output: 'trivy-results.sarif'
+        
+    - name: Upload Trivy scan results
+      uses: github/codeql-action/upload-sarif@v2
+      with:
+        sarif_file: 'trivy-results.sarif'
+
+  # Build and Push Docker Images
+  build:
+    name: Build Images
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    if: github.event_name == 'push' || github.event_name == 'release'
+    
+    strategy:
+      matrix:
+        component: [ml-system, frontend, bridge]
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+      
+    - name: Log in to Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ matrix.component }}
+        tags: |
+          type=ref,event=branch
+          type=ref,event=pr
+          type=semver,pattern={{version}}
+          type=semver,pattern={{major}}.{{minor}}
+          type=sha,prefix={{branch}}-
+          
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        file: ./docker/Dockerfile.${{ matrix.component }}
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        build-args: |
+          BUILD_DATE=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.created'] }}
+          VERSION=${{ fromJSON(steps.meta.outputs.json).labels['org.opencontainers.image.version'] }}
+          VCS_REF=${{ github.sha }}
+
+  # Load Testing
+  load-test:
+    name: Load Testing
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+        
+    - name: Install load testing dependencies
+      run: |
+        pip install locust aiohttp websockets
+        
+    - name: Start test environment
+      run: |
+        docker-compose -f docker-compose.test.yml up -d
+        sleep 60  # Wait for services to start
+        
+    - name: Run load tests
+      run: |
+        locust -f tests/load_testing/locustfile.py \
+          --host=http://localhost:8000 \
+          --users=50 \
+          --spawn-rate=5 \
+          --run-time=300s \
+          --headless \
+          --html=load-test-report.html
+          
+    - name: Upload load test results
+      uses: actions/upload-artifact@v3
+      with:
+        name: load-test-report
+        path: load-test-report.html
+        
+    - name: Cleanup test environment
+      if: always()
+      run: |
+        docker-compose -f docker-compose.test.yml down -v
+
+  # Deploy to Staging
+  deploy-staging:
+    name: Deploy to Staging
+    runs-on: ubuntu-latest
+    needs: [build, load-test]
+    if: github.ref == 'refs/heads/develop'
+    environment: staging
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+        
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.KUBE_CONFIG_STAGING }}" | base64 -d > kubeconfig
+        export KUBECONFIG=kubeconfig
+        
+    - name: Deploy to staging
+      run: |
+        export KUBECONFIG=kubeconfig
+        kubectl apply -f k8s/namespace.yaml
+        envsubst < k8s/staging/ | kubectl apply -f -
+        kubectl rollout status deployment/smartmarket-ml-system -n smartmarket-staging
+        kubectl rollout status deployment/smartmarket-frontend -n smartmarket-staging
+        
+    - name: Run acceptance tests
+      run: |
+        python tests/acceptance/acceptance_criteria_validator.py \
+          --host=https://staging.smartmarket.com
+          
+    - name: Notify deployment
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#deployments'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+
+  # Deploy to Production
+  deploy-production:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.event_name == 'release'
+    environment: production
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup kubectl
+      uses: azure/setup-kubectl@v3
+      with:
+        version: 'v1.28.0'
+        
+    - name: Configure kubectl
+      run: |
+        echo "${{ secrets.KUBE_CONFIG_PRODUCTION }}" | base64 -d > kubeconfig
+        export KUBECONFIG=kubeconfig
+        
+    - name: Deploy to production
+      run: |
+        export KUBECONFIG=kubeconfig
+        kubectl apply -f k8s/namespace.yaml
+        envsubst < k8s/production/ | kubectl apply -f -
+        kubectl rollout status deployment/smartmarket-ml-system -n smartmarket
+        kubectl rollout status deployment/smartmarket-frontend -n smartmarket
+        
+    - name: Run production health checks
+      run: |
+        python tests/acceptance/acceptance_criteria_validator.py \
+          --host=https://smartmarket.com \
+          --production-mode
+          
+    - name: Notify production deployment
+      uses: 8398a7/action-slack@v3
+      with:
+        status: ${{ job.status }}
+        channel: '#production'
+        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        
+    - name: Create deployment record
+      run: |
+        curl -X POST "${{ secrets.DEPLOYMENT_WEBHOOK }}" \
+          -H "Content-Type: application/json" \
+          -d '{
+            "version": "${{ github.event.release.tag_name }}",
+            "environment": "production",
+            "timestamp": "${{ github.event.release.published_at }}",
+            "commit": "${{ github.sha }}"
+          }'

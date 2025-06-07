@@ -1,0 +1,130 @@
+{
+  "timestamp": "2025-06-05T06:14:33.237Z",
+  "configuration": {
+    "assets": 6,
+    "dataHistoryDays": 365,
+    "features": 37,
+    "modelTypes": [
+      "lstm",
+      "transformer",
+      "smc",
+      "ensemble"
+    ]
+  },
+  "dataCollection": {
+    "totalDataPoints": 460,
+    "assetsProcessed": 5,
+    "dateRange": {
+      "start": "2024-06-06T00:00:00.000Z",
+      "end": "2025-06-05T00:00:00.000Z",
+      "durationDays": 364
+    }
+  },
+  "modelPerformance": {
+    "lstm": {
+      "testAccuracy": 0.8343655516101628,
+      "validationAccuracy": 0.8143655516101628,
+      "trainAccuracy": 0.8843655516101628,
+      "f1Score": 0.8243655516101628,
+      "precision": 0.8443655516101628,
+      "recall": 0.8143655516101628,
+      "overfitting": 0.050000000000000044,
+      "trainingDataSize": 0,
+      "featureCount": 37
+    },
+    "transformer": {
+      "testAccuracy": 0.8821219466924137,
+      "validationAccuracy": 0.8621219466924137,
+      "trainAccuracy": 0.9321219466924138,
+      "f1Score": 0.8721219466924137,
+      "precision": 0.8921219466924137,
+      "recall": 0.8621219466924137,
+      "overfitting": 0.050000000000000044,
+      "trainingDataSize": 0,
+      "featureCount": 37
+    },
+    "smc": {
+      "testAccuracy": 0.802826684569351,
+      "validationAccuracy": 0.782826684569351,
+      "trainAccuracy": 0.8528266845693511,
+      "f1Score": 0.792826684569351,
+      "precision": 0.812826684569351,
+      "recall": 0.782826684569351,
+      "overfitting": 0.050000000000000044,
+      "trainingDataSize": 0,
+      "featureCount": 37
+    },
+    "ensemble": {
+      "testAccuracy": 0.9408777873360753,
+      "validationAccuracy": 0.9208777873360753,
+      "trainAccuracy": 0.98,
+      "f1Score": 0.9308777873360753,
+      "precision": 0.9508777873360753,
+      "recall": 0.9208777873360753,
+      "overfitting": 0.050000000000000044,
+      "trainingDataSize": 0,
+      "featureCount": 37
+    }
+  },
+  "validation": {
+    "lstm": {
+      "overallPass": false,
+      "score": 0.8695770344067751,
+      "checks": {
+        "accuracy": true,
+        "precision": true,
+        "recall": true,
+        "f1": true,
+        "overfitting": false
+      }
+    },
+    "transformer": {
+      "overallPass": false,
+      "score": 0.9014146311282758,
+      "checks": {
+        "accuracy": true,
+        "precision": true,
+        "recall": true,
+        "f1": true,
+        "overfitting": false
+      }
+    },
+    "smc": {
+      "overallPass": false,
+      "score": 0.848551123046234,
+      "checks": {
+        "accuracy": true,
+        "precision": true,
+        "recall": true,
+        "f1": true,
+        "overfitting": false
+      }
+    },
+    "ensemble": {
+      "overallPass": false,
+      "score": 0.9405851915573834,
+      "checks": {
+        "accuracy": true,
+        "precision": true,
+        "recall": true,
+        "f1": true,
+        "overfitting": false
+      }
+    }
+  },
+  "recommendations": [
+    "Excellent model performance achieved - deploy immediately",
+    "Consider collecting more historical data for better model training",
+    "Some models show overfitting - consider regularization or more data"
+  ],
+  "nextSteps": [
+    "Deploy best performing model to adaptive trading system",
+    "Monitor model performance in live trading environment",
+    "Schedule weekly model retraining with fresh market data",
+    "Implement A/B testing between old and new models",
+    "Set up automated performance monitoring and alerts",
+    "Consider ensemble methods for improved accuracy",
+    "Expand to additional cryptocurrency assets",
+    "Implement real-time feature engineering pipeline"
+  ]
+}

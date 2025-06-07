@@ -1,0 +1,251 @@
+# Trading System Alerting Rules
+# Comprehensive alerts for trading performance and risk management
+
+groups:
+  - name: trading_performance
+    interval: 30s
+    rules:
+      # Trading Performance Alerts
+      - alert: LowWinRate
+        expr: (sum(rate(trading_trades_total{status="success"}[10m])) / sum(rate(trading_trades_total[10m]))) * 100 < 40
+        for: 5m
+        labels:
+          severity: warning
+          component: trading_engine
+          category: performance
+        annotations:
+          summary: "Trading win rate is below acceptable threshold"
+          description: "Win rate has been below 40% for more than 5 minutes. Current rate: {{ $value | humanizePercentage }}"
+          runbook_url: "https://docs.trading-system.com/runbooks/low-win-rate"
+
+      - alert: HighTradeLatency
+        expr: histogram_quantile(0.95, rate(trading_trade_latency_seconds_bucket[5m])) > 1.0
+        for: 2m
+        labels:
+          severity: warning
+          component: trading_engine
+          category: latency
+        annotations:
+          summary: "Trade execution latency is too high"
+          description: "95th percentile trade latency is {{ $value }}s, exceeding 1 second threshold"
+          runbook_url: "https://docs.trading-system.com/runbooks/high-latency"
+
+      - alert: CriticalTradeLatency
+        expr: histogram_quantile(0.95, rate(trading_trade_latency_seconds_bucket[5m])) > 5.0
+        for: 1m
+        labels:
+          severity: critical
+          component: trading_engine
+          category: latency
+        annotations:
+          summary: "CRITICAL: Trade execution latency is extremely high"
+          description: "95th percentile trade latency is {{ $value }}s, exceeding critical 5 second threshold"
+          runbook_url: "https://docs.trading-system.com/runbooks/critical-latency"
+
+      - alert: NoTradingActivity
+        expr: rate(trading_trades_total[30m]) == 0
+        for: 30m
+        labels:
+          severity: warning
+          component: trading_engine
+          category: activity
+        annotations:
+          summary: "No trading activity detected"
+          description: "No trades have been executed in the last 30 minutes"
+          runbook_url: "https://docs.trading-system.com/runbooks/no-activity"
+
+      - alert: HighTradeFailureRate
+        expr: (sum(rate(trading_trades_total{status="failed"}[10m])) / sum(rate(trading_trades_total[10m]))) * 100 > 20
+        for: 3m
+        labels:
+          severity: critical
+          component: trading_engine
+          category: reliability
+        annotations:
+          summary: "High trade failure rate detected"
+          description: "Trade failure rate is {{ $value | humanizePercentage }}, exceeding 20% threshold"
+          runbook_url: "https://docs.trading-system.com/runbooks/high-failure-rate"
+
+  - name: risk_management
+    interval: 15s
+    rules:
+      # Risk Management Alerts
+      - alert: HighDrawdown
+        expr: risk_drawdown_percentage > 15
+        for: 1m
+        labels:
+          severity: critical
+          component: risk_manager
+          category: drawdown
+        annotations:
+          summary: "Portfolio drawdown exceeds risk limits"
+          description: "Current drawdown is {{ $value }}%, exceeding 15% risk limit"
+          runbook_url: "https://docs.trading-system.com/runbooks/high-drawdown"
+
+      - alert: CriticalDrawdown
+        expr: risk_drawdown_percentage > 25
+        for: 30s
+        labels:
+          severity: critical
+          component: risk_manager
+          category: drawdown
+        annotations:
+          summary: "CRITICAL: Portfolio drawdown at dangerous levels"
+          description: "Current drawdown is {{ $value }}%, exceeding critical 25% threshold. Immediate action required."
+          runbook_url: "https://docs.trading-system.com/runbooks/critical-drawdown"
+
+      - alert: HighRiskScore
+        expr: risk_overall_score{risk_type="overall"} > 0.8
+        for: 2m
+        labels:
+          severity: warning
+          component: risk_manager
+          category: risk_score
+        annotations:
+          summary: "Overall risk score is high"
+          description: "Overall risk score is {{ $value | humanizePercentage }}, exceeding 80% threshold"
+          runbook_url: "https://docs.trading-system.com/runbooks/high-risk-score"
+
+      - alert: ConcentrationRisk
+        expr: risk_overall_score{risk_type="concentration"} > 0.9
+        for: 5m
+        labels:
+          severity: warning
+          component: risk_manager
+          category: concentration
+        annotations:
+          summary: "High position concentration risk"
+          description: "Position concentration risk is {{ $value | humanizePercentage }}, indicating over-concentration"
+          runbook_url: "https://docs.trading-system.com/runbooks/concentration-risk"
+
+      - alert: PortfolioValueDrop
+        expr: (risk_portfolio_value - risk_portfolio_value offset 1h) / risk_portfolio_value offset 1h * 100 < -10
+        for: 5m
+        labels:
+          severity: warning
+          component: risk_manager
+          category: portfolio_value
+        annotations:
+          summary: "Significant portfolio value drop"
+          description: "Portfolio value has dropped {{ $value | humanizePercentage }} in the last hour"
+          runbook_url: "https://docs.trading-system.com/runbooks/portfolio-drop"
+
+  - name: ml_model_performance
+    interval: 60s
+    rules:
+      # ML Model Performance Alerts
+      - alert: LowModelAccuracy
+        expr: ml_model_accuracy < 0.7
+        for: 10m
+        labels:
+          severity: warning
+          component: ml_engine
+          category: accuracy
+        annotations:
+          summary: "ML model accuracy has dropped"
+          description: "Model accuracy for {{ $labels.symbol }} is {{ $value | humanizePercentage }}, below 70% threshold"
+          runbook_url: "https://docs.trading-system.com/runbooks/low-accuracy"
+
+      - alert: CriticalModelAccuracy
+        expr: ml_model_accuracy < 0.5
+        for: 5m
+        labels:
+          severity: critical
+          component: ml_engine
+          category: accuracy
+        annotations:
+          summary: "CRITICAL: ML model accuracy critically low"
+          description: "Model accuracy for {{ $labels.symbol }} is {{ $value | humanizePercentage }}, below critical 50% threshold"
+          runbook_url: "https://docs.trading-system.com/runbooks/critical-accuracy"
+
+      - alert: HighModelLatency
+        expr: histogram_quantile(0.95, rate(ml_model_latency_seconds_bucket[5m])) > 0.5
+        for: 3m
+        labels:
+          severity: warning
+          component: ml_engine
+          category: latency
+        annotations:
+          summary: "ML model inference latency is high"
+          description: "95th percentile model latency is {{ $value }}s, exceeding 500ms threshold"
+          runbook_url: "https://docs.trading-system.com/runbooks/model-latency"
+
+      - alert: NoModelPredictions
+        expr: rate(ml_model_predictions_total[15m]) == 0
+        for: 15m
+        labels:
+          severity: critical
+          component: ml_engine
+          category: activity
+        annotations:
+          summary: "ML model not generating predictions"
+          description: "No model predictions generated for {{ $labels.symbol }} in the last 15 minutes"
+          runbook_url: "https://docs.trading-system.com/runbooks/no-predictions"
+
+  - name: data_quality
+    interval: 60s
+    rules:
+      # Data Quality Alerts
+      - alert: LowDataQuality
+        expr: data_quality_score < 0.8
+        for: 10m
+        labels:
+          severity: warning
+          component: data_collector
+          category: quality
+        annotations:
+          summary: "Data quality below acceptable threshold"
+          description: "Data quality for {{ $labels.symbol }} {{ $labels.timeframe }} is {{ $value | humanizePercentage }}"
+          runbook_url: "https://docs.trading-system.com/runbooks/low-data-quality"
+
+      - alert: CriticalDataQuality
+        expr: data_quality_score < 0.6
+        for: 5m
+        labels:
+          severity: critical
+          component: data_collector
+          category: quality
+        annotations:
+          summary: "CRITICAL: Data quality critically low"
+          description: "Data quality for {{ $labels.symbol }} {{ $labels.timeframe }} is {{ $value | humanizePercentage }}, below critical threshold"
+          runbook_url: "https://docs.trading-system.com/runbooks/critical-data-quality"
+
+      - alert: HighDataLatency
+        expr: histogram_quantile(0.95, rate(data_collection_latency_seconds_bucket[5m])) > 10
+        for: 5m
+        labels:
+          severity: warning
+          component: data_collector
+          category: latency
+        annotations:
+          summary: "Data collection latency is high"
+          description: "95th percentile data collection latency is {{ $value }}s for {{ $labels.symbol }} {{ $labels.timeframe }}"
+          runbook_url: "https://docs.trading-system.com/runbooks/data-latency"
+
+  - name: recording_rules
+    interval: 30s
+    rules:
+      # Recording Rules for Performance Optimization
+      - record: trading:win_rate:5m
+        expr: sum(rate(trading_trades_total{status="success"}[5m])) / sum(rate(trading_trades_total[5m])) * 100
+
+      - record: trading:pnl_per_minute:5m
+        expr: sum(rate(trading_trade_pnl_sum[5m]))
+
+      - record: trading:trade_frequency:5m
+        expr: sum(rate(trading_trades_total[5m]))
+
+      - record: risk:portfolio_return:1h
+        expr: (risk_portfolio_value - risk_portfolio_value offset 1h) / risk_portfolio_value offset 1h * 100
+
+      - record: ml:average_accuracy:5m
+        expr: avg(ml_model_accuracy) by (model_type)
+
+      - record: system:error_rate:5m
+        expr: sum(rate(system_errors_total[5m])) by (component)
+
+      - record: api:request_rate:5m
+        expr: sum(rate(api_requests_total[5m])) by (endpoint, method)
+
+      - record: api:error_rate:5m
+        expr: sum(rate(api_requests_total{status=~"4..|5.."}[5m])) / sum(rate(api_requests_total[5m])) * 100

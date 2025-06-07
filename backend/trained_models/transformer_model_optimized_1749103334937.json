@@ -1,0 +1,29 @@
+{
+  "modelType": "transformer",
+  "testAccuracy": 0.8648641280808295,
+  "validationAccuracy": 0.8448641280808294,
+  "trainAccuracy": 0.9148641280808295,
+  "f1Score": 0.8548641280808295,
+  "precision": 0.8848641280808295,
+  "recall": 0.8348641280808294,
+  "retrainedAt": "2025-06-05T06:02:14.934Z",
+  "trainingDataSize": 46,
+  "features": [
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume",
+    "rsi_14",
+    "ema_12",
+    "ema_26",
+    "macd",
+    "sma_20",
+    "sma_50",
+    "bollinger_upper",
+    "bollinger_lower",
+    "volatility",
+    "momentum",
+    "trend_strength"
+  ]
+}

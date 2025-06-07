@@ -1,0 +1,178 @@
+# Prometheus Configuration for Trading System Monitoring
+# Optimized for high-frequency trading metrics collection
+
+global:
+  # Scrape targets every 15 seconds for real-time monitoring
+  scrape_interval: 15s
+  
+  # Evaluate rules every 15 seconds
+  evaluation_interval: 15s
+  
+  # External labels for federation and remote storage
+  external_labels:
+    monitor: 'trading-system-monitor'
+    environment: 'production'
+    cluster: 'trading-cluster'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets:
+          - alertmanager:9093
+
+# Load rules once and periodically evaluate them
+rule_files:
+  - "trading_rules.yml"
+  - "system_rules.yml"
+  - "ml_model_rules.yml"
+
+# Scrape configuration
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+    scrape_interval: 15s
+    metrics_path: /metrics
+
+  # Trading System Performance Monitoring
+  - job_name: 'trading-system'
+    static_configs:
+      - targets: ['localhost:9090']  # Performance Monitoring System
+    scrape_interval: 5s  # High frequency for trading metrics
+    metrics_path: /metrics
+    scrape_timeout: 10s
+    
+    # Relabel configurations for better metric organization
+    metric_relabel_configs:
+      # Add environment label to all metrics
+      - target_label: environment
+        replacement: production
+      
+      # Add service label
+      - target_label: service
+        replacement: trading-system
+      
+      # Normalize trading symbol labels
+      - source_labels: [symbol]
+        target_label: trading_symbol
+        regex: '(.*)'
+        replacement: '${1}'
+
+  # Analysis-Execution Bridge Monitoring
+  - job_name: 'analysis-execution-bridge'
+    static_configs:
+      - targets: ['localhost:8000']  # Bridge metrics endpoint
+    scrape_interval: 10s
+    metrics_path: /metrics
+    scrape_timeout: 5s
+    
+    metric_relabel_configs:
+      - target_label: component
+        replacement: bridge
+
+  # Node Exporter for system metrics
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['localhost:9100']
+    scrape_interval: 30s
+    metrics_path: /metrics
+    
+    metric_relabel_configs:
+      - target_label: component
+        replacement: system
+
+  # Redis monitoring (if using Redis for caching)
+  - job_name: 'redis'
+    static_configs:
+      - targets: ['localhost:9121']  # Redis exporter
+    scrape_interval: 30s
+    metrics_path: /metrics
+    
+    metric_relabel_configs:
+      - target_label: component
+        replacement: redis
+
+  # PostgreSQL monitoring (if using PostgreSQL for data storage)
+  - job_name: 'postgresql'
+    static_configs:
+      - targets: ['localhost:9187']  # PostgreSQL exporter
+    scrape_interval: 30s
+    metrics_path: /metrics
+    
+    metric_relabel_configs:
+      - target_label: component
+        replacement: database
+
+  # QuestDB monitoring (if using QuestDB for time series data)
+  - job_name: 'questdb'
+    static_configs:
+      - targets: ['localhost:9003']  # QuestDB metrics endpoint
+    scrape_interval: 15s
+    metrics_path: /metrics
+    
+    metric_relabel_configs:
+      - target_label: component
+        replacement: timeseries-db
+
+# Remote write configuration for long-term storage
+remote_write:
+  - url: "http://localhost:8086/api/v1/prom/write?db=trading_metrics"
+    # InfluxDB remote write endpoint (optional)
+    queue_config:
+      max_samples_per_send: 1000
+      max_shards: 200
+      capacity: 2500
+
+# Remote read configuration
+remote_read:
+  - url: "http://localhost:8086/api/v1/prom/read?db=trading_metrics"
+    # InfluxDB remote read endpoint (optional)
+
+# Storage configuration
+storage:
+  tsdb:
+    # Retention period for local storage
+    retention.time: 30d
+    
+    # Retention size limit
+    retention.size: 50GB
+    
+    # Compression settings
+    wal-compression: true
+    
+    # Block duration
+    min-block-duration: 2h
+    max-block-duration: 25h
+
+# Web configuration
+web:
+  # Console templates and libraries
+  console.templates: consoles
+  console.libraries: console_libraries
+  
+  # Enable admin API
+  enable-admin-api: true
+  
+  # Enable lifecycle API
+  enable-lifecycle: true
+  
+  # CORS settings
+  cors.origin: ".*"
+
+# Feature flags for experimental features
+feature_flags:
+  # Enable extra scrape metrics
+  - extra-scrape-metrics
+  
+  # Enable native histograms
+  - native-histograms
+  
+  # Enable exemplars
+  - exemplar-storage
+
+# Log configuration
+log:
+  level: info
+  format: logfmt

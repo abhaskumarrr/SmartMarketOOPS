@@ -1,36 +1,36 @@
-# Frontend Dashboard (Next.js)
-
-This is the production-grade frontend for the SMOOPs crypto ML trading platform.
-
-## Tech Stack
-
-- Next.js (React 19)
-- TypeScript
-- ESLint & Prettier (code quality)
-- Husky (pre-commit hooks)
+This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
 ## Getting Started
 
+First, run the development server:
+
 ```bash
-cd frontend
-npm install
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
-## Code Quality
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-- `npm run lint` — Lint all code with ESLint
-- `npm run format` — Format all code with Prettier
-- Pre-commit hooks auto-run lint and format
+You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
 
-## Project Structure
+This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
-- `components/` — UI, charts, dashboard, layouts
-- `pages/` — Next.js routes
-- `public/` — Static assets
-- `styles/` — CSS/SCSS/utility styles
-- `hooks/`, `contexts/`, `lib/` — React hooks, context, and utilities
+## Learn More
 
-## Full-Stack Workflow
+To learn more about Next.js, take a look at the following resources:
 
-See the main project [README.md](../README.md) for backend, ML, and deployment details.
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+
+## Deploy on Vercel
+
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

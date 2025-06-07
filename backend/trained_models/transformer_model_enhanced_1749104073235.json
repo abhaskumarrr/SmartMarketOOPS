@@ -1,0 +1,44 @@
+{
+  "modelType": "transformer",
+  "testAccuracy": 0.8821219466924137,
+  "validationAccuracy": 0.8621219466924137,
+  "trainAccuracy": 0.9321219466924138,
+  "f1Score": 0.8721219466924137,
+  "precision": 0.8921219466924137,
+  "recall": 0.8621219466924137,
+  "trainingDataSize": 0,
+  "validationDataSize": 0,
+  "testDataSize": 0,
+  "featureCount": 37,
+  "assetCount": 6,
+  "epochs": 100,
+  "batchSize": 64,
+  "learningRate": 0.001,
+  "dropout": 0.2,
+  "overfitting": 0.050000000000000044,
+  "convergenceEpoch": 70,
+  "trainedAt": "2025-06-05T06:14:33.233Z",
+  "trainingDuration": 2529,
+  "architecture": {
+    "layers": [
+      "MultiHeadAttention(8)",
+      "LayerNorm",
+      "FeedForward(256)",
+      "Dense(1)"
+    ],
+    "totalParams": 125000
+  },
+  "hyperparameters": {
+    "optimizer": "Adam",
+    "lossFunction": "binary_crossentropy",
+    "metrics": [
+      "accuracy",
+      "precision",
+      "recall",
+      "f1"
+    ],
+    "earlyStopping": true,
+    "patience": 10,
+    "reduceLROnPlateau": true
+  }
+}

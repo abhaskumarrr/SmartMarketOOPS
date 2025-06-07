@@ -1,0 +1,65 @@
+# Analysis-Execution Bridge Container
+# Real-time coordination layer between analysis and execution engines
+
+FROM python:3.11-slim
+
+# Set build arguments
+ARG BUILD_DATE
+ARG VERSION
+ARG VCS_REF
+
+# Add metadata
+LABEL maintainer="SmartMarketOOPS Team" \
+      version="${VERSION}" \
+      description="Analysis-Execution Bridge - Real-time Coordination Layer" \
+      build-date="${BUILD_DATE}" \
+      vcs-ref="${VCS_REF}"
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    curl \
+    redis-tools \
+    postgresql-client \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create application user
+RUN groupadd -r bridge && useradd -r -g bridge -d /app -s /bin/bash bridge
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements
+COPY analysis_execution_bridge/requirements.txt ./
+
+# Install Python dependencies
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY analysis_execution_bridge/ ./
+COPY shared/ ./shared/
+
+# Set ownership
+RUN chown -R bridge:bridge /app
+
+# Switch to non-root user
+USER bridge
+
+# Set environment variables
+ENV PYTHONPATH=/app \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    REDIS_URL=redis://redis:6379/0 \
+    POSTGRES_URL=postgresql://postgres:password@postgres:5432/smartmarket \
+    LOG_LEVEL=INFO \
+    ENVIRONMENT=production
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
+
+# Expose port
+EXPOSE 8000
+
+# Start command
+CMD ["python", "main.py"]

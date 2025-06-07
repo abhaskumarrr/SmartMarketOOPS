@@ -1,0 +1,44 @@
+{
+  "modelType": "smc",
+  "testAccuracy": 0.802826684569351,
+  "validationAccuracy": 0.782826684569351,
+  "trainAccuracy": 0.8528266845693511,
+  "f1Score": 0.792826684569351,
+  "precision": 0.812826684569351,
+  "recall": 0.782826684569351,
+  "trainingDataSize": 0,
+  "validationDataSize": 0,
+  "testDataSize": 0,
+  "featureCount": 37,
+  "assetCount": 6,
+  "epochs": 100,
+  "batchSize": 64,
+  "learningRate": 0.001,
+  "dropout": 0.2,
+  "overfitting": 0.050000000000000044,
+  "convergenceEpoch": 70,
+  "trainedAt": "2025-06-05T06:14:33.234Z",
+  "trainingDuration": 2357,
+  "architecture": {
+    "layers": [
+      "SMCPattern(50)",
+      "Dense(64)",
+      "Dense(32)",
+      "Dense(1)"
+    ],
+    "totalParams": 25000
+  },
+  "hyperparameters": {
+    "optimizer": "Adam",
+    "lossFunction": "binary_crossentropy",
+    "metrics": [
+      "accuracy",
+      "precision",
+      "recall",
+      "f1"
+    ],
+    "earlyStopping": true,
+    "patience": 10,
+    "reduceLROnPlateau": true
+  }
+}

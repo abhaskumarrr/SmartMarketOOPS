@@ -22,13 +22,16 @@ declare namespace DeltaExchange {
   }
 
   /**
-   * Rate limit settings
+   * Enhanced rate limit settings for Delta Exchange API
    */
   export interface RateLimitSettings {
     maxRetries?: number;
-    initialDelay?: number;
-    maxDelay?: number;
-    factor?: number;
+    initialDelay?: number; // milliseconds
+    maxDelay?: number; // milliseconds
+    factor?: number; // exponential backoff factor
+    requestsPerWindow?: number; // requests per 5-minute window (default: 8000)
+    windowDuration?: number; // window duration in milliseconds (default: 300000)
+    productRateLimit?: number; // requests per second per product (default: 400)
   }
 
   /**

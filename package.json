@@ -41,7 +41,11 @@
     "lint": "bash scripts/dev-tasks.sh lint",
     "lint:fix": "bash scripts/dev-tasks.sh lint:fix",
     "clean": "bash scripts/dev-tasks.sh clean",
-    "compliance:report": "node backend/scripts/compliance_report.js"
+    "compliance:report": "node backend/scripts/compliance_report.js",
+    "ml-trading": "cd backend && npx ts-node src/scripts/start-ml-trading.ts",
+    "ml-trading:paper": "cd backend && npx ts-node src/scripts/start-ml-trading.ts -- --paper",
+    "ml-trading:live": "cd backend && npx ts-node src/scripts/start-ml-trading.ts -- --live",
+    "ml-trading:conservative": "cd backend && npx ts-node src/scripts/start-ml-trading.ts -- --conservative"
   },
   "devDependencies": {
     "@types/dotenv": "^6.1.1",

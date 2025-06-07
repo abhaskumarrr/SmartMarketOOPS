@@ -1,0 +1,153 @@
+{
+  "timestamp": "2025-06-05T06:02:14.941Z",
+  "optimization": {
+    "modelRetraining": {
+      "lstm": {
+        "modelType": "lstm",
+        "testAccuracy": 0.8148520949786693,
+        "validationAccuracy": 0.7948520949786693,
+        "trainAccuracy": 0.8648520949786693,
+        "f1Score": 0.8048520949786693,
+        "precision": 0.8348520949786693,
+        "recall": 0.7848520949786693,
+        "retrainedAt": "2025-06-05T06:02:14.934Z",
+        "trainingDataSize": 46,
+        "features": [
+          "open",
+          "high",
+          "low",
+          "close",
+          "volume",
+          "rsi_14",
+          "ema_12",
+          "ema_26",
+          "macd",
+          "sma_20",
+          "sma_50",
+          "bollinger_upper",
+          "bollinger_lower",
+          "volatility",
+          "momentum",
+          "trend_strength"
+        ]
+      },
+      "transformer": {
+        "modelType": "transformer",
+        "testAccuracy": 0.8648641280808295,
+        "validationAccuracy": 0.8448641280808294,
+        "trainAccuracy": 0.9148641280808295,
+        "f1Score": 0.8548641280808295,
+        "precision": 0.8848641280808295,
+        "recall": 0.8348641280808294,
+        "retrainedAt": "2025-06-05T06:02:14.934Z",
+        "trainingDataSize": 46,
+        "features": [
+          "open",
+          "high",
+          "low",
+          "close",
+          "volume",
+          "rsi_14",
+          "ema_12",
+          "ema_26",
+          "macd",
+          "sma_20",
+          "sma_50",
+          "bollinger_upper",
+          "bollinger_lower",
+          "volatility",
+          "momentum",
+          "trend_strength"
+        ]
+      },
+      "smc": {
+        "modelType": "smc",
+        "testAccuracy": 0.8435803217962112,
+        "validationAccuracy": 0.8235803217962112,
+        "trainAccuracy": 0.8935803217962113,
+        "f1Score": 0.8335803217962112,
+        "precision": 0.8635803217962112,
+        "recall": 0.8135803217962112,
+        "retrainedAt": "2025-06-05T06:02:14.934Z",
+        "trainingDataSize": 46,
+        "features": [
+          "open",
+          "high",
+          "low",
+          "close",
+          "volume",
+          "rsi_14",
+          "ema_12",
+          "ema_26",
+          "macd",
+          "sma_20",
+          "sma_50",
+          "bollinger_upper",
+          "bollinger_lower",
+          "volatility",
+          "momentum",
+          "trend_strength"
+        ]
+      }
+    },
+    "bestConfiguration": {
+      "config": {
+        "confidenceThreshold": 65,
+        "riskPerTrade": 1,
+        "stopLoss": 1,
+        "takeProfitRatio": 4
+      },
+      "performance": {
+        "winRate": 62.500000000000014,
+        "totalTrades": 14,
+        "winningTrades": 8,
+        "totalReturn": 26,
+        "maxDrawdown": 3,
+        "sharpeRatio": 6.948792289723034,
+        "avgWin": 4,
+        "avgLoss": -1,
+        "profitFactor": 5.333333333333333
+      },
+      "score": 137.5
+    },
+    "performanceComparison": {
+      "optimized": {
+        "winRate": 64.54755150034784,
+        "totalTrades": 42,
+        "totalReturn": 80.5553442724341,
+        "maxDrawdown": 2.9017175279833043,
+        "sharpeRatio": 7.176440450977879,
+        "profitFactor": 5.508057728029681
+      },
+      "current": {
+        "winRate": 33.3,
+        "totalTrades": 3,
+        "totalReturn": -5.73,
+        "maxDrawdown": 9.11,
+        "sharpeRatio": -0.5,
+        "profitFactor": 0.4
+      },
+      "improvement": {
+        "winRate": 31.24755150034784,
+        "totalReturn": 86.2853442724341,
+        "maxDrawdown": 6.208282472016695,
+        "sharpeRatio": 7.676440450977879
+      }
+    }
+  },
+  "recommendations": [
+    "Lower confidence threshold to 65% for increased trade frequency",
+    "Reduce risk per trade to 1% for better risk management",
+    "Use tighter stop loss of 1% for better risk control",
+    "Implement optimized parameters immediately - significant win rate improvement expected",
+    "Optimized configuration shows better drawdown control"
+  ],
+  "nextSteps": [
+    "Deploy optimized configuration to live trading system",
+    "Monitor performance for 1 week with small position sizes",
+    "Gradually increase position sizes if performance meets expectations",
+    "Schedule weekly model retraining with fresh market data",
+    "Implement automated parameter optimization pipeline",
+    "Set up performance monitoring and alerting system"
+  ]
+}

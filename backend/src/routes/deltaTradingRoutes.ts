@@ -479,6 +479,120 @@ router.get('/performance', async (req: Request, res: Response) => {
 });
 
 /**
+ * GET /api/delta-trading/balance
+ * Get Delta Exchange account balance
+ */
+router.get('/balance', async (req: Request, res: Response) => {
+  try {
+    const manager = await initializeBotManager();
+    // Access the Delta service through the manager
+    const deltaService = (manager as any).deltaService;
+
+    if (!deltaService) {
+      throw new Error('Delta Exchange service not available');
+    }
+
+    const balances = await deltaService.getBalance();
+
+    res.json({
+      success: true,
+      data: balances,
+      timestamp: Date.now()
+    });
+  } catch (error) {
+    logger.error('Error getting Delta Exchange balance:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get balance',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * GET /api/delta-trading/positions
+ * Get Delta Exchange positions
+ */
+router.get('/positions', async (req: Request, res: Response) => {
+  try {
+    const manager = await initializeBotManager();
+    // Access the Delta service through the manager
+    const deltaService = (manager as any).deltaService;
+
+    if (!deltaService) {
+      throw new Error('Delta Exchange service not available');
+    }
+
+    const positions = await deltaService.getPositions();
+
+    res.json({
+      success: true,
+      data: positions,
+      timestamp: Date.now()
+    });
+  } catch (error) {
+    logger.error('Error getting Delta Exchange positions:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to get positions',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
+ * POST /api/delta-trading/place-order
+ * Place order on Delta Exchange
+ */
+router.post('/place-order', async (req: Request, res: Response) => {
+  try {
+    const manager = await initializeBotManager();
+    const deltaService = (manager as any).deltaService;
+
+    if (!deltaService) {
+      throw new Error('Delta Exchange service not available');
+    }
+
+    const { product_id, order_type, side, size, limit_price } = req.body;
+
+    // Validate required fields
+    if (!product_id || !order_type || !side || !size) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: product_id, order_type, side, size'
+      });
+    }
+
+    // Place order through Delta Exchange service
+    const orderData = {
+      product_id: parseInt(product_id),
+      order_type: order_type,
+      side: side,
+      size: parseInt(size),
+      ...(limit_price && { limit_price: limit_price.toString() })
+    };
+
+    logger.info('🚀 Placing order on Delta Exchange:', orderData);
+
+    const result = await deltaService.placeOrder(orderData);
+
+    res.json({
+      success: true,
+      data: result,
+      message: `Order placed successfully on Delta Exchange`,
+      timestamp: Date.now()
+    });
+  } catch (error) {
+    logger.error('Error placing order on Delta Exchange:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to place order',
+      message: error instanceof Error ? error.message : 'Unknown error'
+    });
+  }
+});
+
+/**
  * GET /api/delta-trading/products
  * Get available Delta Exchange products
  */

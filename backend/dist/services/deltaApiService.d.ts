@@ -18,6 +18,10 @@ declare class DeltaExchangeAPI {
     private userId?;
     private apiKeys;
     private client;
+    private requestCount;
+    private windowStartTime;
+    private lastRequestTime;
+    private productRequestCounts;
     /**
      * Creates a new instance of the Delta Exchange API client
      * @param {DeltaExchange.ApiOptions} options - Configuration options
@@ -34,11 +38,23 @@ declare class DeltaExchangeAPI {
      * @returns {Promise<DeltaExchange.ServerTime>} Server time information
      */
     /**
-     * Gets all available markets from Delta Exchange
+     * Enhanced market data retrieval with caching and error handling
      * @param {Record<string, any>} params - Query parameters
      * @returns {Promise<DeltaExchange.Market[]>} Available markets
      */
     getMarkets(params?: Record<string, any>): Promise<DeltaExchange.Market[]>;
+    /**
+     * Enhanced symbol to product ID mapping
+     * @param {string} symbol - Market symbol (e.g., 'BTCUSD')
+     * @returns {Promise<number>} Product ID
+     */
+    getProductIdBySymbol(symbol: string): Promise<number>;
+    /**
+     * Enhanced product ID to symbol mapping
+     * @param {number} productId - Product ID
+     * @returns {Promise<string>} Market symbol
+     */
+    getSymbolByProductId(productId: number): Promise<string>;
     /**
      * Gets market data for a specific symbol
      * @param {string} symbol - Market symbol (e.g., 'BTCUSD')
@@ -80,7 +96,7 @@ declare class DeltaExchangeAPI {
      */
     getActiveOrders(params?: Record<string, any>): Promise<DeltaExchange.Order[]>;
     /**
-     * Places a new order
+     * Enhanced order placement with comprehensive validation and error handling
      * @param {DeltaExchange.OrderParams} order - Order details
      * @returns {Promise<DeltaExchange.Order>} Order information
      */
@@ -110,7 +126,13 @@ declare class DeltaExchangeAPI {
      */
     getTradeHistory(params?: DeltaExchange.TradeHistoryParams): Promise<DeltaExchange.Trade[]>;
     /**
-     * Makes a request to the Delta Exchange API with retries and rate limit handling
+     * Enhanced rate limiting check before making requests
+     * @private
+     * @param {string} productId - Product ID for product-level rate limiting
+     */
+    private _checkRateLimit;
+    /**
+     * Enhanced request method with comprehensive retry logic and rate limiting
      * @private
      * @param {RequestOptions} options - Request options
      * @param {number} retryCount - Current retry count
@@ -118,7 +140,7 @@ declare class DeltaExchangeAPI {
      */
     private _makeRequest;
     /**
-     * Adds authentication headers to a request
+     * Enhanced authentication header generation with improved signature handling
      * @private
      * @param {AxiosRequestConfig} requestConfig - Axios request configuration
      */

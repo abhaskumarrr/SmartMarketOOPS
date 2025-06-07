@@ -107,9 +107,21 @@ class DeltaExchangeService {
       }
     });
 
-    // Initialize product ID mappings for perpetual futures (correct IDs from testnet)
-    this.symbolToProductId.set('BTCUSD', 84);
-    this.symbolToProductId.set('ETHUSD', 1699);
+    // Initialize product ID mappings for perpetual futures (VERIFIED IDs from API)
+    if (credentials.testnet) {
+      // Testnet product IDs (verified 2025-01-27)
+      this.symbolToProductId.set('BTCUSD', 84);
+      this.symbolToProductId.set('ETHUSD', 1699);
+      this.symbolToProductId.set('SOLUSD', 92572);
+      this.symbolToProductId.set('ADAUSD', 101760);
+    } else {
+      // Production product IDs (verified 2025-01-27)
+      this.symbolToProductId.set('BTCUSD', 27);
+      this.symbolToProductId.set('ETHUSD', 3136);
+      this.symbolToProductId.set('SOLUSD', 14823);
+      this.symbolToProductId.set('ADAUSD', 16614);
+      this.symbolToProductId.set('DOTUSD', 15304);
+    }
 
     // Start initialization but don't wait for it
     this.initializeService().catch(error => {
@@ -521,8 +533,18 @@ class DeltaExchangeService {
       }
 
     } catch (error) {
-      logger.error('Error getting balances:', error instanceof Error ? error.message : 'Unknown error');
-      return [];
+      logger.error('❌ Error getting REAL balances:', error instanceof Error ? error.message : 'Unknown error');
+
+      // Check if it's an IP whitelisting issue
+      if (error instanceof Error && error.message.includes('ip_not_whitelisted')) {
+        logger.error('🚫 IP NOT WHITELISTED: Please whitelist your IP address in Delta Exchange dashboard');
+        logger.error('📍 Current IP needs to be whitelisted for API access');
+        logger.error('🔗 Go to: https://testnet.delta.exchange/app/account/manageapikeys');
+
+        throw new Error('IP_NOT_WHITELISTED: Please whitelist your IP in Delta Exchange dashboard');
+      }
+
+      throw error;
     }
   }
 

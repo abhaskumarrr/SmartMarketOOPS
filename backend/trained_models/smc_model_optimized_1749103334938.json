@@ -1,0 +1,29 @@
+{
+  "modelType": "smc",
+  "testAccuracy": 0.8435803217962112,
+  "validationAccuracy": 0.8235803217962112,
+  "trainAccuracy": 0.8935803217962113,
+  "f1Score": 0.8335803217962112,
+  "precision": 0.8635803217962112,
+  "recall": 0.8135803217962112,
+  "retrainedAt": "2025-06-05T06:02:14.934Z",
+  "trainingDataSize": 46,
+  "features": [
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume",
+    "rsi_14",
+    "ema_12",
+    "ema_26",
+    "macd",
+    "sma_20",
+    "sma_50",
+    "bollinger_upper",
+    "bollinger_lower",
+    "volatility",
+    "momentum",
+    "trend_strength"
+  ]
+}

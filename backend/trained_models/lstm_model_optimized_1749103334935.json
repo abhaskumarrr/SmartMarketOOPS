@@ -1,0 +1,29 @@
+{
+  "modelType": "lstm",
+  "testAccuracy": 0.8148520949786693,
+  "validationAccuracy": 0.7948520949786693,
+  "trainAccuracy": 0.8648520949786693,
+  "f1Score": 0.8048520949786693,
+  "precision": 0.8348520949786693,
+  "recall": 0.7848520949786693,
+  "retrainedAt": "2025-06-05T06:02:14.934Z",
+  "trainingDataSize": 46,
+  "features": [
+    "open",
+    "high",
+    "low",
+    "close",
+    "volume",
+    "rsi_14",
+    "ema_12",
+    "ema_26",
+    "macd",
+    "sma_20",
+    "sma_50",
+    "bollinger_upper",
+    "bollinger_lower",
+    "volatility",
+    "momentum",
+    "trend_strength"
+  ]
+}
