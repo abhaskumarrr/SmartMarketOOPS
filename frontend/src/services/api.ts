@@ -5,23 +5,32 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
 class ApiService {
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
-    
+
     try {
+      console.log(`🔄 API Request: ${url}`);
+
       const response = await fetch(url, {
         headers: {
           'Content-Type': 'application/json',
           ...options?.headers,
         },
+        mode: 'cors',
         ...options,
       });
 
+      console.log(`📡 API Response: ${response.status} ${response.statusText}`);
+
       if (!response.ok) {
-        throw new Error(`API request failed: ${response.status} ${response.statusText}`);
+        const errorText = await response.text();
+        console.error(`❌ API Error Response: ${errorText}`);
+        throw new Error(`API request failed: ${response.status} ${response.statusText} - ${errorText}`);
       }
 
-      return await response.json();
+      const data = await response.json();
+      console.log(`✅ API Success:`, data);
+      return data;
     } catch (error) {
-      console.error(`API request error for ${endpoint}:`, error);
+      console.error(`❌ API request error for ${endpoint}:`, error);
       throw error;
     }
   }
@@ -60,10 +69,11 @@ class ApiService {
         };
       }
 
-      // Return fallback data if all endpoints fail
+      // Return minimal fallback data if all endpoints fail
+      console.warn('⚠️ All portfolio endpoints failed, using minimal fallback');
       return {
-        totalBalance: 10000,
-        availableBalance: 8500,
+        totalBalance: 0,
+        availableBalance: 0,
         totalPnl: 0,
         totalPnlPercentage: 0,
         dailyPnl: 0,
@@ -72,10 +82,10 @@ class ApiService {
       };
     } catch (error) {
       console.error('Failed to fetch portfolio data:', error);
-      // Return fallback data instead of throwing
+      // Return minimal fallback data instead of throwing
       return {
-        totalBalance: 10000,
-        availableBalance: 8500,
+        totalBalance: 0,
+        availableBalance: 0,
         totalPnl: 0,
         totalPnlPercentage: 0,
         dailyPnl: 0,
@@ -139,71 +149,72 @@ class ApiService {
         }
       }
 
-      // Return fallback data if all endpoints fail
+      // Return minimal fallback data if all endpoints fail
+      console.warn('⚠️ All market data endpoints failed, using minimal fallback');
       return [
         {
           symbol: 'BTCUSD',
-          price: 104000,
-          change24h: 2000,
-          changePercentage24h: 2.0,
-          volume24h: 1000000,
-          high24h: 105000,
-          low24h: 102000,
+          price: 0,
+          change24h: 0,
+          changePercentage24h: 0,
+          volume24h: 0,
+          high24h: 0,
+          low24h: 0,
           timestamp: new Date().toISOString(),
         },
         {
           symbol: 'ETHUSD',
-          price: 2500,
-          change24h: 50,
-          changePercentage24h: 2.0,
-          volume24h: 500000,
-          high24h: 2550,
-          low24h: 2450,
+          price: 0,
+          change24h: 0,
+          changePercentage24h: 0,
+          volume24h: 0,
+          high24h: 0,
+          low24h: 0,
           timestamp: new Date().toISOString(),
         },
         {
           symbol: 'SOLUSD',
-          price: 150,
-          change24h: 5,
-          changePercentage24h: 3.4,
-          volume24h: 200000,
-          high24h: 155,
-          low24h: 145,
+          price: 0,
+          change24h: 0,
+          changePercentage24h: 0,
+          volume24h: 0,
+          high24h: 0,
+          low24h: 0,
           timestamp: new Date().toISOString(),
         }
       ];
     } catch (error) {
       console.error('Failed to fetch market data:', error);
-      // Return fallback data instead of throwing
+      // Return minimal fallback data instead of throwing
       return [
         {
           symbol: 'BTCUSD',
-          price: 104000,
-          change24h: 2000,
-          changePercentage24h: 2.0,
-          volume24h: 1000000,
-          high24h: 105000,
-          low24h: 102000,
+          price: 0,
+          change24h: 0,
+          changePercentage24h: 0,
+          volume24h: 0,
+          high24h: 0,
+          low24h: 0,
           timestamp: new Date().toISOString(),
         },
         {
           symbol: 'ETHUSD',
-          price: 2500,
-          change24h: 50,
-          changePercentage24h: 2.0,
-          volume24h: 500000,
-          high24h: 2550,
-          low24h: 2450,
+          price: 0,
+          change24h: 0,
+          changePercentage24h: 0,
+          volume24h: 0,
+          high24h: 0,
+          low24h: 0,
           timestamp: new Date().toISOString(),
         },
         {
           symbol: 'SOLUSD',
-          price: 150,
-          change24h: 5,
-          changePercentage24h: 3.4,
-          volume24h: 200000,
-          high24h: 155,
-          low24h: 145,
+          price: 0,
+          change24h: 0,
+          changePercentage24h: 0,
+          volume24h: 0,
+          high24h: 0,
+          low24h: 0,
           timestamp: new Date().toISOString(),
         }
       ];

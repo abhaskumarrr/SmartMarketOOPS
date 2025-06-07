@@ -13,13 +13,22 @@ export function useMarketData(symbol?: string) {
   useEffect(() => {
     const fetchMarketData = async () => {
       try {
+        console.log('🔄 Fetching market data...', symbol ? `for ${symbol}` : 'for all symbols');
         setLoading(true);
+        setError(null);
+
         const data = await apiService.getMarketData(symbol);
+        console.log('✅ Market data received:', data);
+
         setMarketData(data);
         setError(null);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch market data');
-        console.error('Market data fetch error:', err);
+        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch market data';
+        console.error('❌ Market data fetch error:', err);
+        setError(errorMessage);
+
+        // Set fallback data to prevent infinite loading
+        setMarketData([]);
       } finally {
         setLoading(false);
       }
@@ -28,22 +37,32 @@ export function useMarketData(symbol?: string) {
     fetchMarketData();
 
     // Subscribe to real-time market data updates
-    wsService.connect();
-    wsService.subscribeToMarketData((data: MarketData) => {
-      setMarketData(prev => {
-        const index = prev.findIndex(item => item.symbol === data.symbol);
-        if (index >= 0) {
-          const updated = [...prev];
-          updated[index] = data;
-          return updated;
-        } else {
-          return [...prev, data];
-        }
+    try {
+      console.log('🔌 Setting up WebSocket for market data updates...');
+      wsService.connect();
+      wsService.subscribeToMarketData((data: MarketData) => {
+        console.log('📡 Real-time market data update received:', data);
+        setMarketData(prev => {
+          const index = prev.findIndex(item => item.symbol === data.symbol);
+          if (index >= 0) {
+            const updated = [...prev];
+            updated[index] = data;
+            return updated;
+          } else {
+            return [...prev, data];
+          }
+        });
       });
-    });
+    } catch (wsError) {
+      console.error('❌ WebSocket setup error for market data:', wsError);
+    }
 
     return () => {
-      wsService.unsubscribeFromMarketData();
+      try {
+        wsService.unsubscribeFromMarketData();
+      } catch (cleanupError) {
+        console.error('❌ WebSocket cleanup error for market data:', cleanupError);
+      }
     };
   }, [symbol]);
 

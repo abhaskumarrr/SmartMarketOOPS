@@ -250,43 +250,67 @@ function initializeWebsocketServer(httpServer) {
 }
 
 /**
- * Get initial market data for a symbol
+ * Get initial market data for a symbol using real Delta Exchange + CCXT data
  * @param {string} symbol - Market symbol
  * @param {string} userId - User ID
  * @returns {Promise<object>} - Market data
  */
 async function getInitialMarketData(symbol, userId) {
   try {
-    // Get user's API key
-    const apiKey = await prisma.apiKey.findFirst({
-      where: { userId },
-      orderBy: { createdAt: 'desc' }
-    });
-    
-    if (!apiKey) {
-      throw new Error('No API key found');
+    console.log(`📡 Fetching real market data for ${symbol} via WebSocket...`);
+
+    // Fetch real market data from our real market data service
+    const fetch = require('node-fetch');
+    const response = await fetch(`http://localhost:3005/api/real-market-data/${symbol}`);
+
+    if (response.ok) {
+      const marketData = await response.json();
+
+      if (marketData.success && marketData.data) {
+        console.log(`✅ Real market data for ${symbol}: $${marketData.data.price}`);
+        return {
+          symbol: marketData.data.symbol,
+          price: marketData.data.price,
+          volume: marketData.data.volume24h,
+          change: marketData.data.change24h,
+          changePercentage: marketData.data.changePercentage24h,
+          high24h: marketData.data.high24h,
+          low24h: marketData.data.low24h,
+          source: marketData.data.source,
+          timestamp: marketData.data.timestamp
+        };
+      }
     }
-    
-    // Decrypt API key data
-    const apiKeyData = decrypt(apiKey.encryptedData);
-    
-    // Create API client and get market data
-    // This would normally be implemented using the Delta Exchange API
-    // For now, return placeholder data
-    return {
-      symbol,
-      price: Math.random() * 50000 + 10000, // Random BTC-like price
-      volume: Math.random() * 1000,
-      change: (Math.random() - 0.5) * 10,
-      bid: Math.random() * 50000 + 10000,
-      ask: Math.random() * 50000 + 10000,
-      timestamp: new Date().toISOString()
-    };
+
+    // Fallback: try to get from general market data endpoint
+    const fallbackResponse = await fetch('http://localhost:3005/api/real-market-data');
+    if (fallbackResponse.ok) {
+      const allMarketData = await fallbackResponse.json();
+      if (allMarketData.success && allMarketData.data) {
+        const symbolData = allMarketData.data.find(item => item.symbol === symbol);
+        if (symbolData) {
+          console.log(`✅ Fallback real market data for ${symbol}: $${symbolData.price}`);
+          return {
+            symbol: symbolData.symbol,
+            price: symbolData.price,
+            volume: symbolData.volume24h,
+            change: symbolData.change24h,
+            changePercentage: symbolData.changePercentage24h,
+            high24h: symbolData.high24h,
+            low24h: symbolData.low24h,
+            source: symbolData.source,
+            timestamp: symbolData.timestamp
+          };
+        }
+      }
+    }
+
+    throw new Error('No real market data available');
   } catch (error) {
-    console.error(`Error getting initial market data: ${error.message}`);
+    console.error(`❌ Error getting real market data for ${symbol}: ${error.message}`);
     return {
       symbol,
-      error: 'Failed to fetch market data',
+      error: 'Failed to fetch real market data',
       timestamp: new Date().toISOString()
     };
   }
@@ -351,6 +375,54 @@ function broadcastSignal(signal) {
 }
 
 /**
+ * Broadcast real portfolio updates to all clients
+ */
+async function broadcastRealPortfolioUpdate() {
+  try {
+    console.log('📊 Broadcasting real portfolio update...');
+    const fetch = require('node-fetch');
+    const response = await fetch('http://localhost:3005/api/real-market-data/portfolio');
+
+    if (response.ok) {
+      const portfolioData = await response.json();
+      if (portfolioData.success) {
+        // Broadcast to all connected users
+        for (const [socketId, connection] of activeConnections.entries()) {
+          connection.socket.emit('portfolio:update', portfolioData);
+        }
+        console.log(`✅ Broadcasted real portfolio update to ${activeConnections.size} clients`);
+      }
+    }
+  } catch (error) {
+    console.error('❌ Error broadcasting real portfolio update:', error);
+  }
+}
+
+/**
+ * Broadcast real market data updates to all clients
+ */
+async function broadcastRealMarketDataUpdate() {
+  try {
+    console.log('📡 Broadcasting real market data update...');
+    const fetch = require('node-fetch');
+    const response = await fetch('http://localhost:3005/api/real-market-data');
+
+    if (response.ok) {
+      const marketData = await response.json();
+      if (marketData.success) {
+        // Broadcast to all connected users
+        for (const [socketId, connection] of activeConnections.entries()) {
+          connection.socket.emit('market:update', marketData);
+        }
+        console.log(`✅ Broadcasted real market data to ${activeConnections.size} clients`);
+      }
+    }
+  } catch (error) {
+    console.error('❌ Error broadcasting real market data:', error);
+  }
+}
+
+/**
  * Generic broadcast function to all clients
  * @param {string} event - Event name
  * @param {object} data - Data to broadcast
@@ -368,11 +440,23 @@ function broadcastToClients(event, data) {
   }
 }
 
+// Set up periodic real-time updates every 30 seconds
+setInterval(async () => {
+  if (activeConnections.size > 0) {
+    await broadcastRealMarketDataUpdate();
+    await broadcastRealPortfolioUpdate();
+  }
+}, 30000); // 30 seconds
+
+console.log('🔄 Real-time data broadcasting enabled (30-second intervals)');
+
 module.exports = {
   initializeWebsocketServer,
   broadcastMarketData,
   broadcastBotUpdate,
   broadcastSignal,
   broadcastToClients,
+  broadcastRealPortfolioUpdate,
+  broadcastRealMarketDataUpdate,
   realTimeRouter
 };

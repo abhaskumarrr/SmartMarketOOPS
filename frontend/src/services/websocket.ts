@@ -13,30 +13,40 @@ class WebSocketService {
 
   connect(): void {
     if (this.socket?.connected) {
+      console.log('🔌 WebSocket already connected');
       return;
     }
 
     const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3005';
-    
-    this.socket = io(wsUrl, {
-      transports: ['websocket'],
-      autoConnect: true,
-    });
+    console.log(`🔌 Connecting to WebSocket: ${wsUrl}`);
 
-    this.socket.on('connect', () => {
-      console.log('✅ WebSocket connected');
-      this.reconnectAttempts = 0;
-    });
+    try {
+      this.socket = io(wsUrl, {
+        transports: ['websocket', 'polling'],
+        autoConnect: true,
+        timeout: 5000,
+        forceNew: true,
+      });
 
-    this.socket.on('disconnect', () => {
-      console.log('❌ WebSocket disconnected');
-      this.handleReconnect();
-    });
+      this.socket.on('connect', () => {
+        console.log('✅ WebSocket connected successfully');
+        this.reconnectAttempts = 0;
+      });
 
-    this.socket.on('connect_error', (error) => {
-      console.error('WebSocket connection error:', error);
-      this.handleReconnect();
-    });
+      this.socket.on('disconnect', (reason) => {
+        console.log(`❌ WebSocket disconnected: ${reason}`);
+        if (reason !== 'io client disconnect') {
+          this.handleReconnect();
+        }
+      });
+
+      this.socket.on('connect_error', (error) => {
+        console.error('❌ WebSocket connection error:', error);
+        this.handleReconnect();
+      });
+    } catch (error) {
+      console.error('❌ Failed to initialize WebSocket:', error);
+    }
   }
 
   private handleReconnect(): void {

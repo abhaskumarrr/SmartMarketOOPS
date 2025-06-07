@@ -18,6 +18,7 @@ import { secureCookieParser, sessionActivity, setDeviceIdCookie } from './middle
 import optimizationMiddleware from './middleware/optimizationMiddleware';
 import { createCacheService } from './services/cacheService';
 import { createDatabaseOptimizationService } from './services/databaseOptimizationService';
+import { logger } from './utils/logger';
 
 // Load environment variables
 dotenv.config({
@@ -50,6 +51,7 @@ import deltaTradingRoutes from './routes/deltaTradingRoutes';
 import mlRoutes from './routes/mlRoutes';
 import marketDataRoutes from './routes/marketDataRoutes';
 import paperTradingRoutes from './routes/paperTradingRoutes';
+import realMarketDataRoutes from './routes/realMarketDataRoutes';
 // Import other routes as needed
 
 // Load socket initialization
@@ -198,14 +200,21 @@ app.get('/', (req: Request, res: Response) => {
 // Enhanced health check at root path
 app.get('/health', optimizationMiddleware.healthCheck());
 
-// Portfolio endpoint - Real Market Data with Simulated Positions
+// Portfolio endpoint - Real Market Data with Delta Exchange Testnet Integration
 app.get('/api/portfolio', async (req: Request, res: Response) => {
   try {
-    // Try to get portfolio data with real market prices first
-    const realPortfolioResponse = await fetch('http://localhost:3005/api/real-market-data/portfolio');
-    if (realPortfolioResponse.ok) {
-      const realData = await realPortfolioResponse.json();
-      return res.json(realData);
+    // Try to get portfolio data with real Delta Exchange testnet balance first
+    try {
+      const realPortfolioResponse = await fetch('http://localhost:3005/api/real-market-data/portfolio');
+      if (realPortfolioResponse.ok) {
+        const realData = await realPortfolioResponse.json();
+        if (realData.success && realData.data) {
+          logger.info('✅ Serving real portfolio data with Delta Exchange testnet integration');
+          return res.json(realData);
+        }
+      }
+    } catch (fetchError) {
+      logger.warn('⚠️ Failed to fetch from real market data service, falling back to legacy endpoint');
     }
 
     // Fallback to paper trading if real data fails
@@ -454,6 +463,7 @@ app.use('/api/audit', auditRoutes);
 app.use('/api/trades', tradesRoutes);
 app.use('/api/ml', mlRoutes);
 app.use('/api/market-data', marketDataRoutes);
+app.use('/api/real-market-data', realMarketDataRoutes);
 app.use('/api/trading', tradingRoutes);
 app.use('/api/trading-working', tradingRoutesWorking);
 app.use('/api/delta-trading', deltaTradingRoutes);
