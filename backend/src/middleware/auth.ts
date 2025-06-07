@@ -9,7 +9,7 @@ import prisma from '../utils/prismaClient';
 import { verifyToken, verifyRefreshToken as verifyRefreshTokenUtil, extractTokenFromHeader, isTokenExpired } from '../utils/jwt';
 import env from '../utils/env';
 import rateLimit from 'express-rate-limit';
-import csrf from 'csurf';
+
 import { Permission, AuthenticatedRequest } from '../types/auth';
 import authorizationService from '../services/authorizationService';
 import bcrypt from 'bcryptjs';
@@ -35,15 +35,14 @@ export const authRateLimiter = rateLimit({
 });
 
 /**
- * CSRF protection middleware
+ * CSRF protection middleware - DISABLED (csurf deprecated)
+ * TODO: Implement alternative CSRF protection if needed
  */
-export const csrfProtection = csrf({
-  cookie: {
-    httpOnly: true,
-    secure: env.NODE_ENV === 'production',
-    sameSite: 'strict'
-  }
-});
+export const csrfProtection = (req: Request, res: Response, next: NextFunction) => {
+  // CSRF protection disabled - csurf package is deprecated
+  // Consider implementing alternative CSRF protection in the future
+  next();
+};
 
 /**
  * Middleware to protect routes

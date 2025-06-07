@@ -16,11 +16,11 @@
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:ml\"",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
-    "dev:ml": "cd ml && python -m ml.backend.src.scripts.server",
+    "dev:ml": "cd ml && PYTHONPATH=. python3 backend/src/scripts/server.py",
     "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\" \"npm run start:ml\"",
     "start:backend": "cd backend && npm start",
     "start:frontend": "cd frontend && npm start",
-    "start:ml": "cd ml && python -m ml.backend.src.scripts.server",
+    "start:ml": "cd ml && PYTHONPATH=. python3 backend/src/scripts/server.py",
     "setup": "bash scripts/setup-env.sh",
     "dev:setup": "bash scripts/dev-setup.sh",
     "dev:tasks": "bash scripts/dev-tasks.sh",
@@ -48,22 +48,29 @@
     "ml-trading:conservative": "cd backend && npx ts-node src/scripts/start-ml-trading.ts -- --conservative"
   },
   "devDependencies": {
-    "@types/dotenv": "^6.1.1",
+    "@types/dotenv": "^8.2.0",
     "@types/node": "^22.15.21",
     "@types/uuid": "^10.0.0",
     "chalk": "^4.1.2",
     "concurrently": "^8.2.2",
     "dotenv": "^16.5.0",
-    "eslint": "^8.57.0"
+    "eslint": "^9.17.0"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=24.1.0"
   },
   "dependencies": {
     "next": "^15.1.8",
     "task-master-ai": "^0.15.0",
     "taskmaster": "^0.0.3",
     "ua-parser-js": "^2.0.3",
-    "uuid": "^11.1.0"
+    "uuid": "^11.1.0",
+    "undici": "6.20.1"
+  },
+  "overrides": {
+    "rimraf": "^5.0.0",
+    "glob": "^11.0.0",
+    "@humanwhocodes/config-array": "@eslint/config-array",
+    "@humanwhocodes/object-schema": "@eslint/object-schema"
   }
 }
