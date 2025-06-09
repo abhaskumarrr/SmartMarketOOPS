@@ -10,7 +10,7 @@ import { verifyToken, verifyRefreshToken as verifyRefreshTokenUtil, extractToken
 import env from '../utils/env';
 import rateLimit from 'express-rate-limit';
 
-import { Permission, AuthenticatedRequest } from '../types/auth';
+import { Permission, AuthenticatedRequest, AuthUser } from '../types/auth';
 import authorizationService from '../services/authorizationService';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
@@ -18,6 +18,13 @@ import { createLogger, LogData } from '../utils/logger';
 
 // Create logger
 const logger = createLogger('AuthMiddleware');
+
+// Extend Express Request type to include 'user' property
+declare module 'express-serve-static-core' {
+  interface Request {
+    user?: AuthUser;
+  }
+}
 
 /**
  * Rate limiter for authentication routes
@@ -33,16 +40,6 @@ export const authRateLimiter = rateLimit({
     message: 'Too many requests, please try again later.'
   }
 });
-
-/**
- * CSRF protection middleware - DISABLED (csurf deprecated)
- * TODO: Implement alternative CSRF protection if needed
- */
-export const csrfProtection = (req: Request, res: Response, next: NextFunction) => {
-  // CSRF protection disabled - csurf package is deprecated
-  // Consider implementing alternative CSRF protection in the future
-  next();
-};
 
 /**
  * Middleware to protect routes
@@ -330,8 +327,10 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
           user: {
             select: {
               id: true,
+              name: true,
               email: true,
-              role: true
+              role: true,
+              isVerified: true
             }
           }
         }
@@ -351,8 +350,11 @@ export const isAuthenticated = async (req: Request, res: Response, next: NextFun
       // Attach user to request
       req.user = {
         id: session.user.id,
+        name: session.user.name || '',
         email: session.user.email,
-        role: session.user.role
+        role: session.user.role,
+        isVerified: session.user.isVerified || false,
+        sessionId: session.id
       };
 
       next();
@@ -393,7 +395,6 @@ export default {
   requirePermission,
   requireAnyPermission,
   authRateLimiter,
-  csrfProtection,
   isAuthenticated,
   hasRole
 };

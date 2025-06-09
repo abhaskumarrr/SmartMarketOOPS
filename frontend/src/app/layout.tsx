@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
-import { ClientWrapper } from "@/components/ClientWrapper";
+import { VersionSkewProtection } from "@/components/VersionSkewProtection";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+  variable: "--font-inter",
 });
 
 export const metadata: Metadata = {
@@ -26,19 +20,21 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <ClientWrapper>
-            {children}
-          </ClientWrapper>
-        </ThemeProvider>
+      <body className={`${inter.variable} font-sans antialiased`}>
+        <VersionSkewProtection>
+          <div className="min-h-screen bg-background">
+            <header className="border-b">
+              <div className="flex h-14 items-center px-4 lg:px-6">
+                <div className="flex-1">
+                  <h1 className="text-lg font-semibold">SmartMarketOOPS</h1>
+                </div>
+              </div>
+            </header>
+            <main className="flex-1 p-4 lg:p-6">
+              {children}
+            </main>
+          </div>
+        </VersionSkewProtection>
       </body>
     </html>
   );

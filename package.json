@@ -16,14 +16,12 @@
     "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\" \"npm run dev:ml\"",
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
-    "dev:ml": "cd ml && PYTHONPATH=. python3 backend/src/scripts/server.py",
+    "dev:ml": "python3 main.py",
     "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\" \"npm run start:ml\"",
     "start:backend": "cd backend && npm start",
     "start:frontend": "cd frontend && npm start",
-    "start:ml": "cd ml && PYTHONPATH=. python3 backend/src/scripts/server.py",
+    "start:ml": "python3 main.py",
     "setup": "bash scripts/setup-env.sh",
-    "dev:setup": "bash scripts/dev-setup.sh",
-    "dev:tasks": "bash scripts/dev-tasks.sh",
     "check-env": "node scripts/check-env.js",
     "generate-key": "node scripts/generate-encryption-key.js",
     "docker:up": "docker-compose up -d",
@@ -34,18 +32,16 @@
     "db:migrate": "cd backend && npm run prisma:migrate:dev",
     "db:generate": "cd backend && npm run prisma:generate",
     "db:reset": "cd backend && npx prisma migrate reset --force",
-    "test": "bash scripts/dev-tasks.sh test",
-    "test:backend": "bash scripts/dev-tasks.sh test:backend",
-    "test:frontend": "bash scripts/dev-tasks.sh test:frontend",
-    "test:ml": "bash scripts/dev-tasks.sh test:ml",
-    "lint": "bash scripts/dev-tasks.sh lint",
-    "lint:fix": "bash scripts/dev-tasks.sh lint:fix",
-    "clean": "bash scripts/dev-tasks.sh clean",
-    "compliance:report": "node backend/scripts/compliance_report.js",
+    "test": "cd backend && npm test",
+    "test:backend": "cd backend && npm test",
+    "test:frontend": "cd frontend && npm test",
+    "test:ml": "python3 -m pytest ml/tests/",
+    "lint": "cd backend && npm run lint && cd ../frontend && npm run lint",
+    "lint:fix": "cd backend && npm run lint:fix && cd ../frontend && npm run lint:fix",
+    "clean": "rm -rf node_modules backend/node_modules frontend/node_modules ml/__pycache__ __pycache__",
     "ml-trading": "cd backend && npx ts-node src/scripts/start-ml-trading.ts",
     "ml-trading:paper": "cd backend && npx ts-node src/scripts/start-ml-trading.ts -- --paper",
-    "ml-trading:live": "cd backend && npx ts-node src/scripts/start-ml-trading.ts -- --live",
-    "ml-trading:conservative": "cd backend && npx ts-node src/scripts/start-ml-trading.ts -- --conservative"
+    "ml-trading:live": "cd backend && npx ts-node src/scripts/start-ml-trading.ts -- --live"
   },
   "devDependencies": {
     "@types/dotenv": "^8.2.0",
@@ -57,20 +53,22 @@
     "eslint": "^9.17.0"
   },
   "engines": {
-    "node": ">=24.1.0"
+    "node": ">=18.0.0"
   },
   "dependencies": {
-    "next": "^15.1.8",
+    "ccxt": "^4.4.88",
+    "next": "^14.2.0",
     "task-master-ai": "^0.15.0",
     "taskmaster": "^0.0.3",
     "ua-parser-js": "^2.0.3",
-    "uuid": "^11.1.0",
-    "undici": "6.20.1"
+    "undici": "^5.28.4",
+    "uuid": "^11.1.0"
   },
   "overrides": {
     "rimraf": "^5.0.0",
     "glob": "^11.0.0",
     "@humanwhocodes/config-array": "@eslint/config-array",
-    "@humanwhocodes/object-schema": "@eslint/object-schema"
+    "@humanwhocodes/object-schema": "@eslint/object-schema",
+    "undici": "^5.28.4"
   }
 }

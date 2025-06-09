@@ -65,9 +65,9 @@
     "infrastructure:start": "../scripts/setup-infrastructure.sh start",
     "infrastructure:stop": "../scripts/setup-infrastructure.sh stop",
     "infrastructure:status": "../scripts/setup-infrastructure.sh status",
-    "dev": "nodemon",
+    "dev": "ts-node --transpile-only src/server.ts",
     "dev:js": "nodemon start-server.js",
-    "build": "tsc",
+    "build": "npx tsc -p .",
     "start": "node dist/server.js",
     "start:js": "node start-server.js",
     "start:ts": "ts-node --transpile-only src/server.ts",
@@ -93,6 +93,9 @@
   "author": "",
   "license": "ISC",
   "description": "",
+  "engines": {
+    "node": ">=20.18.1"
+  },
   "prisma": {
     "seed": "node prisma/seed.js"
   },

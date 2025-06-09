@@ -1,29 +1,10 @@
-torch>=2.0.0
-fastapi>=0.103.0
-uvicorn>=0.23.0
-numpy>=1.24.0
-pandas>=1.5.0
-scikit-learn>=1.2.0
-matplotlib>=3.7.0
-seaborn>=0.12.0
-python-dotenv>=1.0.0
-requests>=2.31.0
-tensorboard>=2.12.0
-pytest>=7.3.0
-optuna>=3.2.0
-bayesian-optimization>=1.4.0
-pydantic>=2.0.0
-scipy>=1.10.0
-joblib>=1.2.0
-typing-extensions>=4.5.0
-tqdm>=4.65.0
-python-multipart>=0.0.6
-pytest-cov>=4.1.0
-httpx>=0.24.0
-
-# Linting and formatting tools
-ruff>=0.1.0
-black>=23.10.0
-isort>=5.12.0
-mypy>=1.6.0
-bandit>=1.7.5 
+# ML Service Requirements - Use Root Requirements
+# This file is deprecated. Use the consolidated requirements.txt in the project root.
+#
+# To install ML dependencies:
+# pip install -r ../requirements.txt
+#
+# For lightweight ML on M2 MacBook Air:
+# pip install -r ../requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
+#
+# This file is kept for backward compatibility but should not be used directly.

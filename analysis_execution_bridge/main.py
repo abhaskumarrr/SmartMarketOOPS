@@ -1,6 +1,5 @@
 """
 Analysis-Execution Bridge Main Module
-Placeholder for bridge application
 """
 
 from fastapi import FastAPI

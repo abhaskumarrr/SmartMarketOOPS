@@ -28,6 +28,11 @@ interface RealPortfolioData {
   lastUpdate: string;
 }
 
+export interface LogData {
+  message: string;
+  [key: string]: any;
+}
+
 class RealMarketDataService {
   private ccxtExchanges: Map<string, ccxt.Exchange> = new Map();
   private deltaExchange: DeltaExchangeUnified | null = null;
@@ -65,7 +70,7 @@ class RealMarketDataService {
       logger.info('✅ Binance exchange initialized for market data');
 
       // Initialize Coinbase Pro
-      const coinbase = new ccxt.coinbasepro({
+      const coinbase = new ccxt.coinbase({
         sandbox: false,
         enableRateLimit: true,
         timeout: 10000,
@@ -178,7 +183,10 @@ class RealMarketDataService {
           return marketData;
         }
       } catch (error) {
-        logger.warn(`⚠️ Failed to fetch ${symbol} from Delta Exchange:`, error instanceof Error ? error.message : 'Unknown error');
+        logger.warn({
+          message: `⚠️ Failed to fetch ${symbol} from Delta Exchange:`,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
       }
     }
 
@@ -220,12 +228,15 @@ class RealMarketDataService {
           return marketData;
         }
       } catch (error) {
-        logger.warn(`⚠️ Failed to fetch ${symbol} from ${exchangeName}:`, error instanceof Error ? error.message : 'Unknown error');
+        logger.warn({
+          message: `⚠️ Failed to fetch ${symbol} from ${exchangeName}:`,
+          error: error instanceof Error ? error.message : 'Unknown error'
+        });
         continue;
       }
     }
 
-    logger.error(`❌ Failed to fetch ${symbol} from all sources`);
+    logger.error({ message: `❌ Failed to fetch ${symbol} from all sources` });
     return null;
   }
 
@@ -241,7 +252,7 @@ class RealMarketDataService {
         // Small delay to respect rate limits
         await new Promise(resolve => setTimeout(resolve, 100));
       } catch (error) {
-        logger.error(`Failed to fetch data for ${symbol}:`, error);
+        logger.error({ message: `Failed to fetch data for ${symbol}:`, error });
       }
     }
 
@@ -259,7 +270,7 @@ class RealMarketDataService {
       // Get real Delta Exchange testnet balance directly from API
       logger.info('📊 Fetching REAL Delta Exchange testnet balance...');
 
-      const balanceResponse = await fetch('http://localhost:3005/api/delta-trading/balance');
+      const balanceResponse = await fetch('http://localhost:3006/api/delta-trading/balance');
       if (balanceResponse.ok) {
         const balanceData = await balanceResponse.json();
 
@@ -279,7 +290,7 @@ class RealMarketDataService {
             // Try to get real positions from Delta Exchange
             let realPositions = [];
             try {
-              const positionsResponse = await fetch('http://localhost:3005/api/delta-trading/positions');
+              const positionsResponse = await fetch('http://localhost:3006/api/delta-trading/positions');
               if (positionsResponse.ok) {
                 const positionsData = await positionsResponse.json();
                 if (positionsData.success && positionsData.data) {

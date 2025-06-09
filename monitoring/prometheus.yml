@@ -16,8 +16,10 @@ alerting:
           - alertmanager:9093
 
 # Load rules once and periodically evaluate them
+# The rules should be placed in the rules directory
 rule_files:
-  - "rules/*.yml"
+  - "rules/recording_rules.yml"
+  - "rules/alerting_rules.yml"
 
 # Scrape configurations
 scrape_configs:
@@ -121,112 +123,3 @@ remote_write:
       max_samples_per_send: 1000
       max_shards: 200
       capacity: 2500
-
-# Recording rules for complex calculations
-recording_rules:
-  - name: trading_performance
-    interval: 30s
-    rules:
-      - record: trading:win_rate_5m
-        expr: |
-          (
-            sum(rate(successful_trades_total[5m])) /
-            sum(rate(total_trades_total[5m]))
-          ) * 100
-
-      - record: trading:pnl_rate_1h
-        expr: |
-          sum(rate(portfolio_pnl_total[1h]))
-
-      - record: trading:sharpe_ratio_daily
-        expr: |
-          (
-            avg_over_time(daily_return[24h]) /
-            stddev_over_time(daily_return[24h])
-          ) * sqrt(365)
-
-  - name: system_performance
-    interval: 15s
-    rules:
-      - record: system:api_latency_p95
-        expr: |
-          histogram_quantile(0.95, 
-            sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service)
-          )
-
-      - record: system:error_rate_5m
-        expr: |
-          (
-            sum(rate(http_requests_total{status=~"5.."}[5m])) /
-            sum(rate(http_requests_total[5m]))
-          ) * 100
-
-      - record: system:throughput_rps
-        expr: |
-          sum(rate(http_requests_total[1m])) by (service)
-
-# Alerting rules
-alerting_rules:
-  - name: trading_alerts
-    rules:
-      - alert: HighDrawdown
-        expr: current_drawdown_percent > 15
-        for: 1m
-        labels:
-          severity: critical
-          component: trading
-        annotations:
-          summary: "High drawdown detected"
-          description: "Current drawdown is {{ $value }}%, exceeding 15% threshold"
-
-      - alert: LowWinRate
-        expr: trading:win_rate_5m < 50
-        for: 5m
-        labels:
-          severity: warning
-          component: trading
-        annotations:
-          summary: "Win rate below threshold"
-          description: "5-minute win rate is {{ $value }}%, below 50% threshold"
-
-      - alert: TradingSystemDown
-        expr: up{job="ml-system"} == 0 or up{job="bridge"} == 0
-        for: 30s
-        labels:
-          severity: critical
-          component: system
-        annotations:
-          summary: "Trading system component down"
-          description: "{{ $labels.job }} is down"
-
-  - name: system_alerts
-    rules:
-      - alert: HighAPILatency
-        expr: system:api_latency_p95 > 1
-        for: 2m
-        labels:
-          severity: warning
-          component: api
-        annotations:
-          summary: "High API latency"
-          description: "95th percentile latency is {{ $value }}s"
-
-      - alert: HighErrorRate
-        expr: system:error_rate_5m > 5
-        for: 1m
-        labels:
-          severity: critical
-          component: api
-        annotations:
-          summary: "High error rate"
-          description: "Error rate is {{ $value }}% over 5 minutes"
-
-      - alert: DatabaseConnectionIssues
-        expr: up{job="postgres"} == 0 or up{job="redis"} == 0
-        for: 30s
-        labels:
-          severity: critical
-          component: database
-        annotations:
-          summary: "Database connection issues"
-          description: "{{ $labels.job }} database is unreachable"

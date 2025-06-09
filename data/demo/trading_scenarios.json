@@ -1,0 +1,47 @@
+[
+  {
+    "name": "Bullish Breakout",
+    "description": "Strong upward momentum with high volume",
+    "setup": {
+      "trend": "bullish",
+      "volatility": "high",
+      "volume": "increasing",
+      "confluence_score": 0.85
+    },
+    "expected_outcome": {
+      "direction": "long",
+      "probability": 0.75,
+      "risk_reward": 3.0
+    }
+  },
+  {
+    "name": "Bearish Reversal",
+    "description": "Trend reversal with strong selling pressure",
+    "setup": {
+      "trend": "bearish",
+      "volatility": "medium",
+      "volume": "high",
+      "confluence_score": 0.78
+    },
+    "expected_outcome": {
+      "direction": "short",
+      "probability": 0.68,
+      "risk_reward": 2.5
+    }
+  },
+  {
+    "name": "Range Bound",
+    "description": "Sideways movement with low volatility",
+    "setup": {
+      "trend": "sideways",
+      "volatility": "low",
+      "volume": "decreasing",
+      "confluence_score": 0.45
+    },
+    "expected_outcome": {
+      "direction": "none",
+      "probability": 0.3,
+      "risk_reward": 1.0
+    }
+  }
+]

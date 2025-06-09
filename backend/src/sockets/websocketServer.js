@@ -261,7 +261,7 @@ async function getInitialMarketData(symbol, userId) {
 
     // Fetch real market data from our real market data service
     const fetch = require('node-fetch');
-    const response = await fetch(`http://localhost:3005/api/real-market-data/${symbol}`);
+    const response = await fetch(`http://localhost:3006/api/real-market-data/${symbol}`);
 
     if (response.ok) {
       const marketData = await response.json();
@@ -283,7 +283,7 @@ async function getInitialMarketData(symbol, userId) {
     }
 
     // Fallback: try to get from general market data endpoint
-    const fallbackResponse = await fetch('http://localhost:3005/api/real-market-data');
+    const fallbackResponse = await fetch('http://localhost:3006/api/real-market-data');
     if (fallbackResponse.ok) {
       const allMarketData = await fallbackResponse.json();
       if (allMarketData.success && allMarketData.data) {
@@ -381,7 +381,7 @@ async function broadcastRealPortfolioUpdate() {
   try {
     console.log('📊 Broadcasting real portfolio update...');
     const fetch = require('node-fetch');
-    const response = await fetch('http://localhost:3005/api/real-market-data/portfolio');
+    const response = await fetch('http://localhost:3006/api/real-market-data/portfolio');
 
     if (response.ok) {
       const portfolioData = await response.json();
@@ -405,7 +405,7 @@ async function broadcastRealMarketDataUpdate() {
   try {
     console.log('📡 Broadcasting real market data update...');
     const fetch = require('node-fetch');
-    const response = await fetch('http://localhost:3005/api/real-market-data');
+    const response = await fetch('http://localhost:3006/api/real-market-data');
 
     if (response.ok) {
       const marketData = await response.json();

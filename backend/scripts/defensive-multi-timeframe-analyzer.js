@@ -335,32 +335,14 @@ class DefensiveMultiTimeframeAnalyzer {
    * Create fallback analysis for error cases
    */
   createFallbackAnalysis(symbol, reason, error = null) {
-    console.warn(`⚠️ Creating fallback analysis for ${symbol}: ${reason}`);
-    
-    return {
-      symbol,
-      currentPrice: 0,
-      timestamp: Date.now(),
-      timeframes: {
-        '4h': DefensiveTradingUtils.createSafeBias('neutral', 0, '4h'),
-        '15m': DefensiveTradingUtils.createSafeBias('neutral', 0, '15m'),
-        '5m': DefensiveTradingUtils.createSafeBias('neutral', 0, '5m')
-      },
-      confluence: 0,
-      dataQuality: 'poor',
-      isValid: false,
-      errors: [reason],
-      fallback: true,
-      errorDetails: error ? DefensiveTradingUtils.createErrorReport(error) : null
-    };
+    throw new Error(`Analysis failed for ${symbol}: ${reason}`);
   }
 
   /**
    * Create fallback candle data
    */
   createFallbackCandleData(symbol, timeframe) {
-    console.warn(`⚠️ Creating fallback candle data for ${symbol} ${timeframe}`);
-    return [];
+    throw new Error(`Candle data unavailable for ${symbol} ${timeframe}`);
   }
 
   /**

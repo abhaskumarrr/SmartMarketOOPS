@@ -1,0 +1,64 @@
+groups:
+  - name: trading_alerts
+    rules:
+      - alert: HighDrawdown
+        expr: current_drawdown_percent > 15
+        for: 1m
+        labels:
+          severity: critical
+          component: trading
+        annotations:
+          summary: "High drawdown detected"
+          description: "Current drawdown is {{ $value }}%, exceeding 15% threshold"
+
+      - alert: LowWinRate
+        expr: trading:win_rate_5m < 50
+        for: 5m
+        labels:
+          severity: warning
+          component: trading
+        annotations:
+          summary: "Win rate below threshold"
+          description: "5-minute win rate is {{ $value }}%, below 50% threshold"
+
+      - alert: TradingSystemDown
+        expr: up{job="ml-system"} == 0 or up{job="bridge"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Trading system component down"
+          description: "{{ $labels.job }} is down"
+
+  - name: system_alerts
+    rules:
+      - alert: HighAPILatency
+        expr: system:api_latency_p95 > 1
+        for: 2m
+        labels:
+          severity: warning
+          component: api
+        annotations:
+          summary: "High API latency"
+          description: "95th percentile latency is {{ $value }}s"
+
+      - alert: HighErrorRate
+        expr: system:error_rate_5m > 5
+        for: 1m
+        labels:
+          severity: critical
+          component: api
+        annotations:
+          summary: "High error rate"
+          description: "Error rate is {{ $value }}% over 5 minutes"
+
+      - alert: DatabaseConnectionIssues
+        expr: up{job="postgres"} == 0 or up{job="redis"} == 0
+        for: 30s
+        labels:
+          severity: critical
+          component: database
+        annotations:
+          summary: "Database connection issues"
+          description: "{{ $labels.job }} database is unreachable" 

@@ -291,7 +291,7 @@ class AccurateMarketDataService {
 
     } catch (error) {
       logger.error(`Failed to get market data for ${symbol}:`, error instanceof Error ? error.message : 'Unknown error');
-      return this.getMockMarketData(symbol);
+      return null;
     }
   }
 
@@ -333,46 +333,11 @@ class AccurateMarketDataService {
   }
 
   /**
-   * Fallback mock data generator (only used as last resort)
+   * [REMOVED] Fallback mock data generator
+   * [INSERT] In production, throw error if market data unavailable
    */
   private getMockMarketData(symbol: string): MarketData {
-    logger.warn(`Using mock data for ${symbol} - all real sources failed`);
-    
-    const basePrice = this.getBasePriceForSymbol(symbol);
-    const lastPrice = this.lastPrices[symbol] || basePrice;
-    
-    const changePercent = (Math.random() - 0.5) * 1.0;
-    const newPrice = lastPrice * (1 + changePercent / 100);
-    const change = newPrice - lastPrice;
-    
-    this.lastPrices[symbol] = newPrice;
-
-    return {
-      symbol,
-      price: Number(newPrice.toFixed(2)),
-      change: Number(change.toFixed(2)),
-      changePercent: Number(changePercent.toFixed(2)),
-      volume: Math.floor(Math.random() * 1000000) + 100000,
-      high24h: Number((newPrice * 1.05).toFixed(2)),
-      low24h: Number((newPrice * 0.95).toFixed(2)),
-      timestamp: Date.now(),
-      source: 'mock',
-      isValidated: false
-    };
-  }
-
-  /**
-   * Get realistic base price for symbol
-   */
-  private getBasePriceForSymbol(symbol: string): number {
-    const basePrices: { [key: string]: number } = {
-      'BTCUSD': 104000,  // Updated to realistic current prices
-      'ETHUSD': 2540,
-      'ADAUSD': 0.89,
-      'SOLUSD': 240,
-      'DOTUSD': 7.5
-    };
-    return basePrices[symbol] || 100;
+    throw new Error(`Market data unavailable for ${symbol}`);
   }
 
   /**

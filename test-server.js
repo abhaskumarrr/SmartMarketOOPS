@@ -36,12 +36,12 @@ async function getCurrentPrice(symbol) {
       }
     }
     
-    // Return mock prices if API fails
-    return symbol.includes('ETH') ? 2579.39 : 105563.43;
+    // Implement robust error handling and ensure only real API data is used. No mock/demo logic allowed.
+    throw new Error('API call failed');
   } catch (error) {
     console.error(`Error fetching price for ${symbol}:`, error.message);
-    // Return mock prices if API fails
-    return symbol.includes('ETH') ? 2579.39 : 105563.43;
+    // Implement robust error handling and ensure only real API data is used. No mock/demo logic allowed.
+    throw error;
   }
 }
 

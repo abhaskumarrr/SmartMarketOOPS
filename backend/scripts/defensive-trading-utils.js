@@ -143,12 +143,10 @@ class DefensiveTradingUtils {
       const timeoutPromise = new Promise((_, reject) => {
         setTimeout(() => reject(new Error('Promise timeout')), timeoutMs);
       });
-      
       const result = await Promise.race([promise, timeoutPromise]);
-      return result !== undefined ? result : fallback;
+      return result;
     } catch (error) {
-      console.warn(`Promise failed or timed out: ${error.message}`);
-      return fallback;
+      throw new Error(`Promise failed or timed out: ${error.message}`);
     }
   }
 

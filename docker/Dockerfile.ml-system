@@ -42,8 +42,7 @@ RUN pip install --no-cache-dir --upgrade pip setuptools wheel && \
 # Copy application code
 COPY . .
 
-# Install the application
-RUN pip install --no-cache-dir -e .
+# No need to install as package since we're running main.py directly
 
 # Stage 2: Production runtime
 FROM python:3.11-slim as runtime
@@ -62,7 +61,7 @@ RUN groupadd -r smartmarket && useradd -r -g smartmarket -d /app -s /bin/bash sm
 COPY --from=builder /opt/venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
-# Copy application code
+# Copy application code and virtual environment
 COPY --from=builder --chown=smartmarket:smartmarket /app /app
 
 # Set working directory
@@ -90,5 +89,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
 # Expose port
 EXPOSE 8000
 
-# Default command
-CMD ["python", "-m", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
+# Default command - run the main.py file directly
+CMD ["python", "main.py"]

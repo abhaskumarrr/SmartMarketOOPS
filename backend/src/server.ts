@@ -59,7 +59,7 @@ const initializeWebsocketServer = require('./sockets/websocketServer').initializ
 
 // Create Express app
 const app = express();
-const PORT = process.env.PORT || 3005;
+const PORT = process.env.PORT || 3006;
 const NODE_ENV = process.env.NODE_ENV || 'development';
 
 // Initialize optimization services
@@ -205,7 +205,7 @@ app.get('/api/portfolio', async (req: Request, res: Response) => {
   try {
     // Try to get portfolio data with real Delta Exchange testnet balance first
     try {
-      const realPortfolioResponse = await fetch('http://localhost:3005/api/real-market-data/portfolio');
+      const realPortfolioResponse = await fetch('http://localhost:3006/api/real-market-data/portfolio');
       if (realPortfolioResponse.ok) {
         const realData = await realPortfolioResponse.json();
         if (realData.success && realData.data) {
@@ -218,7 +218,7 @@ app.get('/api/portfolio', async (req: Request, res: Response) => {
     }
 
     // Fallback to paper trading if real data fails
-    const paperTradingResponse = await fetch('http://localhost:3005/api/paper-trading/portfolio');
+    const paperTradingResponse = await fetch('http://localhost:3006/api/paper-trading/portfolio');
     let totalValue = 1000; // Default $1000 starting balance
     let dailyPnL = 0;
     let winRate = 0;
@@ -307,7 +307,7 @@ app.post('/api/trades/place', async (req: Request, res: Response) => {
     console.log(`🎯 Placing SIMULATED trade with REAL market data: ${side.toUpperCase()} ${size} ${mappedSymbol}`);
 
     // Use paper trading with real market data from CCXT
-    const response = await fetch('http://localhost:3005/api/paper-trading/trade', {
+    const response = await fetch('http://localhost:3006/api/paper-trading/trade', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -362,17 +362,17 @@ app.post('/api/trades/place', async (req: Request, res: Response) => {
 app.get('/api/trading/status', async (req: Request, res: Response) => {
   try {
     // Test Delta Exchange connection
-    const deltaTestResponse = await fetch('http://localhost:3005/api/delta-trading/test-connection');
+    const deltaTestResponse = await fetch('http://localhost:3006/api/delta-trading/test-connection');
     const deltaConnected = deltaTestResponse.ok;
 
     // Test balance endpoint
-    const balanceTestResponse = await fetch('http://localhost:3005/api/delta-trading/balance');
+    const balanceTestResponse = await fetch('http://localhost:3006/api/delta-trading/balance');
     const balanceData = balanceTestResponse.ok ? await balanceTestResponse.json() : null;
     const balanceWorking = balanceData?.success || false;
     const ipWhitelistingRequired = balanceData?.message?.includes('IP_NOT_WHITELISTED') || false;
 
     // Test paper trading
-    const paperTradingResponse = await fetch('http://localhost:3005/api/paper-trading/portfolio');
+    const paperTradingResponse = await fetch('http://localhost:3006/api/paper-trading/portfolio');
     const paperTradingWorking = paperTradingResponse.ok;
 
     res.json({

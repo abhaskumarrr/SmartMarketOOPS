@@ -1,0 +1,90 @@
+version: '3.8'
+
+services:
+  frontend:
+    image: smartmarket-frontend:${VERSION:-latest}
+    container_name: smartmarket-frontend
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3006}
+        - NEXT_DEPLOYMENT_ID=${NEXT_DEPLOYMENT_ID:-$(date +%s)}
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=${NEXT_PUBLIC_API_URL:-http://localhost:3006}
+      - NEXT_DEPLOYMENT_ID=${NEXT_DEPLOYMENT_ID:-$(date +%s)}
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # Blue-green deployment strategy
+    deploy:
+      update_config:
+        order: start-first
+        delay: 10s
+        failure_action: rollback
+    networks:
+      - smartmarket-prod
+
+  backend:
+    image: smartmarket-backend:${VERSION:-latest}
+    container_name: smartmarket-backend
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      args:
+        - DEPLOYMENT_ID=${DEPLOYMENT_ID:-$(date +%s)}
+    restart: unless-stopped
+    ports:
+      - "${BACKEND_PORT:-3006}:3006"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:postgres@postgres:5432/smartmarket
+      - REDIS_URL=redis://redis:6379
+      - PORT=3006
+      - DEPLOYMENT_ID=${DEPLOYMENT_ID:-$(date +%s)}
+    depends_on:
+      - postgres
+      - redis
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:3006/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    # Blue-green deployment strategy
+    deploy:
+      update_config:
+        order: start-first
+        delay: 10s
+        failure_action: rollback
+    networks:
+      - smartmarket-prod
+
+  # Other services...
+  
+  # A proxy to handle version skew and graceful transitions
+  nginx:
+    image: nginx:latest
+    container_name: smartmarket-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+      - ./nginx/certs:/etc/nginx/certs:ro
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+    networks:
+      - smartmarket-prod
+
+networks:
+  smartmarket-prod:
+    driver: bridge 

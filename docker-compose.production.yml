@@ -1,8 +1,6 @@
 # Production Docker Compose Configuration
 # SmartMarketOOPS Trading Platform
 
-version: '3.8'
-
 services:
   # Frontend Service
   frontend:
@@ -32,10 +30,14 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: smartmarket-backend-prod
+    container_name: smartmarket-backend
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
     ports:
-      - "3005:3005"
-      - "3001:3001"
+      - "3006:3005"
+    env_file:
+      - .env
     environment:
       - NODE_ENV=production
       - PORT=3005
@@ -43,9 +45,6 @@ services:
       - DELTA_API_KEY=${DELTA_API_KEY}
       - DELTA_API_SECRET=${DELTA_API_SECRET}
       - DELTA_TESTNET=true
-    volumes:
-      - ./backend/data:/app/data
-      - ./backend/logs:/app/logs
     restart: unless-stopped
     networks:
       - smartmarket-network

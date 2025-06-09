@@ -1,0 +1,142 @@
+{
+  "configuration": {
+    "env_file": {
+      "exists": true,
+      "size": 4237,
+      "status": "VALID",
+      "missing_variables": []
+    },
+    "package_root": {
+      "exists": true,
+      "valid_json": true,
+      "has_scripts": true,
+      "has_dependencies": true,
+      "status": "VALID"
+    },
+    "package_backend": {
+      "exists": true,
+      "valid_json": true,
+      "has_scripts": true,
+      "has_dependencies": true,
+      "status": "VALID"
+    },
+    "package_frontend": {
+      "exists": true,
+      "valid_json": true,
+      "has_scripts": true,
+      "has_dependencies": true,
+      "status": "VALID"
+    },
+    "requirements": {
+      "exists": true,
+      "line_count": 133,
+      "status": "VALID"
+    }
+  },
+  "dependencies": {
+    "python": {
+      "available": true,
+      "version": "3.9.6",
+      "status": "VALID"
+    },
+    "nodejs": {
+      "available": false,
+      "status": "WARNING"
+    },
+    "npm": {
+      "available": false,
+      "status": "WARNING"
+    },
+    "docker": {
+      "available": false,
+      "status": "INFO"
+    },
+    "python_pandas": {
+      "available": true,
+      "status": "VALID"
+    },
+    "python_numpy": {
+      "available": true,
+      "status": "VALID"
+    },
+    "python_fastapi": {
+      "available": false,
+      "status": "WARNING"
+    },
+    "python_ccxt": {
+      "available": false,
+      "status": "WARNING"
+    },
+    "python_torch": {
+      "available": false,
+      "status": "WARNING"
+    }
+  },
+  "data": {
+    "data_dir": {
+      "exists": true,
+      "file_count": 10,
+      "status": "VALID"
+    },
+    "sample_data_dir": {
+      "exists": true,
+      "file_count": 18,
+      "status": "VALID"
+    },
+    "models_dir": {
+      "exists": true,
+      "file_count": 159,
+      "status": "VALID"
+    },
+    "trained_models": {
+      "count": 6,
+      "files": [
+        "cnnlstm_trained.pt",
+        "best_lstm.pt",
+        "best_cnnlstm.pt",
+        "lstm_model.pt",
+        "best_transformer.pt",
+        "best_gru.pt"
+      ],
+      "status": "VALID"
+    },
+    "sample_data": {
+      "csv_count": 14,
+      "files": [
+        "orderbook.csv",
+        "BTCUSD_4h.csv",
+        "BTCUSD_5m.csv",
+        "ETHUSD_1h.csv",
+        "BTCUSD_15m.csv",
+        "BTCUSD_1d.csv",
+        "ETHUSD_1m.csv",
+        "BTCUSD_1h.csv",
+        "ETHUSD_15m.csv",
+        "trades.csv",
+        "BTCUSD_1m.csv",
+        "ETHUSD_1d.csv",
+        "ETHUSD_5m.csv",
+        "ETHUSD_4h.csv"
+      ],
+      "status": "VALID"
+    }
+  },
+  "models": {},
+  "services": {
+    "main_py": {
+      "exists": true,
+      "status": "VALID"
+    },
+    "backend": {
+      "directory_exists": true,
+      "required_files": true,
+      "status": "VALID"
+    },
+    "frontend": {
+      "directory_exists": true,
+      "required_files": true,
+      "status": "VALID"
+    }
+  },
+  "overall_status": "WARNING"
+}

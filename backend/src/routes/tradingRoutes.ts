@@ -4,7 +4,7 @@
  */
 
 import express from 'express';
-import DeltaExchangeService, { DeltaCredentials, OrderRequest } from '../services/deltaExchangeService';
+import { DeltaExchangeService, DeltaCredentials, OrderRequest } from '../services/deltaExchangeService';
 
 // Simple console logger
 const logger = {

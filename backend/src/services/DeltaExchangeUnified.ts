@@ -191,7 +191,7 @@ export class DeltaExchangeUnified extends EventEmitter {
 
     // Initialize the service asynchronously with better error handling
     this.initialize().catch(error => {
-      logger.error('Failed to initialize Delta Exchange service:', error);
+      logger.error('Failed to initialize Delta Exchange service', { error });
       logger.error('This is likely due to invalid API credentials or network issues');
       logger.warn('Service will continue in degraded mode - some features may not work');
       this.emit('error', error);
@@ -202,12 +202,12 @@ export class DeltaExchangeUnified extends EventEmitter {
   /**
    * Initialize the Delta Exchange service
    */
-  private async initialize(): Promise<void> {
+  public async initialize(): Promise<void> {
     try {
       logger.info('🚀 Initializing Delta Exchange Unified Service...');
-      logger.info(`🔑 Using API Key: ${this.credentials.apiKey.substring(0, 8)}...${this.credentials.apiKey.substring(this.credentials.apiKey.length - 4)}`);
-      logger.info(`🔒 Using API Secret: ${this.credentials.apiSecret.substring(0, 8)}...${this.credentials.apiSecret.substring(this.credentials.apiSecret.length - 4)}`);
-      logger.info(`🌐 Base URL: ${this.baseUrl}`);
+      logger.info('🔑 Using API Key', { apiKey: this.credentials.apiKey.substring(0, 8) + '...' + this.credentials.apiKey.substring(this.credentials.apiKey.length - 4) });
+      logger.info('🔒 Using API Secret', { apiSecret: this.credentials.apiSecret.substring(0, 8) + '...' + this.credentials.apiSecret.substring(this.credentials.apiSecret.length - 4) });
+      logger.info('🌐 Base URL', { baseUrl: this.baseUrl });
 
       // Load products and build symbol mappings
       await this.loadProducts();
@@ -220,7 +220,7 @@ export class DeltaExchangeUnified extends EventEmitter {
       this.emit('initialized');
       
     } catch (error) {
-      logger.error('❌ Failed to initialize Delta Exchange service:', error);
+      logger.error('❌ Failed to initialize Delta Exchange service', { error });
       this.emit('error', error);
       throw error;
     }
@@ -242,63 +242,54 @@ export class DeltaExchangeUnified extends EventEmitter {
           this.symbolToProductId.set(product.symbol, product.id);
         }
         
-        logger.info(`📦 Loaded ${products.length} products from Delta Exchange`);
+        logger.info('📦 Loaded', { count: products.length, products: products.map(p => p.symbol) });
         
         // Log important trading pairs for BTCUSD and ETHUSD perpetuals
         const btcProduct = this.getProductBySymbol('BTCUSD');
         const ethProduct = this.getProductBySymbol('ETHUSD');
         
         if (btcProduct) {
-          logger.info(`🟡 BTC/USD Perpetual: ID ${btcProduct.id}, State: ${btcProduct.state}`);
+          logger.info('📊 BTCUSD Perpetual Product', { id: btcProduct.id, state: btcProduct.state });
         }
         if (ethProduct) {
-          logger.info(`🔵 ETH/USD Perpetual: ID ${ethProduct.id}, State: ${ethProduct.state}`);
+          logger.info('📊 ETHUSD Perpetual Product', { id: ethProduct.id, state: ethProduct.state });
         }
-        
       } else {
         throw new Error(`Failed to load products: ${response.data.error}`);
       }
     } catch (error) {
-      logger.error('Error loading products:', error);
+      logger.error('Failed to load products', { error });
       throw error;
     }
   }
 
   /**
-   * Test authentication with Delta Exchange
+   * Test authentication by fetching user details
    */
   private async testAuthentication(): Promise<void> {
     try {
-      const response = await this.makeAuthenticatedRequest('GET', '/v2/profile');
-
-      if (response.success) {
-        logger.info('✅ Delta Exchange authentication successful');
-        logger.info(`👤 User ID: ${response.result.user_id}`);
+      logger.info('Authenticating with Delta Exchange...');
+      const response = await this.makeAuthenticatedRequest('GET', '/v2/users/me');
+      if (response.success && response.result && response.result.id) {
+        logger.info('Authentication successful', { userId: response.result.id });
       } else {
-        throw new Error(`Authentication failed: ${response.error}`);
+        logger.error('Authentication failed', { error: response.data?.error || 'Unknown error' });
+        throw new Error(`Authentication failed: ${response.data?.error || 'Unknown error'}`);
       }
-    } catch (error: any) {
-      logger.error('❌ Delta Exchange authentication failed:', error);
-
-      // Check if it's an IP whitelisting issue
-      if (error.response?.data?.error?.code === 'ip_not_whitelisted_for_api_key') {
-        const clientIp = error.response.data.error.context?.client_ip;
-        logger.warn('🚨 IP WHITELISTING ISSUE DETECTED');
-        logger.warn(`📍 Your current IP: ${clientIp}`);
-        logger.warn('💡 SOLUTION: Add this IP to your Delta Exchange API key whitelist');
-        logger.warn('🔧 OR: Create a new API key without IP restrictions');
-        logger.warn('⚠️  Continuing with limited functionality (market data only)...');
-
-        // Don't throw error, continue with limited functionality
-        return;
-      }
-
+    } catch (error) {
+      logger.error('Authentication test failed', { error });
       throw error;
     }
   }
 
   /**
-   * Generate signature for authenticated requests
+   * Generate an authentication signature for Delta Exchange API requests
+   * @param method - HTTP method (GET, POST, etc.)
+   * @param path - API path (e.g., /v2/products)
+   * @param queryString - URL query string (e.g., param1=value1&param2=value2)
+   * @param body - Request body for POST/PUT requests
+   * @param timestamp - Unix timestamp in milliseconds
+   * @returns HMAC SHA256 signature
    */
   private generateSignature(
     method: string,
@@ -307,15 +298,19 @@ export class DeltaExchangeUnified extends EventEmitter {
     body: string,
     timestamp: string
   ): string {
-    const message = method + timestamp + path + queryString + body;
-    return crypto
-      .createHmac('sha256', this.credentials.apiSecret)
-      .update(message)
+    const payload = `${timestamp}${method}${path}${queryString}${body}`;
+    return crypto.createHmac('sha256', this.credentials.apiSecret)
+      .update(payload)
       .digest('hex');
   }
 
   /**
-   * Make authenticated request to Delta Exchange API
+   * Make an authenticated API request to Delta Exchange
+   * @param method - HTTP method
+   * @param path - API path
+   * @param params - Query parameters
+   * @param data - Request body data
+   * @returns Response data
    */
   private async makeAuthenticatedRequest(
     method: string,
@@ -323,66 +318,54 @@ export class DeltaExchangeUnified extends EventEmitter {
     params: Record<string, any> = {},
     data: any = null
   ): Promise<any> {
-    // Validate credentials before making request
-    if (!this.credentials.apiKey || this.credentials.apiKey.trim() === '') {
-      throw new Error('API key is empty or not configured');
-    }
+    const timestamp = Date.now().toString();
+    const queryString = Object.keys(params).length > 0 ? new URLSearchParams(params).toString() : '';
+    const requestBody = data ? JSON.stringify(data) : '';
 
-    if (!this.credentials.apiSecret || this.credentials.apiSecret.trim() === '') {
-      throw new Error('API secret is empty or not configured');
-    }
+    const signature = this.generateSignature(
+      method,
+      path,
+      queryString ? `?${queryString}` : '', // Include '?' for query string
+      requestBody,
+      timestamp
+    );
 
-    const timestamp = Math.floor(Date.now() / 1000).toString();
-    const queryString = Object.keys(params).length > 0
-      ? '?' + new URLSearchParams(params).toString()
-      : '';
-    const body = data ? JSON.stringify(data) : '';
-
-    const signature = this.generateSignature(method, path, queryString, body, timestamp);
-
-    const headers = {
-      'api-key': this.credentials.apiKey,
-      'signature': signature,
-      'timestamp': timestamp,
-      'Content-Type': 'application/json',
-      'User-Agent': 'SmartMarketOOPS-DeltaBot-v1.0'
-    };
-
-    // Debug log the headers (without exposing full credentials)
-    logger.debug('Request headers:', {
-      'api-key': this.credentials.apiKey.substring(0, 8) + '...',
-      'signature': signature.substring(0, 16) + '...',
-      'timestamp': timestamp,
-      'method': method,
-      'path': path
+    logger.debug('Making authenticated request', {
+      apiKey: this.credentials.apiKey.substring(0, 8) + '...',
+      signature: signature.substring(0, 8) + '...',
+      timestamp,
+      method,
+      path,
     });
 
-    // Debug logging
-    logger.info(`🔍 Making request: ${method} ${path}${queryString}`);
-    logger.info(`📝 Signature message: "${method}${timestamp}${path}${queryString}${body}"`);
-    logger.info(`✍️ Generated signature: ${signature}`);
-    logger.info(`📤 Request headers: ${JSON.stringify(headers, null, 2)}`);
-
     try {
-      const response: AxiosResponse = await this.client.request({
-        method: method as any,
-        url: path + queryString,
-        data: data || undefined, // Ensure undefined for GET requests
-        headers
-      });
+      const headers = {
+        'Content-Type': 'application/json',
+        'X-DELTADEX-SIGNATURE': signature,
+        'X-DELTADEX-APIKEY': this.credentials.apiKey,
+        'X-DELTADEX-TIMESTAMP': timestamp,
+      };
 
-      return response.data;
-    } catch (error: any) {
-      logger.error(`Delta Exchange API error: ${error.message}`);
-      if (error.response) {
-        logger.error(`Response status: ${error.response.status}`);
-        logger.error(`Response data:`, error.response.data);
+      const requestConfig = {
+        method,
+        url: path,
+        headers,
+        params: queryString ? params : undefined, // Only include params if queryString exists
+        data: requestBody || undefined,
+      };
 
-        // Log detailed schema errors if available
-        if (error.response.data?.error?.context?.schema_errors) {
-          logger.error('🔍 DETAILED SCHEMA ERRORS:');
-          logger.error(JSON.stringify(error.response.data.error.context.schema_errors, null, 2));
-        }
+      const response = await this.client.request(requestConfig);
+      if (response.data.success) {
+        logger.debug(`Authenticated request to ${path} successful`, { response: response.data });
+        return response.data;
+      } else {
+        logger.error(`Authenticated request to ${path} failed`, { error: response.data.error });
+        throw new Error(`Delta Exchange API error: ${response.data.error}`);
+      }
+    } catch (error) {
+      logger.error(`Error making authenticated request to ${path}`, { error });
+      if (axios.isAxiosError(error)) {
+        logger.error(`Axios error details:`, { status: error.response?.status, data: error.response?.data });
       }
       throw error;
     }
@@ -414,7 +397,7 @@ export class DeltaExchangeUnified extends EventEmitter {
    */
   public async getBalance(): Promise<DeltaBalance[]> {
     if (!this.isReady()) {
-      throw new Error('Delta Exchange service not ready');
+      throw new Error({ message: 'Delta Exchange service not ready' });
     }
 
     try {
@@ -423,27 +406,26 @@ export class DeltaExchangeUnified extends EventEmitter {
       if (response.success) {
         return response.result;
       } else {
-        throw new Error(`Failed to get balance: ${response.error}`);
+        throw new Error({ message: 'Failed to get balance', error: response.error });
       }
     } catch (error: any) {
-      logger.error('❌ Error getting REAL balance from Delta Exchange:', error);
+      logger.error({ message: '❌ Error getting REAL balance from Delta Exchange', error });
 
       // Log detailed error information
       if (error.response?.data) {
-        logger.error('API Error Response:', JSON.stringify(error.response.data, null, 2));
+        logger.error({ message: 'API Error Response', apiErrorResponse: JSON.stringify(error.response.data, null, 2) });
       }
 
       // Check if it's an IP whitelisting issue
       if (error.response?.data?.error?.code === 'ip_not_whitelisted_for_api_key') {
-        logger.error('🚫 IP NOT WHITELISTED FOR API KEY');
-        logger.error('📍 Current IP from error:', error.response.data.error.context?.client_ip);
-        logger.error('🔗 Please whitelist your IP at: https://testnet.delta.exchange/app/account/manageapikeys');
+        logger.error({ message: '🚫 IP NOT WHITELISTED FOR API KEY', currentIp: error.response.data.error.context?.client_ip });
+        logger.error({ message: '🔗 Please whitelist your IP at', whitelistUrl: 'https://testnet.delta.exchange/app/account/manageapikeys' });
 
-        throw new Error(`IP_NOT_WHITELISTED: Your IP ${error.response.data.error.context?.client_ip} is not whitelisted for this API key. Please add it to the whitelist in Delta Exchange dashboard.`);
+        throw new Error({ message: 'IP_NOT_WHITELISTED', ip: error.response.data.error.context?.client_ip });
       }
 
       // For any other error, throw it instead of returning mock data
-      throw new Error(`Failed to get real balance from Delta Exchange: ${error.message}`);
+      throw new Error({ message: 'Failed to get real balance from Delta Exchange', error: error.message });
     }
   }
 
@@ -452,7 +434,7 @@ export class DeltaExchangeUnified extends EventEmitter {
    */
   public async getPositions(productId?: number): Promise<DeltaPosition[]> {
     if (!this.isReady()) {
-      throw new Error('Delta Exchange service not ready');
+      throw new Error({ message: 'Delta Exchange service not ready' });
     }
 
     try {
@@ -472,10 +454,10 @@ export class DeltaExchangeUnified extends EventEmitter {
       if (response.success) {
         return response.result;
       } else {
-        throw new Error(`Failed to get positions: ${response.error?.code || response.error}`);
+        throw new Error({ message: 'Failed to get positions', error: response.error?.code || response.error });
       }
     } catch (error) {
-      logger.error('Error getting positions:', error);
+      logger.error({ message: 'Error getting positions', error });
       throw error;
     }
   }
@@ -485,7 +467,7 @@ export class DeltaExchangeUnified extends EventEmitter {
    */
   public async getAllPositions(): Promise<DeltaPosition[]> {
     if (!this.isReady()) {
-      throw new Error('Delta Exchange service not ready');
+      throw new Error({ message: 'Delta Exchange service not ready' });
     }
 
     try {
@@ -503,14 +485,14 @@ export class DeltaExchangeUnified extends EventEmitter {
             allPositions.push(...response.result);
           }
         } catch (error) {
-          logger.warn(`Failed to get positions for ${asset}:`, error instanceof Error ? error.message : 'Unknown error');
+          logger.warn({ message: 'Failed to get positions for', asset }, error instanceof Error ? error.message : 'Unknown error');
           // Continue with other assets even if one fails
         }
       }
 
       return allPositions;
     } catch (error) {
-      logger.error('Error getting all positions:', error);
+      logger.error({ message: 'Error getting all positions', error });
       throw error;
     }
   }
@@ -520,7 +502,7 @@ export class DeltaExchangeUnified extends EventEmitter {
    */
   public async placeOrder(orderRequest: DeltaOrderRequest): Promise<DeltaOrder> {
     if (!this.isReady()) {
-      throw new Error('Delta Exchange service not ready');
+      throw new Error({ message: 'Delta Exchange service not ready' });
     }
 
     try {
@@ -532,44 +514,21 @@ export class DeltaExchangeUnified extends EventEmitter {
       if (response.success) {
         const order: DeltaOrder = response.result;
         const symbol = order.product?.symbol || `Product-${order.product?.id || 'Unknown'}`;
-        logger.info(`✅ Order placed successfully: ${order.side} ${order.size} ${symbol} @ ${order.limit_price || 'market'}`);
+        logger.info({ message: '✅ Order placed successfully', side: order.side, size: order.size, symbol, price: order.limit_price || 'market' });
         this.emit('orderPlaced', order);
         return order;
       } else {
-        throw new Error(`Order placement failed: ${response.error.code} - ${response.error.message}`);
+        throw new Error({ message: 'Order placement failed', error: response.error });
       }
     } catch (error: any) {
-      logger.error('Error placing order:', error);
-
+      logger.error({ message: 'Error placing order', error });
       // If IP whitelisting issue, simulate order placement for demo
       if (error.response?.data?.error?.code === 'ip_not_whitelisted_for_api_key') {
-        logger.warn('⚠️ Simulating order placement due to IP whitelisting issue');
-
-        const mockOrder: DeltaOrder = {
-          id: Date.now(),
-          user_id: 12345,
-          size: orderRequest.size,
-          unfilled_size: 0,
-          side: orderRequest.side,
-          order_type: orderRequest.order_type,
-          limit_price: orderRequest.limit_price || '0',
-          stop_order_type: '',
-          stop_price: '0',
-          paid_commission: '0',
-          commission: '0',
-          reduce_only: orderRequest.reduce_only || false,
-          client_order_id: orderRequest.client_order_id || '',
-          state: 'filled',
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString(),
-          product: this.getProductBySymbol('BTCUSD') || {} as DeltaProduct
-        };
-
-        logger.info(`🎭 DEMO ORDER SIMULATED: ${mockOrder.side} ${mockOrder.size} @ ${mockOrder.limit_price || 'market'}`);
-        this.emit('orderPlaced', mockOrder);
-        return mockOrder;
+        const err = new Error('Order placement failed: IP not whitelisted for API key.');
+        logger.error({ message: 'Order placement failed: IP not whitelisted for API key.', error: err });
+        this.emit('orderError', err);
+        throw err;
       }
-
       this.emit('orderError', error);
       throw error;
     }
@@ -580,7 +539,7 @@ export class DeltaExchangeUnified extends EventEmitter {
    */
   public async cancelOrder(orderId: number): Promise<DeltaOrder> {
     if (!this.isReady()) {
-      throw new Error('Delta Exchange service not ready');
+      throw new Error({ message: 'Delta Exchange service not ready' });
     }
 
     try {
@@ -588,14 +547,14 @@ export class DeltaExchangeUnified extends EventEmitter {
 
       if (response.success) {
         const order: DeltaOrder = response.result;
-        logger.info(`✅ Order cancelled: ${order.id}`);
+        logger.info({ message: '✅ Order cancelled', orderId: order.id });
         this.emit('orderCancelled', order);
         return order;
       } else {
-        throw new Error(`Order cancellation failed: ${response.error}`);
+        throw new Error({ message: 'Order cancellation failed', error: response.error });
       }
     } catch (error) {
-      logger.error('Error cancelling order:', error);
+      logger.error({ message: 'Error cancelling order', error });
       throw error;
     }
   }
@@ -605,7 +564,7 @@ export class DeltaExchangeUnified extends EventEmitter {
    */
   public async getOrder(orderId: number): Promise<DeltaOrder> {
     if (!this.isReady()) {
-      throw new Error('Delta Exchange service not ready');
+      throw new Error({ message: 'Delta Exchange service not ready' });
     }
 
     try {
@@ -614,10 +573,10 @@ export class DeltaExchangeUnified extends EventEmitter {
       if (response.success) {
         return response.result;
       } else {
-        throw new Error(`Failed to get order: ${response.error}`);
+        throw new Error({ message: 'Failed to get order', error: response.error });
       }
     } catch (error) {
-      logger.error('Error getting order:', error);
+      logger.error({ message: 'Error getting order', error });
       throw error;
     }
   }
@@ -627,7 +586,7 @@ export class DeltaExchangeUnified extends EventEmitter {
    */
   public async getOpenOrders(productId?: number): Promise<DeltaOrder[]> {
     if (!this.isReady()) {
-      throw new Error('Delta Exchange service not ready');
+      throw new Error({ message: 'Delta Exchange service not ready' });
     }
 
     try {
@@ -637,10 +596,10 @@ export class DeltaExchangeUnified extends EventEmitter {
       if (response.success) {
         return response.result;
       } else {
-        throw new Error(`Failed to get open orders: ${response.error}`);
+        throw new Error({ message: 'Failed to get open orders', error: response.error });
       }
     } catch (error) {
-      logger.error('Error getting open orders:', error);
+      logger.error({ message: 'Error getting open orders', error });
       throw error;
     }
   }
@@ -666,23 +625,23 @@ export class DeltaExchangeUnified extends EventEmitter {
    */
   private validateOrderRequest(orderRequest: DeltaOrderRequest): void {
     if (!orderRequest.product_id) {
-      throw new Error('Product ID is required');
+      throw new Error({ message: 'Product ID is required' });
     }
 
     if (!['buy', 'sell'].includes(orderRequest.side)) {
-      throw new Error('Side must be "buy" or "sell"');
+      throw new Error({ message: 'Side must be "buy" or "sell"' });
     }
 
     if (!orderRequest.size || orderRequest.size <= 0) {
-      throw new Error('Size must be greater than 0');
+      throw new Error({ message: 'Size must be greater than 0' });
     }
 
     if (!['limit_order', 'market_order'].includes(orderRequest.order_type)) {
-      throw new Error('Order type must be "limit_order" or "market_order"');
+      throw new Error({ message: 'Order type must be "limit_order" or "market_order"' });
     }
 
     if (orderRequest.order_type === 'limit_order' && !orderRequest.limit_price) {
-      throw new Error('Limit price is required for limit orders');
+      throw new Error({ message: 'Limit price is required for limit orders' });
     }
   }
 
@@ -692,7 +651,7 @@ export class DeltaExchangeUnified extends EventEmitter {
   public async getMarketData(symbol: string): Promise<any> {
     const productId = this.getProductId(symbol);
     if (!productId) {
-      throw new Error(`Product not found for symbol: ${symbol}`);
+      throw new Error({ message: 'Product not found for symbol', symbol });
     }
 
     try {
@@ -702,7 +661,7 @@ export class DeltaExchangeUnified extends EventEmitter {
       if (response.success) {
         const ticker = response.result;
 
-        logger.debug(`Raw ticker data for ${symbol}:`, ticker);
+        logger.debug({ message: 'Raw ticker data for', symbol, ticker });
 
         // Return standardized market data with current prices
         return {
@@ -718,13 +677,13 @@ export class DeltaExchangeUnified extends EventEmitter {
           timestamp: ticker.timestamp || Date.now()
         };
       } else {
-        throw new Error(`Failed to get market data: ${response.error}`);
+        throw new Error({ message: 'Failed to get market data', error: response.error });
       }
     } catch (error) {
-      logger.error(`Error getting live market data for ${symbol}:`, error);
+      logger.error({ message: 'Error getting live market data for', symbol, error });
 
       // ONLY USE LIVE DATA - No fallback to mock data
-      throw new Error(`Failed to get live market data for ${symbol}. Refusing to use mock data for safety.`);
+      throw new Error({ message: 'Failed to get live market data for', symbol, error: 'Refusing to use mock data for safety.' });
     }
   }
 
@@ -734,7 +693,7 @@ export class DeltaExchangeUnified extends EventEmitter {
   public async getOrderBook(symbol: string, depth: number = 20): Promise<any> {
     const productId = this.getProductId(symbol);
     if (!productId) {
-      throw new Error(`Product not found for symbol: ${symbol}`);
+      throw new Error({ message: 'Product not found for symbol', symbol });
     }
 
     try {
@@ -745,10 +704,10 @@ export class DeltaExchangeUnified extends EventEmitter {
       if (response.data.success) {
         return response.data.result;
       } else {
-        throw new Error(`Failed to get order book: ${response.data.error}`);
+        throw new Error({ message: 'Failed to get order book', error: response.data.error });
       }
     } catch (error) {
-      logger.error('Error getting order book:', error);
+      logger.error({ message: 'Error getting order book', error });
       throw error;
     }
   }
@@ -765,7 +724,7 @@ export class DeltaExchangeUnified extends EventEmitter {
       this.wsClient = new WebSocket(this.wsUrl);
 
       this.wsClient.on('open', () => {
-        logger.info('✅ Delta Exchange WebSocket connected');
+        logger.info({ message: '✅ Delta Exchange WebSocket connected' });
         this.reconnectAttempts = 0;
 
         // Subscribe to channels for each symbol
@@ -785,23 +744,23 @@ export class DeltaExchangeUnified extends EventEmitter {
           const message = JSON.parse(data.toString());
           this.handleWebSocketMessage(message);
         } catch (error) {
-          logger.error('Error parsing WebSocket message:', error);
+          logger.error({ message: 'Error parsing WebSocket message', error });
         }
       });
 
       this.wsClient.on('close', () => {
-        logger.warn('🔌 Delta Exchange WebSocket disconnected');
+        logger.warn({ message: '🔌 Delta Exchange WebSocket disconnected' });
         this.emit('wsDisconnected');
         this.handleReconnect(symbols);
       });
 
       this.wsClient.on('error', (error) => {
-        logger.error('❌ Delta Exchange WebSocket error:', error);
+        logger.error({ message: '❌ Delta Exchange WebSocket error', error });
         this.emit('wsError', error);
       });
 
     } catch (error) {
-      logger.error('Error connecting to WebSocket:', error);
+      logger.error({ message: 'Error connecting to WebSocket', error });
       throw error;
     }
   }
@@ -824,7 +783,7 @@ export class DeltaExchangeUnified extends EventEmitter {
       };
 
       this.wsClient.send(JSON.stringify(subscribeMessage));
-      logger.info(`📡 Subscribed to ${channel} for product ${productId}`);
+      logger.info({ message: '📡 Subscribed to', channel, forProduct: productId });
     }
   }
 
@@ -847,13 +806,13 @@ export class DeltaExchangeUnified extends EventEmitter {
   private handleReconnect(symbols: string[]): void {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
-      logger.info(`🔄 Attempting to reconnect WebSocket (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
+      logger.info({ message: '🔄 Attempting to reconnect WebSocket', attempt: this.reconnectAttempts, maxAttempts: this.maxReconnectAttempts });
 
       setTimeout(() => {
         this.connectWebSocket(symbols);
       }, this.reconnectDelay * this.reconnectAttempts);
     } else {
-      logger.error('❌ Max WebSocket reconnection attempts reached');
+      logger.error({ message: '❌ Max WebSocket reconnection attempts reached' });
       this.emit('wsReconnectFailed');
     }
   }
@@ -865,7 +824,7 @@ export class DeltaExchangeUnified extends EventEmitter {
     if (this.wsClient) {
       this.wsClient.close();
       this.wsClient = undefined;
-      logger.info('🔌 Delta Exchange WebSocket disconnected manually');
+      logger.info({ message: '🔌 Delta Exchange WebSocket disconnected manually' });
     }
   }
 
@@ -891,12 +850,12 @@ export class DeltaExchangeUnified extends EventEmitter {
    */
   public async getCandleData(symbol: string, timeframe: Timeframe, limit: number = 100): Promise<DeltaCandle[]> {
     if (!this.isReady()) {
-      throw new Error('Delta Exchange service not ready');
+      throw new Error({ message: 'Delta Exchange service not ready' });
     }
 
     const productId = this.getProductId(symbol);
     if (!productId) {
-      throw new Error(`Product not found for symbol: ${symbol}`);
+      throw new Error({ message: 'Product not found for symbol', symbol });
     }
 
     try {
@@ -930,10 +889,10 @@ export class DeltaExchangeUnified extends EventEmitter {
 
         return candles;
       } else {
-        throw new Error(`Failed to get candle data: ${response.data.error}`);
+        throw new Error({ message: 'Failed to get candle data', error: response.data.error });
       }
     } catch (error) {
-      logger.error(`Error getting candle data for ${symbol} ${timeframe}:`, error);
+      logger.error({ message: 'Error getting candle data for', symbol, timeframe, error });
       throw error;
     }
   }
@@ -946,7 +905,7 @@ export class DeltaExchangeUnified extends EventEmitter {
       // Convert product ID to symbol
       const symbol = this.getSymbolByProductId(productId);
       if (!symbol) {
-        throw new Error(`Symbol not found for product ID: ${productId}`);
+        throw new Error({ message: 'Symbol not found for product ID', productId });
       }
 
       // Convert timeframe format
@@ -966,7 +925,7 @@ export class DeltaExchangeUnified extends EventEmitter {
       }));
 
     } catch (error) {
-      logger.error(`Error getting candles for product ${productId}:`, error);
+      logger.error({ message: 'Error getting candles for product', productId, error });
       throw error;
     }
   }
@@ -1038,7 +997,7 @@ export class DeltaExchangeUnified extends EventEmitter {
         this.indicatorCache.get(symbol)!.set(timeframe, indicators);
 
       } catch (error) {
-        logger.error(`Failed to get data for ${symbol} ${timeframe}:`, error);
+        logger.error({ message: 'Failed to get data for', symbol, timeframe, error });
         // Continue with other timeframes
       }
     }
@@ -1209,6 +1168,6 @@ export class DeltaExchangeUnified extends EventEmitter {
     this.removeAllListeners();
     this.candleCache.clear();
     this.indicatorCache.clear();
-    logger.info('🧹 Delta Exchange service cleaned up');
+    logger.info({ message: '🧹 Delta Exchange service cleaned up' });
   }
 }

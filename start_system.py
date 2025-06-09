@@ -150,16 +150,22 @@ LOG_LEVEL=INFO
     def start_ml_system(self):
         """Start the ML trading system"""
         logger.info("🤖 Starting ML trading system...")
-        
+
         try:
+            # Check if main.py exists
+            main_py_path = self.project_root / 'main.py'
+            if not main_py_path.exists():
+                logger.error("❌ main.py not found in project root")
+                return
+
             # Start the main ML system
             process = subprocess.Popen([
-                sys.executable, 'main.py'
+                sys.executable, str(main_py_path)
             ], cwd=self.project_root)
-            
+
             self.services['ml_system'] = process
             logger.info("✅ ML system started")
-            
+
         except Exception as e:
             logger.error(f"❌ Failed to start ML system: {e}")
     
@@ -220,10 +226,10 @@ LOG_LEVEL=INFO
         self.running = True
         logger.info("🎉 SmartMarketOOPS system started successfully!")
         logger.info("📊 Access points:")
-        logger.info("   - ML System: http://localhost:8001")
-        logger.info("   - Backend API: http://localhost:3002")
+        logger.info("   - ML System: http://localhost:3002")
+        logger.info("   - Backend API: http://localhost:3001")
         logger.info("   - Frontend: http://localhost:3000")
-        logger.info("   - API Docs: http://localhost:8001/docs")
+        logger.info("   - API Docs: http://localhost:3002/docs")
         
         return True
     

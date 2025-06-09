@@ -1,0 +1,40 @@
+# SmartMarketOOPS Frontend Environment Variables
+# Updated configuration based on current backend setup
+
+# API Configuration - correctly pointing to port 3006 where server.ts is running
+NEXT_PUBLIC_API_URL=http://localhost:3006/api
+NEXT_PUBLIC_WS_URL=ws://localhost:3001
+
+# Application Configuration
+NEXT_PUBLIC_APP_NAME=SmartMarketOOPS
+NEXT_PUBLIC_APP_VERSION=1.0.0
+NEXT_PUBLIC_ENVIRONMENT=development
+
+# Feature Flags - enable mock data for development
+NEXT_PUBLIC_ENABLE_MOCK_DATA=true
+NEXT_PUBLIC_ENABLE_WEBSOCKETS=true
+NEXT_PUBLIC_ENABLE_PAPER_TRADING=true
+NEXT_PUBLIC_ENABLE_REAL_TRADING=false
+NEXT_PUBLIC_ENABLE_AI_PREDICTIONS=true
+NEXT_PUBLIC_ENABLE_DEBUG_MODE=true
+
+# Trading Configuration - added all symbols found in the code
+NEXT_PUBLIC_DEFAULT_LEVERAGE=10
+NEXT_PUBLIC_MAX_LEVERAGE=100
+NEXT_PUBLIC_DEFAULT_TIMEFRAME=1h
+NEXT_PUBLIC_SUPPORTED_SYMBOLS=BTCUSD,ETHUSD,SOLUSD,BNBUSD,DOTUSD,ADAUSD,LINKUSD,XRPUSD
+
+# Development Settings
+NEXT_PUBLIC_LOG_LEVEL=debug
+
+# Performance Configuration - matching the server settings
+NEXT_PUBLIC_API_TIMEOUT=10000
+NEXT_PUBLIC_WS_RECONNECT_INTERVAL=3000
+NEXT_PUBLIC_MAX_RECONNECT_ATTEMPTS=5
+
+# Cache Configuration
+NEXT_PUBLIC_CACHE_DURATION=60000
+NEXT_PUBLIC_ENABLE_SERVICE_WORKER=false
+
+# Deployment ID for version skew protection
+NEXT_PUBLIC_DEPLOYMENT_ID=dev-local-$(date +%s) 

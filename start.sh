@@ -171,41 +171,56 @@ start_system() {
     install_node_deps
     start_infrastructure
     
-    # Start the Python system manager
-    log "🤖 Starting system manager..."
+    # Start the Python ML system
+    log "🤖 Starting ML system..."
     source venv/bin/activate
-    python3 start_system.py &
-    SYSTEM_PID=$!
-    
-    success "🎉 SmartMarketOOPS system startup initiated!"
+    python3 main.py &
+    ML_PID=$!
+
+    # Start backend
+    log "🔧 Starting backend..."
+    cd backend
+    npm run start:ts &
+    BACKEND_PID=$!
+    cd ..
+
+    # Start frontend
+    log "🎨 Starting frontend..."
+    cd frontend
+    npm run dev &
+    FRONTEND_PID=$!
+    cd ..
+
+    success "🎉 SmartMarketOOPS system startup completed!"
     log "📊 Access points:"
-    log "   - ML System: http://localhost:8001"
-    log "   - Backend API: http://localhost:3002"
+    log "   - ML System: http://localhost:3002"
+    log "   - Backend API: http://localhost:3001"
     log "   - Frontend: http://localhost:3000"
-    log "   - API Docs: http://localhost:8001/docs"
+    log "   - API Docs: http://localhost:3002/docs"
     log ""
     log "Press Ctrl+C to stop the system"
-    
-    # Wait for the system manager
-    wait $SYSTEM_PID
+
+    # Wait for all processes
+    wait $ML_PID $BACKEND_PID $FRONTEND_PID
 }
 
 # Stop the system
 stop_system() {
     log "🛑 Stopping SmartMarketOOPS system..."
-    
+
     # Kill all related processes
-    pkill -f "start_system.py" || true
     pkill -f "main.py" || true
     pkill -f "npm run dev" || true
     pkill -f "npm run start" || true
-    
+    pkill -f "ts-node" || true
+    pkill -f "next dev" || true
+
     # Stop Docker services
     if command_exists docker-compose; then
         docker-compose down
         success "✅ Infrastructure services stopped"
     fi
-    
+
     success "✅ System stopped"
 }
 

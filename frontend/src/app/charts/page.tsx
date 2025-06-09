@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { TradingChart } from '@/components/charts/TradingChart'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+// Simple select implementation for now
 import { Badge } from '@/components/ui/badge'
 
 export default function ChartsPage() {
@@ -29,18 +29,17 @@ export default function ChartsPage() {
           </p>
         </div>
         <div className="flex items-center space-x-4">
-          <Select value={selectedSymbol} onValueChange={setSelectedSymbol}>
-            <SelectTrigger className="w-40">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {symbols.map((symbol) => (
-                <SelectItem key={symbol.value} value={symbol.value}>
-                  {symbol.label}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <select
+            value={selectedSymbol}
+            onChange={(e) => setSelectedSymbol(e.target.value)}
+            className="w-40 h-9 rounded-md border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+          >
+            {symbols.map((symbol) => (
+              <option key={symbol.value} value={symbol.value}>
+                {symbol.label}
+              </option>
+            ))}
+          </select>
         </div>
       </div>
 

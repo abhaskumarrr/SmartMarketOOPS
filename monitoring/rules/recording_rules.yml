@@ -1,0 +1,41 @@
+groups:
+  - name: trading_performance
+    interval: 30s
+    rules:
+      - record: trading:win_rate_5m
+        expr: |
+          (
+            sum(rate(successful_trades_total[5m])) /
+            sum(rate(total_trades_total[5m]))
+          ) * 100
+
+      - record: trading:pnl_rate_1h
+        expr: |
+          sum(rate(portfolio_pnl_total[1h]))
+
+      - record: trading:sharpe_ratio_daily
+        expr: |
+          (
+            avg_over_time(daily_return[24h]) /
+            stddev_over_time(daily_return[24h])
+          ) * sqrt(365)
+
+  - name: system_performance
+    interval: 15s
+    rules:
+      - record: system:api_latency_p95
+        expr: |
+          histogram_quantile(0.95, 
+            sum(rate(http_request_duration_seconds_bucket[5m])) by (le, service)
+          )
+
+      - record: system:error_rate_5m
+        expr: |
+          (
+            sum(rate(http_requests_total{status=~"5.."}[5m])) /
+            sum(rate(http_requests_total[5m]))
+          ) * 100
+
+      - record: system:throughput_rps
+        expr: |
+          sum(rate(http_requests_total[1m])) by (service) 
