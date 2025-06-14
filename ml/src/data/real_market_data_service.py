@@ -166,7 +166,7 @@ class RealMarketDataService:
         """Setup Delta Exchange WebSocket connection"""
         try:
             # Delta WebSocket URL
-            ws_url = "wss://testnet-ws.delta.exchange" if config.testnet else "wss://ws.delta.exchange"
+            ws_url = "wss://socket-ind.testnet.deltaex.org" if config.testnet else "wss://socket.india.delta.exchange"
             
             # Create WebSocket connection
             websocket = await websockets.connect(ws_url)

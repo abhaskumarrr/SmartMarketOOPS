@@ -1,257 +1,218 @@
 #!/bin/bash
 
-# SmartMarketOOPS Quick Start Script
-# Comprehensive system startup with compatibility checks
+# SmartMarketOOPS Startup Script
+# Orchestrates the startup of all services in the correct order
+# Usage: ./start.sh [dev|prod]
 
-set -e  # Exit on any error
+# Error handling
+set -e
+trap 'echo "Error on line $LINENO. Exiting..."; exit 1' ERR
 
-# Colors for output
+# Terminal colors
 RED='\033[0;31m'
 GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
+YELLOW='\033[0;33m'
 BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
+# Configuration
+ENV=${1:-dev}
+LOG_DIR="./logs"
+LOG_FILE="$LOG_DIR/startup_$(date +%Y%m%d_%H%M%S).log"
+
+# Create log directory if it doesn't exist
+mkdir -p "$LOG_DIR"
+
 # Logging function
 log() {
-    echo -e "${BLUE}[$(date +'%Y-%m-%d %H:%M:%S')]${NC} $1"
-}
-
-error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-# Check if command exists
-command_exists() {
-    command -v "$1" >/dev/null 2>&1
-}
-
-# Check dependencies
-check_dependencies() {
-    log "🔍 Checking system dependencies..."
-    
-    # Check Python
-    if command_exists python3; then
-        success "✅ Python3 available"
-    else
-        error "❌ Python3 not found. Please install Python 3.8+"
-        exit 1
-    fi
-    
-    # Check Node.js
-    if command_exists node; then
-        success "✅ Node.js available"
-    else
-        warning "⚠️ Node.js not found. Frontend may not work properly."
-    fi
-    
-    # Check npm
-    if command_exists npm; then
-        success "✅ npm available"
-    else
-        warning "⚠️ npm not found. Cannot install Node.js dependencies."
-    fi
-    
-    # Check Docker
-    if command_exists docker; then
-        success "✅ Docker available"
-    else
-        warning "⚠️ Docker not found. Will run in local mode."
-    fi
-    
-    # Check Docker Compose
-    if command_exists docker-compose; then
-        success "✅ Docker Compose available"
-    else
-        warning "⚠️ Docker Compose not found. Cannot start infrastructure services."
-    fi
-}
-
-# Setup environment
-setup_environment() {
-    log "🔧 Setting up environment..."
-    
-    # Create necessary directories
-    mkdir -p logs data models config temp
-    success "✅ Created necessary directories"
-    
-    # Check .env file
-    if [ ! -f .env ]; then
-        warning "⚠️ .env file not found. Creating basic configuration..."
-        cat > .env << EOF
-# SmartMarketOOPS Environment Configuration
-NODE_ENV=development
-PORT=8001
-FRONTEND_PORT=3000
-BACKEND_PORT=3002
-DATABASE_URL=postgresql://postgres:password@localhost:5432/smartmarket
-REDIS_URL=redis://localhost:6379/0
-LOG_LEVEL=INFO
-DELTA_EXCHANGE_TESTNET=true
-EOF
-        success "✅ Created basic .env file"
-    fi
-}
-
-# Install Python dependencies
-install_python_deps() {
-    log "📦 Installing Python dependencies..."
-    
-    # Create virtual environment if it doesn't exist
-    if [ ! -d "venv" ]; then
-        log "Creating Python virtual environment..."
-        python3 -m venv venv
-    fi
-    
-    # Activate virtual environment and install dependencies
-    source venv/bin/activate
-    pip install --upgrade pip
-    pip install -r requirements.txt
-    success "✅ Python dependencies installed"
-}
-
-# Install Node.js dependencies
-install_node_deps() {
-    log "📦 Installing Node.js dependencies..."
-    
-    # Install root dependencies
-    if [ -f package.json ]; then
-        npm install
-        success "✅ Root Node.js dependencies installed"
-    fi
-    
-    # Install frontend dependencies
-    if [ -f frontend/package.json ]; then
-        cd frontend
-        npm install
-        cd ..
-        success "✅ Frontend dependencies installed"
-    fi
-    
-    # Install backend dependencies
-    if [ -f backend/package.json ]; then
-        cd backend
-        npm install
-        cd ..
-        success "✅ Backend dependencies installed"
-    fi
-}
-
-# Start infrastructure services
-start_infrastructure() {
-    log "🚀 Starting infrastructure services..."
-    
-    if command_exists docker-compose; then
-        docker-compose up -d postgres redis
-        success "✅ Infrastructure services started"
-        
-        # Wait for services to be ready
-        log "⏳ Waiting for services to be ready..."
-        sleep 10
-    else
-        warning "⚠️ Docker Compose not available. Skipping infrastructure startup."
-    fi
-}
-
-# Start the complete system
-start_system() {
-    log "🚀 Starting SmartMarketOOPS Complete System..."
-    
-    check_dependencies
-    setup_environment
-    install_python_deps
-    install_node_deps
-    start_infrastructure
-    
-    # Start the Python ML system
-    log "🤖 Starting ML system..."
-    source venv/bin/activate
-    python3 main.py &
-    ML_PID=$!
-
-    # Start backend
-    log "🔧 Starting backend..."
-    cd backend
-    npm run start:ts &
-    BACKEND_PID=$!
-    cd ..
-
-    # Start frontend
-    log "🎨 Starting frontend..."
-    cd frontend
-    npm run dev &
-    FRONTEND_PID=$!
-    cd ..
-
-    success "🎉 SmartMarketOOPS system startup completed!"
-    log "📊 Access points:"
-    log "   - ML System: http://localhost:3002"
-    log "   - Backend API: http://localhost:3001"
-    log "   - Frontend: http://localhost:3000"
-    log "   - API Docs: http://localhost:3002/docs"
-    log ""
-    log "Press Ctrl+C to stop the system"
-
-    # Wait for all processes
-    wait $ML_PID $BACKEND_PID $FRONTEND_PID
-}
-
-# Stop the system
-stop_system() {
-    log "🛑 Stopping SmartMarketOOPS system..."
-
-    # Kill all related processes
-    pkill -f "main.py" || true
-    pkill -f "npm run dev" || true
-    pkill -f "npm run start" || true
-    pkill -f "ts-node" || true
-    pkill -f "next dev" || true
-
-    # Stop Docker services
-    if command_exists docker-compose; then
-        docker-compose down
-        success "✅ Infrastructure services stopped"
-    fi
-
-    success "✅ System stopped"
-}
-
-# Handle script arguments
-case "${1:-start}" in
-    start)
-        start_system
-        ;;
-    stop)
-        stop_system
-        ;;
-    restart)
-        stop_system
-        sleep 2
-        start_system
-        ;;
-    deps)
-        check_dependencies
-        ;;
-    setup)
-        setup_environment
-        install_python_deps
-        install_node_deps
-        ;;
+  local level=$1
+  local message=$2
+  local timestamp=$(date +"%Y-%m-%d %H:%M:%S")
+  
+  case $level in
+    "INFO")
+      echo -e "${GREEN}[INFO]${NC} $timestamp - $message"
+      ;;
+    "WARN")
+      echo -e "${YELLOW}[WARN]${NC} $timestamp - $message"
+      ;;
+    "ERROR")
+      echo -e "${RED}[ERROR]${NC} $timestamp - $message"
+      ;;
     *)
-        echo "Usage: $0 {start|stop|restart|deps|setup}"
-        echo "  start   - Start the complete system (default)"
-        echo "  stop    - Stop all services"
-        echo "  restart - Restart the system"
-        echo "  deps    - Check dependencies only"
-        echo "  setup   - Setup environment and install dependencies only"
-        exit 1
-        ;;
-esac
+      echo -e "$timestamp - $message"
+      ;;
+  esac
+  
+  echo "[$level] $timestamp - $message" >> "$LOG_FILE"
+}
+
+# Environment validation
+validate_environment() {
+  log "INFO" "Validating environment..."
+  
+  # Check if .env file exists
+  if [ ! -f .env ]; then
+    log "ERROR" ".env file not found. Please create one based on example.env"
+    exit 1
+  fi
+  
+  # Check for required tools
+  commands=("python" "pip" "node" "npm" "docker" "docker-compose")
+  for cmd in "${commands[@]}"; do
+    if ! command -v $cmd &> /dev/null; then
+      log "ERROR" "$cmd is not installed. Please install it before continuing."
+      exit 1
+    fi
+  done
+  
+  # Check Python version
+  PYTHON_VERSION=$(python --version | sed 's/Python //')
+  if [[ $(echo "$PYTHON_VERSION" | cut -d. -f1) -lt 3 || ($(echo "$PYTHON_VERSION" | cut -d. -f1) -eq 3 && $(echo "$PYTHON_VERSION" | cut -d. -f2) -lt 10) ]]; then
+    log "ERROR" "Python 3.10+ required. Found $PYTHON_VERSION"
+    exit 1
+  fi
+  
+  # Check Node.js version
+  NODE_VERSION=$(node --version | sed 's/v//')
+  if [[ $(echo "$NODE_VERSION" | cut -d. -f1) -lt 18 ]]; then
+    log "ERROR" "Node.js 18+ required. Found $NODE_VERSION"
+    exit 1
+  fi
+  
+  # Verify critical environment variables
+  source .env
+  critical_vars=("POSTGRES_USER" "POSTGRES_PASSWORD" "DELTA_EXCHANGE_API_KEY" "DELTA_EXCHANGE_SECRET")
+  for var in "${critical_vars[@]}"; do
+    if [ -z "${!var}" ]; then
+      log "ERROR" "Critical environment variable $var is not set in .env file"
+      exit 1
+    fi
+  done
+  
+  log "INFO" "Environment validation completed successfully!"
+}
+
+# Setup Python virtual environment
+setup_python_env() {
+  log "INFO" "Setting up Python environment..."
+  
+  if [ ! -d "venv" ]; then
+    log "INFO" "Creating virtual environment..."
+    python -m venv venv
+  fi
+  
+  # Activate virtual environment
+  source venv/bin/activate
+  
+  # Install requirements
+  log "INFO" "Installing Python dependencies..."
+  if [ "$ENV" == "prod" ]; then
+    pip install -r requirements.txt
+  else
+    pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cpu
+  fi
+  
+  log "INFO" "Python environment setup completed!"
+}
+
+# Setup Node.js environment
+setup_node_env() {
+  log "INFO" "Setting up Node.js environment..."
+  
+  # Install backend dependencies
+  log "INFO" "Installing backend dependencies..."
+  cd backend
+  npm install
+  cd ..
+  
+  # Install frontend dependencies
+  log "INFO" "Installing frontend dependencies..."
+  cd frontend
+  npm install
+  cd ..
+  
+  log "INFO" "Node.js environment setup completed!"
+}
+
+# Start services using Docker Compose
+start_docker_services() {
+  log "INFO" "Starting services with Docker Compose..."
+  
+  if [ "$ENV" == "prod" ]; then
+    docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+  else
+    docker-compose up -d
+  fi
+  
+  log "INFO" "Waiting for services to be healthy..."
+  attempt=1
+  max_attempts=10
+  
+  while [ $attempt -le $max_attempts ]; do
+    log "INFO" "Health check attempt $attempt/$max_attempts..."
+    
+    # Check backend health
+    if curl -s http://localhost:3006/health &> /dev/null; then
+      log "INFO" "Backend is healthy!"
+      break
+    fi
+    
+    if [ $attempt -eq $max_attempts ]; then
+      log "ERROR" "Services failed to start properly. Check logs for details."
+      log "INFO" "You can manually check the status with: docker-compose ps"
+      exit 1
+    fi
+    
+    attempt=$((attempt+1))
+    sleep 5
+  done
+  
+  log "INFO" "All services started successfully!"
+}
+
+# Start the ML system
+start_ml_system() {
+  log "INFO" "Starting ML system..."
+  
+  # Activate virtual environment if not already activated
+  if [ -z "$VIRTUAL_ENV" ]; then
+    source venv/bin/activate
+  fi
+  
+  # Start the ML system in the appropriate mode
+  if [ "$ENV" == "prod" ]; then
+    python main.py --mode production &
+  else
+    python main.py --mode development &
+  fi
+  
+  ML_PID=$!
+  echo $ML_PID > "$LOG_DIR/ml_system.pid"
+  log "INFO" "ML system started with PID: $ML_PID"
+}
+
+# Main function
+main() {
+  log "INFO" "Starting SmartMarketOOPS in $ENV mode..."
+  
+  # Run validation and setup
+  validate_environment
+  setup_python_env
+  setup_node_env
+  
+  # Start services
+  start_docker_services
+  start_ml_system
+  
+  log "INFO" "SmartMarketOOPS started successfully in $ENV mode!"
+  log "INFO" "Frontend: http://localhost:3000"
+  log "INFO" "Backend: http://localhost:3006"
+  log "INFO" "ML API: http://localhost:8000"
+  log "INFO" "Grafana: http://localhost:3001 (admin/admin)"
+  
+  log "INFO" "To stop all services: ./stop.sh"
+}
+
+# Execute main function
+main

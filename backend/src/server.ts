@@ -19,6 +19,7 @@ import optimizationMiddleware from './middleware/optimizationMiddleware';
 import { createCacheService } from './services/cacheService';
 import { createDatabaseOptimizationService } from './services/databaseOptimizationService';
 import { logger } from './utils/logger';
+import { setupSwagger } from './swagger';
 
 // Load environment variables
 dotenv.config({
@@ -171,6 +172,9 @@ app.use(setDeviceIdCookie);
 if (process.env.TRUST_PROXY === 'true') {
   app.set('trust proxy', 1);
 }
+
+// Setup Swagger API documentation
+setupSwagger(app);
 
 // Track session activity for authenticated routes
 app.use(sessionActivity);

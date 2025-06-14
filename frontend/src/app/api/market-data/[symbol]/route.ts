@@ -60,7 +60,7 @@ export async function GET(
     const limit = parseInt(searchParams.get('limit') || '100');
 
     // Try to fetch from backend first
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3006';
     
     try {
       const response = await fetch(

@@ -96,13 +96,13 @@ class RealMarketDataService {
     try {
       // Initialize Delta Exchange with testnet credentials
       this.deltaExchange = new DeltaExchangeUnified({
-        apiKey: process.env.DELTA_API_KEY || '',
-        apiSecret: process.env.DELTA_API_SECRET || '',
-        testnet: true, // Use India testnet
+        apiKey: process.env.DELTA_API_KEY || process.env.DELTA_EXCHANGE_API_KEY || '',
+        apiSecret: process.env.DELTA_API_SECRET || process.env.DELTA_EXCHANGE_API_SECRET || '',
+        testnet: true, // Use testnet instead of production
       });
 
       await this.deltaExchange.initialize();
-      logger.info('✅ Delta Exchange India testnet initialized for trading data');
+      logger.info('✅ Delta Exchange testnet initialized for trading data');
     } catch (error) {
       logger.error('Failed to initialize Delta Exchange:', error);
     }

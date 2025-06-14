@@ -43,7 +43,7 @@ const mockPositions = [
 export async function GET(request: NextRequest) {
   try {
     // In production, this would fetch from the backend API
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3005';
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3006';
     
     try {
       // Try to fetch from backend first

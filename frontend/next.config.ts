@@ -41,7 +41,7 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   // Force a full refresh on route changes when in development
   devIndicators: {
-    buildActivityPosition: 'bottom-right',
+    position: 'bottom-right',
   },
   // Set the deployment ID for version tracking
   env: {
@@ -52,10 +52,17 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://localhost:3006/api/:path*',
+        // Use the environment variable for API URL with fallback
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3006'}/api/:path*`,
       },
     ]
   },
 };
+
+// Custom error handling for API proxy failures (via middleware)
+process.on('unhandledRejection', (err) => {
+  console.warn('Next.js proxy error caught by global handler:', err);
+  // Don't crash the app on proxy errors
+});
 
 export default nextConfig;

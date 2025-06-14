@@ -9,7 +9,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     <div className="min-h-screen bg-background">
       <div className="flex">
         {/* Sidebar will go here */}
-        <aside className="w-64 bg-card border-r border-border">
+        <aside className="w-64 bg-card border-r border-zinc-200 dark:border-zinc-800">
           <div className="p-6">
             <h2 className="text-lg font-semibold text-foreground">SmartMarketOOPS</h2>
             <p className="text-sm text-muted-foreground">Trading Dashboard</p>
@@ -36,7 +36,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         {/* Main content */}
         <main className="flex-1">
-          <header className="bg-card border-b border-border px-6 py-4">
+          <header className="bg-card border-b border-zinc-200 dark:border-zinc-800 px-6 py-4">
             <div className="flex items-center justify-between">
               <h1 className="text-2xl font-bold text-foreground">Trading Dashboard</h1>
               <div className="flex items-center space-x-4">

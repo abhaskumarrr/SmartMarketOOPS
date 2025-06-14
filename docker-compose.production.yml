@@ -2,25 +2,48 @@
 # SmartMarketOOPS Trading Platform
 
 services:
+  # Database Service
+  postgres:
+    image: postgres:16-alpine
+    container_name: smartmarket-postgres-prod
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: ${POSTGRES_DB:-smoops}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - smartmarket-network
+
   # Frontend Service
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      target: production
     container_name: smartmarket-frontend-prod
     ports:
-      - "3000:3000"
+      - "${FRONTEND_PORT:-3000}:3000"
     environment:
       - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=http://backend:3005/api
-      - NEXT_PUBLIC_WS_URL=ws://backend:3001
+      - NEXT_PUBLIC_API_URL=http://backend:3006/api
+      - NEXT_PUBLIC_WS_URL=ws://backend:3006/ws
     depends_on:
       - backend
+      - ml-system
     restart: unless-stopped
     networks:
       - smartmarket-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3000/api/health"]
+      test: ["CMD-SHELL", "curl -f http://localhost:3000/api/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -30,26 +53,33 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: smartmarket-backend
+    container_name: smartmarket-backend-prod
     volumes:
-      - ./backend:/app
-      - /app/node_modules
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./models:/app/models
     ports:
-      - "3006:3005"
+      - "${BACKEND_PORT:-3006}:3006"
     env_file:
       - .env
     environment:
       - NODE_ENV=production
-      - PORT=3005
-      - WS_PORT=3001
-      - DELTA_API_KEY=${DELTA_API_KEY}
-      - DELTA_API_SECRET=${DELTA_API_SECRET}
-      - DELTA_TESTNET=true
+      - PORT=3006
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-smoops}?schema=public
+      - REDIS_URL=redis://redis:6379/0
+      - DELTA_EXCHANGE_API_KEY=${DELTA_EXCHANGE_API_KEY}
+      - DELTA_EXCHANGE_SECRET=${DELTA_EXCHANGE_SECRET}
+      - DELTA_EXCHANGE_TESTNET=${DELTA_EXCHANGE_TESTNET:-true}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     restart: unless-stopped
     networks:
       - smartmarket-network
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3005/api/health"]
+      test: ["CMD-SHELL", "curl -f http://localhost:3006/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -58,14 +88,74 @@ services:
   redis:
     image: redis:7-alpine
     container_name: smartmarket-redis-prod
-    ports:
-      - "6379:6379"
+    command: redis-server --appendonly yes
     volumes:
       - redis_data:/data
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
     restart: unless-stopped
     networks:
       - smartmarket-network
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
+
+  # QuestDB time-series database
+  questdb:
+    image: questdb/questdb:7.3.10
+    container_name: questdb-prod
+    ports:
+      - "${QUESTDB_HTTP_PORT:-9000}:9000"  # HTTP/REST API and Web Console
+      - "${QUESTDB_PG_PORT:-8812}:8812"    # PostgreSQL wire protocol
+      - "${QUESTDB_ILP_PORT:-9010}:9009"   # InfluxDB Line Protocol
+    volumes:
+      - questdb_data:/var/lib/questdb
+    environment:
+      - QDB_CAIRO_COMMIT_LAG=1000
+      - QDB_CAIRO_MAX_UNCOMMITTED_ROWS=10000
+      - QDB_SHARED_WORKER_COUNT=2
+      - QDB_HTTP_WORKER_COUNT=2
+      - QDB_PG_ENABLED=true
+      - QDB_PG_NET_ACTIVE_CONNECTION_LIMIT=10
+      - QDB_LINE_TCP_ENABLED=true
+      - QDB_TELEMETRY_ENABLED=false
+    restart: unless-stopped
+    networks:
+      - smartmarket-network
+
+  # ML Trading System
+  ml-system:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.ml-system
+    container_name: smartmarket-ml-system-prod
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-smoops}?schema=public
+      - REDIS_URL=redis://redis:6379/0
+      - DELTA_EXCHANGE_API_KEY=${DELTA_EXCHANGE_API_KEY}
+      - DELTA_EXCHANGE_SECRET=${DELTA_EXCHANGE_SECRET}
+      - DELTA_EXCHANGE_TESTNET=${DELTA_EXCHANGE_TESTNET:-true}
+      - LOG_LEVEL=INFO
+      - ENVIRONMENT=production
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+      - ./data:/app/data
+    ports:
+      - "${ML_PORT:-8000}:8000"
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    networks:
+      - smartmarket-network
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # Nginx reverse proxy
   nginx:
@@ -75,25 +165,26 @@ services:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/conf.d:/etc/nginx/conf.d
       - ./nginx/ssl:/etc/nginx/ssl
       - ./nginx/logs:/var/log/nginx
     depends_on:
       - frontend
       - backend
+      - ml-system
     restart: unless-stopped
     networks:
       - smartmarket-network
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # Monitoring with Prometheus
   prometheus:
     image: prom/prometheus:latest
     container_name: smartmarket-prometheus-prod
-    ports:
-      - "9090:9090"
-    volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
-      - prometheus_data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'
@@ -101,29 +192,47 @@ services:
       - '--web.console.templates=/etc/prometheus/consoles'
       - '--storage.tsdb.retention.time=200h'
       - '--web.enable-lifecycle'
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    ports:
+      - "${PROMETHEUS_PORT:-9090}:9090"
     restart: unless-stopped
     networks:
       - smartmarket-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:9090/-/healthy || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # Grafana for visualization
   grafana:
     image: grafana/grafana:latest
     container_name: smartmarket-grafana-prod
-    ports:
-      - "3001:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD}
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+      - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - grafana_data:/var/lib/grafana
       - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
       - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    ports:
+      - "${GRAFANA_PORT:-3001}:3000"
     depends_on:
       - prometheus
     restart: unless-stopped
     networks:
       - smartmarket-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
 volumes:
+  postgres_data:
+  questdb_data:
   redis_data:
   prometheus_data:
   grafana_data:

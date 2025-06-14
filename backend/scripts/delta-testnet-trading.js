@@ -31,8 +31,10 @@ class DeltaTestnetTradingSystem {
     this.config = {
       // Testnet symbols (Delta Exchange product IDs)
       symbols: [
-        { symbol: 'BTCUSD', productId: 27 },   // BTC perpetual
-        { symbol: 'ETHUSD', productId: 3136 }  // ETH perpetual
+        { symbol: 'BTCUSD', productId: parseInt(process.env.DELTA_BTCUSD_PRODUCT_ID || 84) },   // BTC perpetual
+        { symbol: 'ETHUSD', productId: parseInt(process.env.DELTA_ETHUSD_PRODUCT_ID || 1699) },  // ETH perpetual
+        { symbol: 'SOLUSD', productId: parseInt(process.env.DELTA_SOLUSD_PRODUCT_ID || 92572) },  // SOL perpetual
+        { symbol: 'ADAUSD', productId: parseInt(process.env.DELTA_ADAUSD_PRODUCT_ID || 101760) }   // ADA perpetual
       ],
       
       // Risk management

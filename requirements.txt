@@ -1,6 +1,7 @@
 # SmartMarketOOPS - Consolidated Python Requirements
 # Unified requirements file combining all ML, trading, and system dependencies
 # Compatible with M2 MacBook Air 8GB RAM and production environments
+# Last updated: June 2025
 
 # ============================================================================
 # CORE TRADING & ML DEPENDENCIES
@@ -16,8 +17,27 @@ scikit-learn>=1.2.0             # Machine learning algorithms
 
 # Deep Learning Framework
 torch>=2.0.0                    # PyTorch for neural networks
+torchvision>=0.15.0             # Computer vision with PyTorch
+torchaudio>=2.0.0               # Audio processing with PyTorch
+transformers>=4.28.0            # Transformer models
 scipy>=1.10.0                   # Scientific computing
 joblib>=1.2.0                   # Parallel processing
+
+# ============================================================================
+# ML MODEL DEPENDENCIES
+# ============================================================================
+
+# Model Implementations
+einops>=0.6.0                   # Tensor operations for transformers
+timm>=0.9.0                     # PyTorch Image Models
+pytorch-lightning>=2.0.0        # PyTorch training framework
+torchmetrics>=0.11.0            # Metrics for PyTorch models
+
+# Time Series Analysis
+statsmodels>=0.14.0             # Statistical models for time series
+tslearn>=0.5.2                  # Time series machine learning
+sktime>=0.14.0                  # Time series ML toolkit
+prophet>=1.1.4                  # Time series forecasting
 
 # ============================================================================
 # TECHNICAL ANALYSIS & VISUALIZATION
@@ -57,9 +77,12 @@ httpx>=0.24.0                   # Modern HTTP client
 optuna>=3.2.0                   # Hyperparameter optimization (updated from ml/)
 hyperopt>=0.2.7                 # Bayesian optimization
 bayesian-optimization>=1.4.0    # Gaussian process optimization
+ray[tune]>=2.6.0                # Distributed hyperparameter tuning
 
 # ML Utilities
 tensorboard>=2.12.0             # ML experiment tracking
+wandb>=0.15.0                   # Weights & Biases tracking
+mlflow>=2.7.0                   # ML lifecycle management
 typing-extensions>=4.5.0        # Type hints support
 tqdm>=4.65.0                    # Progress bars
 python-multipart>=0.0.6         # File upload support
@@ -85,6 +108,7 @@ aiofiles>=23.0.0                # Async file operations
 # Configuration Management
 python-dotenv>=1.0.0            # Environment variables
 pyyaml>=6.0.0                   # YAML configuration
+tomli>=2.0.1                    # TOML parsing
 
 # ============================================================================
 # MONITORING & LOGGING
@@ -94,6 +118,8 @@ pyyaml>=6.0.0                   # YAML configuration
 prometheus-client>=0.17.0       # Metrics collection
 structlog>=23.0.0               # Structured logging
 loguru>=0.7.0                   # Advanced logging
+opentelemetry-api>=1.19.0       # OpenTelemetry API
+opentelemetry-sdk>=1.19.0       # OpenTelemetry SDK
 
 # ============================================================================
 # SECURITY & AUTHENTICATION
@@ -103,6 +129,7 @@ loguru>=0.7.0                   # Advanced logging
 cryptography>=41.0.0            # Cryptographic functions
 passlib>=1.7.4                  # Password hashing
 python-jose>=3.3.0              # JWT handling
+bcrypt>=4.0.1                   # Password hashing
 
 # ============================================================================
 # DEVELOPMENT & TESTING
@@ -111,6 +138,8 @@ python-jose>=3.3.0              # JWT handling
 # Testing Framework
 pytest>=7.3.0                   # Testing framework
 pytest-cov>=4.1.0               # Coverage reporting
+pytest-benchmark>=4.0.0         # Benchmarking
+pytest-asyncio>=0.21.0          # Async testing
 
 # Code Quality & Linting
 ruff>=0.1.0                     # Fast Python linter
@@ -131,3 +160,6 @@ bandit>=1.7.5                   # Security linter
 
 # [development] - For development environment
 # Includes all testing, linting, and debugging tools
+
+# [m1-m2-optimized] - For Apple Silicon optimization
+# Install with: pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/nightly/cpu

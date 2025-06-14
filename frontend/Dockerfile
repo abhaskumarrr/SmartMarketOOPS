@@ -3,15 +3,15 @@
 
 # Stage 1: Dependencies
 FROM node:20-alpine AS deps
-RUN apk add --no-cache libc6-compat curl
+RUN apk add --no-cache libc6-compat curl git
 WORKDIR /app
 
 # Copy package files
 COPY package.json yarn.lock* package-lock.json* pnpm-lock.yaml* ./
 RUN \
-  if [ -f yarn.lock ]; then yarn --frozen-lockfile; \
+  if [ -f yarn.lock ]; then yarn; \
   elif [ -f package-lock.json ]; then npm ci; \
-  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i --frozen-lockfile; \
+  elif [ -f pnpm-lock.yaml ]; then yarn global add pnpm && pnpm i; \
   else echo "Lockfile not found." && exit 1; \
   fi
 
@@ -35,7 +35,7 @@ RUN \
 
 # Stage 3: Development Runner
 FROM node:20-alpine AS dev
-RUN apk add --no-cache curl
+RUN apk add --no-cache curl git
 WORKDIR /app
 
 ENV NODE_ENV development

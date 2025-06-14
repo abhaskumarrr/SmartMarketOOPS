@@ -411,12 +411,18 @@ router.post('/place-trade-with-tpsl', async (req, res) => {
     }
 
     // Step 2: Place main order (correct Delta Exchange format)
+    const defaultProductId = parseInt(process.env.DELTA_BTCUSD_PRODUCT_ID || '84');
+    
+    // Step 2: Place main order (correct Delta Exchange format)
     const mainOrder = {
-      product_id: product.id,
+      product_id: product.id || defaultProductId,
       size: parseInt(size) || 1, // Size must be integer (number of contracts)
       side: side,
-      order_type: order_type
-      // Note: limit_price not needed for market orders
+      order_type: order_type,
+      ...(order_type === 'limit_order' && { limit_price: currentPrice }),
+      time_in_force: 'gtc',
+      // Post-only for limit orders to ensure you're a maker, not a taker
+      ...(order_type === 'limit_order' && { post_only: true })
     };
 
     console.log('🔍 Placing main order:', mainOrder);
@@ -437,11 +443,14 @@ router.post('/place-trade-with-tpsl', async (req, res) => {
 
     // Step 4: Place Take Profit order (correct Delta Exchange format)
     const takeProfitOrder = {
-      product_id: product.id,
+      product_id: product.id || defaultProductId,
       size: parseInt(size) || 1, // Size must be integer (number of contracts)
       side: isLong ? 'sell' : 'buy',
       order_type: 'limit_order',
-      limit_price: takeProfitPrice.toFixed(2) // String format for price
+      limit_price: takeProfitPrice,
+      time_in_force: 'gtc',
+      post_only: true,
+      reduce_only: true // Ensure this order only reduces position
     };
 
     console.log('🎯 Placing take profit order:', takeProfitOrder);
@@ -450,12 +459,14 @@ router.post('/place-trade-with-tpsl', async (req, res) => {
 
     // Step 5: Place Stop Loss order (correct Delta Exchange format)
     const stopLossOrder = {
-      product_id: product.id,
+      product_id: product.id || defaultProductId,
       size: parseInt(size) || 1, // Size must be integer (number of contracts)
       side: isLong ? 'sell' : 'buy',
-      order_type: 'stop_loss_order',
-      stop_price: stopLossPrice.toFixed(2) // String format for stop price
-      // Note: time_in_force not allowed for stop orders
+      order_type: 'stop_order',
+      stop_price: stopLossPrice,
+      limit_price: stopLossPrice * 0.99, // 1% slippage allowed
+      time_in_force: 'gtc',
+      reduce_only: true // Ensure this order only reduces position
     };
 
     console.log('🛡️ Placing stop loss order:', stopLossOrder);

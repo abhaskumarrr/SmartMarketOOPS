@@ -33,7 +33,7 @@ export function PositionTracking() {
             {positions.map((position) => (
               <div 
                 key={position.symbol} 
-                className="rounded-md border border-border p-3 transition-all hover:bg-muted/30 cursor-pointer"
+                className="rounded-md border border-zinc-200 dark:border-zinc-800 p-3 transition-all hover:bg-muted/30 cursor-pointer"
                 onClick={() => toggleExpand(position.symbol)}
               >
                 <div className="flex justify-between items-center">
@@ -56,7 +56,7 @@ export function PositionTracking() {
                 </div>
                 
                 {expandedPosition === position.symbol && (
-                  <div className="mt-3 pt-3 border-t border-border space-y-2">
+                  <div className="mt-3 pt-3 border-t border-zinc-200 dark:border-zinc-800 space-y-2">
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
                         <div className="text-muted-foreground">Entry Price</div>

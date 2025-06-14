@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import prisma from '../utils/prismaClient';
+import prismaReadOnly from '../config/prisma-readonly';
 
 const analyticsEmitter = new EventEmitter();
 
@@ -29,7 +29,7 @@ function calculateSharpe(returns: number[], riskFreeRate: number = 0): number {
 }
 
 async function recordMetric(name: string, value: number, tags: MetricTags = {}): Promise<void> {
-  await prisma.metric.create({
+  await prismaReadOnly.metric.create({
     data: {
       name,
       value,

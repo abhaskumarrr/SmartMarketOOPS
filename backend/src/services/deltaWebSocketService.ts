@@ -16,8 +16,8 @@ import * as DeltaExchange from '../types/deltaExchange';
 const logger = createLogger('DeltaExchangeWebSocket');
 
 // Environment configuration - Updated for Delta Exchange India
-const MAINNET_WS_URL = 'wss://ws.india.delta.exchange';
-const TESTNET_WS_URL = 'wss://testnet-ws.delta.exchange';
+const MAINNET_WS_URL = 'wss://socket.india.delta.exchange';
+const TESTNET_WS_URL = 'wss://socket-ind.testnet.deltaex.org';
 
 // Default reconnection settings
 const DEFAULT_RECONNECT_OPTIONS = {

@@ -3,16 +3,12 @@
  * Comprehensive integration with Delta Exchange India API
  */
 
-import axios, { AxiosInstance } from 'axios';
+import axios, { AxiosInstance, AxiosError, AxiosRequestConfig } from 'axios';
 import crypto from 'crypto';
+import { createLogger, LogData } from '../utils/logger';
 
-// Simple console logger
-const logger = {
-  info: (message: string, ...args: any[]) => console.log(`[INFO] ${message}`, ...args),
-  error: (message: string, ...args: any[]) => console.error(`[ERROR] ${message}`, ...args),
-  warn: (message: string, ...args: any[]) => console.warn(`[WARN] ${message}`, ...args),
-  debug: (message: string, ...args: any[]) => console.log(`[DEBUG] ${message}`, ...args)
-};
+// Use structured logger instead of simple console logger
+const logger = createLogger('DeltaExchangeService');
 
 export interface DeltaCredentials {
   apiKey: string;
@@ -91,6 +87,11 @@ class DeltaExchangeService {
   private isInitialized = false;
   private productCache: Map<string, any> = new Map();
   private symbolToProductId: Map<string, number> = new Map();
+  // Add cache timeouts
+  private lastProductUpdateTime = 0;
+  private readonly CACHE_TTL_MS = 1000 * 60 * 15; // 15 minutes
+  private retryCount = 0;
+  private readonly MAX_RETRIES = 3;
 
   constructor(credentials: DeltaCredentials) {
     this.credentials = credentials;
@@ -139,9 +140,27 @@ class DeltaExchangeService {
       logger.info(`✅ Delta Exchange Service initialized (${this.credentials.testnet ? 'TESTNET' : 'PRODUCTION'})`);
       logger.info(`🔗 Base URL: ${this.baseUrl}`);
       logger.info(`📊 Loaded ${this.productCache.size} products`);
+
+      // Verify API connection with a simple public endpoint call
+      try {
+        const response = await this.client.get('/v2/time');
+        if (response.data && response.data.success) {
+          logger.info(`✅ Delta Exchange API connection verified (server time: ${response.data.result.server_time})`);
+        }
+      } catch (error) {
+        logger.warn('API connection test failed, but continuing with initialization', { error });
+      }
     } catch (error) {
-      logger.error('❌ Failed to initialize Delta Exchange Service:', error instanceof Error ? error.message : 'Unknown error');
+      const errorObj: LogData = { error: error instanceof Error ? error.message : 'Unknown error' };
+      logger.error('❌ Failed to initialize Delta Exchange Service', errorObj);
       this.isInitialized = false;
+      // Schedule retry
+      if (this.retryCount < this.MAX_RETRIES) {
+        this.retryCount++;
+        const retryDelay = Math.pow(2, this.retryCount) * 1000; // Exponential backoff
+        logger.info(`Will retry initialization in ${retryDelay/1000} seconds (attempt ${this.retryCount}/${this.MAX_RETRIES})`);
+        setTimeout(() => this.initializeService(), retryDelay);
+      }
     }
   }
 
@@ -149,17 +168,28 @@ class DeltaExchangeService {
    * Load and cache all available products
    */
   private async loadProducts(): Promise<void> {
+    // Skip loading if cache is still fresh
+    const now = Date.now();
+    if (this.productCache.size > 0 && (now - this.lastProductUpdateTime) < this.CACHE_TTL_MS) {
+      logger.info(`Using cached products (cache age: ${Math.round((now - this.lastProductUpdateTime)/1000)}s)`);
+      return;
+    }
+
     try {
       const response = await this.client.get('/v2/products');
 
       if (response.data.success) {
         const products = response.data.result;
 
+        // Clear existing cache before updating
+        this.productCache.clear();
+        
         for (const product of products) {
           this.productCache.set(product.symbol, product);
           this.symbolToProductId.set(product.symbol, product.id);
         }
 
+        this.lastProductUpdateTime = now;
         logger.info(`📦 Cached ${products.length} products`);
 
         // Log major trading pairs
@@ -171,8 +201,16 @@ class DeltaExchangeService {
         throw new Error(`API Error: ${response.data.error}`);
       }
     } catch (error) {
-      logger.error('Failed to load products:', error instanceof Error ? error.message : 'Unknown error');
-      throw error;
+      const errorObj: LogData = { error: error instanceof Error ? error.message : 'Unknown error' };
+      logger.error('Failed to load products', errorObj);
+      
+      // If cache is empty, this is a critical error
+      if (this.productCache.size === 0) {
+        throw error;
+      } else {
+        // Otherwise log warning but continue with cached data
+        logger.warn('Using stale product cache due to API error');
+      }
     }
   }
 
@@ -181,6 +219,13 @@ class DeltaExchangeService {
    */
   private generateSignature(method: string, path: string, queryString: string, body: string, timestamp: string): string {
     const message = method + timestamp + path + queryString + body;
+    
+    if (!this.credentials.apiSecret) {
+      const errorObj: LogData = { error: 'Missing API Secret' };
+      logger.error('API Secret is missing or empty', errorObj);
+      throw new Error('API Secret is required for authentication');
+    }
+    
     return crypto.createHmac('sha256', this.credentials.apiSecret).update(message).digest('hex');
   }
 
@@ -191,8 +236,13 @@ class DeltaExchangeService {
     method: 'GET' | 'POST' | 'PUT' | 'DELETE',
     path: string,
     params: any = {},
-    data: any = null
+    data: any = null,
+    retryCount = 0
   ): Promise<any> {
+    if (!this.credentials.apiKey || !this.credentials.apiSecret) {
+      throw new Error('API Key and Secret are required for authenticated requests');
+    }
+
     const timestamp = Math.floor(Date.now() / 1000).toString();
     const queryString = Object.keys(params).length > 0 ? '?' + new URLSearchParams(params).toString() : '';
     const body = data ? JSON.stringify(data) : '';
@@ -208,29 +258,20 @@ class DeltaExchangeService {
     };
 
     // Debug logging
-    console.log('🔍 Service signature generation:', {
-      method,
-      timestamp,
-      path,
-      queryString,
-      body,
-      message: method + timestamp + path + queryString + body,
-      signature,
-      apiKey: this.credentials.apiKey,
-      apiSecret: this.credentials.apiSecret ? '***' + this.credentials.apiSecret.slice(-4) : 'undefined'
-    });
+    if (process.env.DEBUG_API === 'true') {
+      const debugData: LogData = {
+        method,
+        path,
+        queryString,
+        bodyLength: body ? body.length : 0,
+        timestamp
+      };
+      logger.debug('🔍 API request details', debugData);
+    }
 
     try {
       // Use axios directly instead of the client instance to avoid conflicts
       const fullUrl = this.baseUrl + path + queryString;
-
-      console.log('🌐 Service URL construction:', {
-        baseUrl: this.baseUrl,
-        path,
-        queryString,
-        fullUrl,
-        headers
-      });
 
       const response = await axios.request({
         method,
@@ -241,12 +282,35 @@ class DeltaExchangeService {
       });
 
       return response.data;
-    } catch (error: any) {
-      if (error.response) {
-        logger.error(`API Error: ${error.response.status} - ${JSON.stringify(error.response.data)}`);
-        throw new Error(`Delta API Error: ${error.response.data.error || error.response.statusText}`);
+    } catch (error) {
+      const axiosError = error as AxiosError;
+      
+      // Handle rate limits with automatic retry
+      if (axiosError.response?.status === 429 && retryCount < this.MAX_RETRIES) {
+        const retryDelay = Math.pow(2, retryCount + 1) * 1000; // Exponential backoff
+        logger.warn(`Rate limited, retrying in ${retryDelay/1000} seconds...`);
+        await this.delay(retryDelay);
+        return this.makeAuthenticatedRequest(method, path, params, data, retryCount + 1);
+      }
+      
+      // Handle authentication errors specifically
+      if (axiosError.response?.status === 401) {
+        const errorData: LogData = { status: 401 };
+        logger.error('Authentication failed. Please check API keys.', errorData);
+        throw new Error('Delta Exchange authentication failed. Invalid API credentials.');
+      }
+
+      if (axiosError.response) {
+        const responseData = axiosError.response.data as any;
+        const errorData: LogData = { 
+          status: axiosError.response.status,
+          error: responseData?.error || axiosError.response.statusText
+        };
+        logger.error(`API Error: ${axiosError.response.status}`, errorData);
+        throw new Error(`Delta API Error: ${responseData?.error || axiosError.response.statusText}`);
       } else {
-        logger.error(`Request Error: ${error.message}`);
+        const errorObj: LogData = { error: axiosError.message };
+        logger.error(`Request Error`, errorObj);
         throw error;
       }
     }
@@ -566,5 +630,4 @@ class DeltaExchangeService {
   }
 }
 
-export { DeltaExchangeService };
 export default DeltaExchangeService;

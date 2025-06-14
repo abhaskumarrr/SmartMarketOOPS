@@ -160,7 +160,7 @@ async function validateTradingPermissions(
     const orderPath = orderEndpoint;
     const orderTimestamp = Date.now();
     const orderParams = {
-      product_id: 1, // BTC-USD for example
+      product_id: parseInt(process.env.DELTA_BTCUSD_PRODUCT_ID || '84'), // Default to BTC-USD testnet
       size: 0.001,
       side: 'buy',
       order_type: 'limit',

@@ -1,0 +1,47 @@
+name: Verify Delta Exchange Product IDs
+
+on:
+  schedule:
+    - cron: '0 0 * * 1' # Run every Monday at midnight
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  verify-product-ids:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      - name: Install dependencies
+        run: cd backend && npm install
+        
+      - name: Fetch Delta Exchange product IDs
+        run: |
+          node backend/scripts/fetch-delta-products.js > product-ids.log
+          cat product-ids.log
+        
+      - name: Check for product ID changes
+        id: check-changes
+        run: |
+          if grep -q "Product IDs have changed" product-ids.log; then
+            echo "::set-output name=changed::true"
+            echo "::warning::Delta Exchange product IDs have changed! Please update your configuration."
+          else
+            echo "::set-output name=changed::false"
+          fi
+          
+      - name: Create issue if product IDs have changed
+        if: steps.check-changes.outputs.changed == 'true'
+        uses: JasonEtco/create-an-issue@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          filename: .github/ISSUE_TEMPLATE/product-id-update.md
+          update_existing: true 

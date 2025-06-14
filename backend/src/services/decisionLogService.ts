@@ -5,6 +5,7 @@
  */
 
 import prisma from '../utils/prismaClient';
+import prismaReadOnly from '../config/prisma-readonly';
 import { v4 as uuidv4 } from 'uuid';
 import { createLogger } from '../utils/logger';
 import {
@@ -73,34 +74,15 @@ export class DecisionLogService implements IDecisionLogService {
     try {
       logger.info('Creating decision log', { data });
       
-      // Set default values if not provided
-      const tags = data.tags || [];
-      const importance = data.importance || 'NORMAL';
+      const createData: any = { ...data };
+      if (!createData.tags) createData.tags = [];
+      if (!createData.importance) createData.importance = 'NORMAL';
       
-      // Create decision log in database
       const decisionLog = await prisma.decisionLog.create({
         data: {
           id: uuidv4(),
           timestamp: new Date(),
-          source: data.source,
-          actionType: data.actionType,
-          decision: data.decision,
-          reasonCode: data.reasonCode,
-          reasonDetails: data.reasonDetails,
-          confidence: data.confidence,
-          dataSnapshot: data.dataSnapshot as any,
-          parameters: data.parameters as any,
-          modelVersion: data.modelVersion,
-          userId: data.userId,
-          strategyId: data.strategyId,
-          botId: data.botId,
-          signalId: data.signalId,
-          orderId: data.orderId,
-          symbol: data.symbol,
-          tags,
-          importance,
-          notes: data.notes,
-          auditTrailId: data.auditTrailId
+          ...createData,
         }
       });
       
@@ -124,8 +106,8 @@ export class DecisionLogService implements IDecisionLogService {
     try {
       logger.info(`Getting decision log ${id}`);
       
-      // Get decision log from database
-      const decisionLog = await prisma.decisionLog.findUnique({
+      // Get decision log from read-only database
+      const decisionLog = await prismaReadOnly.decisionLog.findUnique({
         where: { id }
       });
       
@@ -154,18 +136,14 @@ export class DecisionLogService implements IDecisionLogService {
     try {
       logger.info(`Updating decision log ${id}`, { data });
       
-      // Update decision log in database
+      const updateData: any = { ...data };
+      if (updateData.evaluatedAt) {
+        updateData.evaluatedAt = new Date(updateData.evaluatedAt);
+      }
+
       const decisionLog = await prisma.decisionLog.update({
         where: { id },
-        data: {
-          outcome: data.outcome,
-          outcomeDetails: data.outcomeDetails as any,
-          pnl: data.pnl,
-          evaluatedAt: data.evaluatedAt ? new Date(data.evaluatedAt) : undefined,
-          tags: data.tags,
-          importance: data.importance,
-          notes: data.notes
-        }
+        data: updateData,
       });
       
       logger.info('Decision log updated', { id });
@@ -281,15 +259,15 @@ export class DecisionLogService implements IDecisionLogService {
         orderBy.timestamp = 'desc'; // Default sort by timestamp
       }
       
-      // Query decision logs from database
-      const decisionLogs = await prisma.decisionLog.findMany({
+      // Get decision logs from read-only database
+      const decisionLogs = await prismaReadOnly.decisionLog.findMany({
         where,
-        orderBy,
-        skip: params.offset || 0,
-        take: params.limit || 100
+        orderBy: { timestamp: 'desc' },
+        skip: params.offset,
+        take: params.limit
       });
       
-      logger.info(`Found ${decisionLogs.length} decision logs`);
+      logger.info('Decision logs retrieved', { count: decisionLogs.length });
       
       // Map to response format
       return decisionLogs.map((log: any) => this.mapDecisionLogFromDb(log));
@@ -370,12 +348,10 @@ export class DecisionLogService implements IDecisionLogService {
         };
       }
       
-      // Count decision logs from database
-      const count = await prisma.decisionLog.count({
-        where
-      });
+      // Get count from read-only database
+      const count = await prismaReadOnly.decisionLog.count({ where });
       
-      logger.info(`Counted ${count} decision logs`);
+      logger.info('Decision logs counted', { count });
       
       return count;
     } catch (error) {

@@ -238,10 +238,12 @@ class DeltaTestnetLiveTrading {
     try {
       log('📊 Getting real OHLC data from your Delta Exchange...');
 
-      // Delta Exchange TESTNET product IDs for perpetual futures
+      // Load product IDs from environment or use defaults
       const productIds = {
-        'BTCUSD': 84,    // BTC perpetual (testnet)
-        'ETHUSD': 1699   // ETH perpetual (testnet)
+        'BTCUSD': parseInt(process.env.DELTA_BTCUSD_PRODUCT_ID || 84),
+        'ETHUSD': parseInt(process.env.DELTA_ETHUSD_PRODUCT_ID || 1699),
+        'SOLUSD': parseInt(process.env.DELTA_SOLUSD_PRODUCT_ID || 92572),
+        'ADAUSD': parseInt(process.env.DELTA_ADAUSD_PRODUCT_ID || 101760)
       };
 
       for (const symbol of this.config.symbols) {

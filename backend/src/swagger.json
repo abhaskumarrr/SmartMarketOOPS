@@ -1,0 +1,671 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "SmartMarketOOPS API",
+    "description": "API documentation for SmartMarketOOPS Trading Platform",
+    "version": "1.0.0",
+    "contact": {
+      "name": "SmartMarketOOPS Team",
+      "email": "109647440+abhaskumarrr@users.noreply.github.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3006",
+      "description": "Development Server"
+    },
+    {
+      "url": "https://api.smartmarketoops.com",
+      "description": "Production Server"
+    }
+  ],
+  "tags": [
+    {
+      "name": "health",
+      "description": "Health check endpoints"
+    },
+    {
+      "name": "auth",
+      "description": "Authentication endpoints"
+    },
+    {
+      "name": "trading",
+      "description": "Trading operations endpoints"
+    },
+    {
+      "name": "delta-trading",
+      "description": "Delta Exchange trading endpoints"
+    },
+    {
+      "name": "market-data",
+      "description": "Market data endpoints"
+    },
+    {
+      "name": "ml",
+      "description": "Machine Learning endpoints"
+    },
+    {
+      "name": "bots",
+      "description": "Trading bot management"
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "tags": ["health"],
+        "summary": "Health check",
+        "description": "Check if the API server is running",
+        "operationId": "healthCheck",
+        "responses": {
+          "200": {
+            "description": "API server is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HealthResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "API server is unhealthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/delta-trading/health": {
+      "get": {
+        "tags": ["delta-trading", "health"],
+        "summary": "Delta Exchange health check",
+        "description": "Check if the Delta Exchange trading service is running",
+        "operationId": "deltaTradingHealthCheck",
+        "responses": {
+          "200": {
+            "description": "Delta Exchange trading service is healthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeltaHealthResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Delta Exchange trading service is unhealthy",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/delta-trading/test-connection": {
+      "get": {
+        "tags": ["delta-trading"],
+        "summary": "Test Delta Exchange connection",
+        "description": "Test connection to Delta Exchange API",
+        "operationId": "testDeltaConnection",
+        "responses": {
+          "200": {
+            "description": "Delta Exchange connection successful",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeltaConnectionResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Delta Exchange connection failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/delta-trading/status": {
+      "get": {
+        "tags": ["delta-trading"],
+        "summary": "Get Delta Exchange trading service status",
+        "description": "Get status of the Delta Exchange trading service",
+        "operationId": "getDeltaTradingStatus",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delta Exchange trading service status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeltaStatusResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to get trading status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/delta-trading/bots": {
+      "get": {
+        "tags": ["delta-trading", "bots"],
+        "summary": "Get all trading bots",
+        "description": "Get status of all trading bots",
+        "operationId": "getAllBots",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "List of all trading bots",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotsListResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to get bots",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["delta-trading", "bots"],
+        "summary": "Create a new trading bot",
+        "description": "Create a new trading bot with the specified configuration",
+        "operationId": "createBot",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "requestBody": {
+          "description": "Trading bot configuration",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/BotConfig"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Trading bot created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotCreatedResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid bot configuration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Failed to create bot",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/delta-trading/bots/{botId}": {
+      "get": {
+        "tags": ["delta-trading", "bots"],
+        "summary": "Get specific bot status",
+        "description": "Get status of a specific trading bot",
+        "operationId": "getBotStatus",
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "botId",
+            "in": "path",
+            "description": "ID of the bot",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Bot status",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/BotStatusResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Bot not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    },
+    "schemas": {
+      "HealthResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "API server is healthy"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "version": {
+                "type": "string",
+                "example": "1.0.0"
+              },
+              "uptime": {
+                "type": "number",
+                "example": 3600
+              },
+              "timestamp": {
+                "type": "number",
+                "example": 1622547868000
+              }
+            }
+          }
+        }
+      },
+      "DeltaHealthResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Delta Exchange trading service is healthy"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "exchange": {
+                "type": "string",
+                "example": "delta_exchange_india"
+              },
+              "environment": {
+                "type": "string",
+                "example": "testnet"
+              },
+              "api_configured": {
+                "type": "boolean",
+                "example": true
+              },
+              "timestamp": {
+                "type": "number",
+                "example": 1622547868000
+              }
+            }
+          }
+        }
+      },
+      "DeltaConnectionResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "example": "Delta Exchange connection successful"
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "exchange": {
+                "type": "string",
+                "example": "delta_exchange_india"
+              },
+              "environment": {
+                "type": "string",
+                "example": "testnet"
+              },
+              "api_key_configured": {
+                "type": "boolean",
+                "example": true
+              },
+              "api_secret_configured": {
+                "type": "boolean",
+                "example": true
+              }
+            }
+          },
+          "timestamp": {
+            "type": "number",
+            "example": 1622547868000
+          }
+        }
+      },
+      "DeltaStatusResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "status": {
+                "type": "string",
+                "example": "running"
+              },
+              "activeBots": {
+                "type": "number",
+                "example": 3
+              },
+              "totalBots": {
+                "type": "number",
+                "example": 5
+              },
+              "activePositions": {
+                "type": "number",
+                "example": 2
+              },
+              "exchange": {
+                "type": "string",
+                "example": "delta_exchange_india"
+              },
+              "environment": {
+                "type": "string",
+                "example": "testnet"
+              },
+              "timestamp": {
+                "type": "number",
+                "example": 1622547868000
+              }
+            }
+          }
+        }
+      },
+      "BotsListResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/BotStatus"
+            }
+          },
+          "meta": {
+            "type": "object",
+            "properties": {
+              "total": {
+                "type": "number",
+                "example": 5
+              },
+              "running": {
+                "type": "number",
+                "example": 3
+              },
+              "stopped": {
+                "type": "number",
+                "example": 1
+              },
+              "paused": {
+                "type": "number",
+                "example": 0
+              },
+              "error": {
+                "type": "number",
+                "example": 1
+              }
+            }
+          },
+          "timestamp": {
+            "type": "number",
+            "example": 1622547868000
+          }
+        }
+      },
+      "BotStatus": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "bot-123"
+          },
+          "name": {
+            "type": "string",
+            "example": "BTC Momentum Bot"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["running", "stopped", "paused", "error"],
+            "example": "running"
+          },
+          "symbol": {
+            "type": "string",
+            "example": "BTCUSDT"
+          },
+          "strategy": {
+            "type": "string",
+            "example": "momentum"
+          },
+          "capital": {
+            "type": "number",
+            "example": 1000
+          },
+          "activePositions": {
+            "type": "number",
+            "example": 1
+          },
+          "profitLoss": {
+            "type": "number",
+            "example": 50.25
+          },
+          "runningTime": {
+            "type": "number",
+            "example": 3600
+          },
+          "lastUpdate": {
+            "type": "number",
+            "example": 1622547868000
+          }
+        }
+      },
+      "BotStatusResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "$ref": "#/components/schemas/BotStatus"
+          },
+          "timestamp": {
+            "type": "number",
+            "example": 1622547868000
+          }
+        }
+      },
+      "BotConfig": {
+        "type": "object",
+        "required": ["id", "name", "symbol"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "bot-123"
+          },
+          "name": {
+            "type": "string",
+            "example": "BTC Momentum Bot"
+          },
+          "symbol": {
+            "type": "string",
+            "example": "BTCUSDT"
+          },
+          "strategy": {
+            "type": "string",
+            "example": "momentum"
+          },
+          "capital": {
+            "type": "number",
+            "example": 1000
+          },
+          "leverage": {
+            "type": "number",
+            "example": 3
+          },
+          "riskPerTrade": {
+            "type": "number",
+            "example": 2
+          },
+          "maxPositions": {
+            "type": "number",
+            "example": 3
+          },
+          "stopLoss": {
+            "type": "number",
+            "example": 5
+          },
+          "takeProfit": {
+            "type": "number",
+            "example": 10
+          },
+          "enabled": {
+            "type": "boolean",
+            "example": true
+          }
+        }
+      },
+      "BotCreatedResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "botId": {
+                "type": "string",
+                "example": "bot-123"
+              },
+              "config": {
+                "$ref": "#/components/schemas/BotConfig"
+              }
+            }
+          },
+          "message": {
+            "type": "string",
+            "example": "Trading bot created successfully"
+          },
+          "timestamp": {
+            "type": "number",
+            "example": 1622547868000
+          }
+        }
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "string",
+            "example": "Failed to create bot"
+          },
+          "message": {
+            "type": "string",
+            "example": "Invalid configuration: missing required field 'symbol'"
+          }
+        }
+      }
+    }
+  }
+} 

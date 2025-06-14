@@ -437,7 +437,7 @@ class DeltaExchangeWebSocketClient:
         self.testnet = testnet if testnet is not None else API_CONFIG["delta_exchange"]["testnet"]
         # Use correct Delta Exchange India WebSocket URLs
         self.base_url = (
-            "wss://testnet-ws.delta.exchange" if self.testnet else "wss://ws.india.delta.exchange"
+            "wss://socket-ind.testnet.deltaex.org" if self.testnet else "wss://socket.india.delta.exchange"
         )
         self.symbols = symbols if isinstance(symbols, list) else [symbols]
         self.channels = channels or ["trades", "orderbook", "ticker"]

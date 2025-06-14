@@ -24,19 +24,19 @@ services:
       - ./backend:/app
       - /app/node_modules
     ports:
-      - "${BACKEND_PORT:-3006}:3005"
+      - "${BACKEND_PORT:-3006}:3006"
     env_file:
       - .env
     environment:
       - DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@postgres:5432/${POSTGRES_DB:-smoops}?schema=public
       - NODE_ENV=${NODE_ENV:-development}
-      - PORT=3005
+      - PORT=3006
     depends_on:
       postgres:
         condition: service_healthy
     command: npm run dev
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:3005/health || exit 1"]
+      test: ["CMD-SHELL", "curl -f http://localhost:3006/health || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -56,8 +56,8 @@ services:
     env_file:
       - .env
     environment:
-      - NEXT_PUBLIC_API_URL=http://backend:3005
-      - NEXT_PUBLIC_WS_URL=ws://backend:3005/ws
+      - NEXT_PUBLIC_API_URL=http://backend:3006
+      - NEXT_PUBLIC_WS_URL=ws://backend:3006/ws
       - NODE_ENV=development
     depends_on:
       - backend
@@ -74,7 +74,7 @@ services:
     ports:
       - "${QUESTDB_HTTP_PORT:-9000}:9000"  # HTTP/REST API and Web Console
       - "${QUESTDB_PG_PORT:-8812}:8812"    # PostgreSQL wire protocol
-      - "${QUESTDB_ILP_PORT:-9009}:9009"   # InfluxDB Line Protocol (high-performance ingestion)
+      - "${QUESTDB_ILP_PORT:-9010}:9009"   # InfluxDB Line Protocol (high-performance ingestion)
     volumes:
       - questdb_data:/var/lib/questdb
     environment:

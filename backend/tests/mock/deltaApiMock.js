@@ -36,19 +36,27 @@ function createDeltaApiMock(isTestnet = true) {
           success: true,
           result: [
             {
-              id: 1,
-              symbol: 'BTCUSDT',
+              id: 84,
+              symbol: 'BTCUSD',
               description: 'Bitcoin Perpetual Futures',
               underlying_asset: { symbol: 'BTC', id: 1 },
-              quote_asset: { symbol: 'USDT', id: 2 },
+              quote_asset: { symbol: 'USD', id: 2 },
               is_active: true
             },
             {
-              id: 2,
-              symbol: 'ETHUSDT',
+              id: 1699,
+              symbol: 'ETHUSD',
               description: 'Ethereum Perpetual Futures',
               underlying_asset: { symbol: 'ETH', id: 3 },
-              quote_asset: { symbol: 'USDT', id: 2 },
+              quote_asset: { symbol: 'USD', id: 2 },
+              is_active: true
+            },
+            {
+              id: 92572,
+              symbol: 'SOLUSD',
+              description: 'Solana Perpetual Futures',
+              underlying_asset: { symbol: 'SOL', id: 5 },
+              quote_asset: { symbol: 'USD', id: 2 },
               is_active: true
             }
           ]
@@ -56,7 +64,7 @@ function createDeltaApiMock(isTestnet = true) {
     },
     
     // Order book
-    mockGetOrderBook(productId = 1) {
+    mockGetOrderBook(productId = 84) {
       return scope
         .get(`/v2/orderbooks/${productId}`)
         .reply(200, {
@@ -109,7 +117,7 @@ function createDeltaApiMock(isTestnet = true) {
           success: true,
           result: [
             {
-              asset: 'USDT',
+              asset: 'USD',
               available_balance: '10000.0',
               balance: '10000.0'
             },
@@ -131,7 +139,7 @@ function createDeltaApiMock(isTestnet = true) {
           result: [
             {
               id: 1,
-              symbol: 'BTCUSDT',
+              symbol: 'BTCUSD',
               size: '0.1',
               entry_price: '44000.0',
               mark_price: '45000.0',
@@ -152,7 +160,7 @@ function createDeltaApiMock(isTestnet = true) {
           result: [
             {
               id: 1001,
-              symbol: 'BTCUSDT',
+              symbol: 'BTCUSD',
               price: '46000.0',
               size: '0.1',
               side: 'buy',
@@ -171,7 +179,7 @@ function createDeltaApiMock(isTestnet = true) {
           success: true,
           result: {
             id: 1002,
-            symbol: 'BTCUSDT',
+            symbol: 'BTCUSD',
             price: '46000.0',
             size: '0.1',
             side: 'buy',
@@ -218,7 +226,7 @@ function createDeltaApiMock(isTestnet = true) {
           result: [
             {
               id: 901,
-              symbol: 'BTCUSDT',
+              symbol: 'BTCUSD',
               price: '44000.0',
               size: '0.1',
               side: 'buy',
@@ -228,7 +236,7 @@ function createDeltaApiMock(isTestnet = true) {
             },
             {
               id: 902,
-              symbol: 'ETHUSDT',
+              symbol: 'ETHUSD',
               price: '3000.0',
               size: '1.0',
               side: 'sell',
@@ -251,12 +259,12 @@ function createDeltaApiMock(isTestnet = true) {
             {
               id: 801,
               order_id: 901,
-              symbol: 'BTCUSDT',
+              symbol: 'BTCUSD',
               price: '44000.0',
               size: '0.1',
               side: 'buy',
               fee: '0.04',
-              fee_asset: 'USDT',
+              fee_asset: 'USD',
               created_at: new Date(Date.now() - 86000000).toISOString()
             }
           ]

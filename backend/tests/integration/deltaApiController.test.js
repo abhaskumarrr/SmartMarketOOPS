@@ -86,7 +86,7 @@ describe('Delta API Controller', () => {
     
     test('GET /api/delta/products/:id/orderbook should return orderbook', async () => {
       // Setup mock
-      const productId = 1;
+      const productId = 84;
       apiMock.mockGetOrderBook(productId);
       
       // Execute
@@ -103,7 +103,7 @@ describe('Delta API Controller', () => {
     
     test('GET /api/delta/products/:id/trades should return recent trades', async () => {
       // Setup mock
-      const productId = 1;
+      const productId = 84;
       apiMock.mockGetRecentTrades(productId);
       
       // Execute
@@ -132,7 +132,7 @@ describe('Delta API Controller', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data.result).toBeInstanceOf(Array);
-      expect(response.body.data.result[0].asset).toBe('USDT');
+      expect(response.body.data.result[0].asset).toBe('USD');
     });
     
     test('GET /api/delta/positions should return positions', async () => {
@@ -148,7 +148,7 @@ describe('Delta API Controller', () => {
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
       expect(response.body.data.result).toBeInstanceOf(Array);
-      expect(response.body.data.result[0].symbol).toBe('BTCUSDT');
+      expect(response.body.data.result[0].symbol).toBe('BTCUSD');
     });
   });
   
@@ -176,7 +176,7 @@ describe('Delta API Controller', () => {
       const response = await request(app)
         .post('/api/delta/orders')
         .send({
-          product_id: 1,
+          product_id: 84,
           size: '0.1',
           side: 'buy',
           order_type: 'limit',
@@ -188,7 +188,7 @@ describe('Delta API Controller', () => {
       // Verify
       expect(response.status).toBe(201);
       expect(response.body.success).toBe(true);
-      expect(response.body.data.result.symbol).toBe('BTCUSDT');
+      expect(response.body.data.result.symbol).toBe('BTCUSD');
     });
     
     test('DELETE /api/delta/orders/:id should cancel an order', async () => {

@@ -5,6 +5,7 @@
 
 import { v4 as uuidv4 } from 'uuid';
 import prisma from '../utils/prismaClient';
+import prismaReadOnly from '../config/prisma-readonly'; // Import the read-only client
 import { createLogger, LogData } from '../utils/logger';
 import {
   AuditTrail,
@@ -108,8 +109,8 @@ export class AuditTrailService implements IAuditTrailService {
         };
       }
       
-      // Get audit trail from database
-      const auditTrail = await prisma.auditTrail.findUnique({
+      // Get audit trail from read-only database
+      const auditTrail = await prismaReadOnly.auditTrail.findUnique({
         where: { id },
         include: Object.keys(include).length > 0 ? include : undefined
       });
@@ -262,8 +263,8 @@ export class AuditTrailService implements IAuditTrailService {
     try {
       logger.info(`Getting audit event ${id}`);
       
-      // Get audit event from database
-      const auditEvent = await prisma.auditEvent.findUnique({
+      // Get audit event from read-only database
+      const auditEvent = await prismaReadOnly.auditEvent.findUnique({
         where: { id }
       });
       
@@ -363,10 +364,9 @@ export class AuditTrailService implements IAuditTrailService {
         orderBy.startTime = 'desc'; // Default sort by start time
       }
       
-      // Query audit trails from database
-      const auditTrails = await prisma.auditTrail.findMany({
-        where,
-        include: Object.keys(include).length > 0 ? include : undefined,
+      // Get audit trails from read-only database
+      const auditTrails = await prismaReadOnly.auditTrail.findMany({
+        where: where,
         orderBy,
         skip: params.offset || 0,
         take: params.limit || 100
@@ -437,8 +437,8 @@ export class AuditTrailService implements IAuditTrailService {
         };
       }
       
-      // Count audit trails from database
-      const count = await prisma.auditTrail.count({
+      // Get count from read-only database
+      const count = await prismaReadOnly.auditTrail.count({
         where
       });
       
@@ -500,9 +500,9 @@ export class AuditTrailService implements IAuditTrailService {
         orderBy.timestamp = 'desc'; // Default sort by timestamp
       }
       
-      // Query audit events from database
-      const auditEvents = await prisma.auditEvent.findMany({
-        where,
+      // Get audit events from read-only database
+      const auditEvents = await prismaReadOnly.auditEvent.findMany({
+        where: where,
         orderBy,
         skip: params.offset || 0,
         take: params.limit || 100
@@ -559,8 +559,8 @@ export class AuditTrailService implements IAuditTrailService {
         where.status = params.status;
       }
       
-      // Count audit events from database
-      const count = await prisma.auditEvent.count({
+      // Get count from read-only database
+      const count = await prismaReadOnly.auditEvent.count({
         where
       });
       

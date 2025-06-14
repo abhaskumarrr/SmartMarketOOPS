@@ -1,6 +1,6 @@
 # 🚀 SmartMarketOOPS - ML-Driven Trading System
 
-[![Performance](https://img.shields.io/badge/Win%20Rate-82.1%25-brightgreen)](https://github.com/abhaskumarrr/SmartMarketOOPS)
+[![Performance](https://img.shields.io/badge/Win%20Rate-70.5%25-brightgreen)](https://github.com/abhaskumarrr/SmartMarketOOPS)
 [![Returns](https://img.shields.io/badge/Annual%20Return-94.1%25-gold)](https://github.com/abhaskumarrr/SmartMarketOOPS)
 [![Sharpe](https://img.shields.io/badge/Sharpe%20Ratio-19.68-blue)](https://github.com/abhaskumarrr/SmartMarketOOPS)
 [![ML Models](https://img.shields.io/badge/ML%20Models-LSTM%20%7C%20Transformer%20%7C%20Ensemble-purple)](https://github.com/abhaskumarrr/SmartMarketOOPS)
@@ -8,24 +8,43 @@
 
 ## 🟢 SYSTEM STATUS: FULLY OPERATIONAL
 
-**Last Updated**: june 6, 2025 | **All Services**: ✅ RUNNING
+**Last Updated**: June 6, 2025 | **All Services**: ✅ RUNNING
 
 ### Live Services Status
-- **🖥️ Backend API** (`localhost:8000`): ✅ **HEALTHY** - Real-time data flowing
+- **🖥️ Backend API** (`localhost:3006`): ✅ **HEALTHY** - Real-time data flowing
 - **🌐 Frontend Dashboard** (`localhost:3000`): ✅ **ACTIVE** - Responsive UI loaded
 - **🤖 ML Trading Engine**: ✅ **GENERATING SIGNALS** - 60%+ confidence trades
-- **📊 Real-time Data**: ✅ **LIVE** - Binance & Coinbase feeds active
+- **📊 Real-time Data**: ✅ **LIVE** - Multi-exchange feeds active
+- **🔄 Delta Exchange**: ✅ **UPDATED** - Product IDs synchronized with latest API (June 2025)
 - **⚡ Performance**: ✅ **OPTIMIZED** - MacBook Air M2 friendly
+
+### 🆕 Week 2 Enhancements - June 2025
+- **📈 Multi-Symbol Trading**: Now supporting BTCUSDT, ETHUSDT, SOLUSDT, ADAUSDT
+- **🔄 Multi-Exchange Support**: Delta Exchange, Binance, KuCoin integration
+- **🛡️ Advanced Risk Management**: Confidence-based position sizing with Kelly Criterion
+- **📊 Portfolio-Level Management**: Coordinated trading with correlation analysis
+- **🤖 Automated Model Retraining**: Self-improving ML models with data drift detection
 
 ### Quick Launch
 ```bash
 # Start all services (from project root)
 npm run dev
 
-# Individual services:
-# Backend: cd backend && npm run dev
-# Frontend: cd frontend && npm run dev
-# ML Engine: source venv/bin/activate && python start_optimized.py
+# Week 2 Enhanced Startup:
+# Terminal 1: ML Service
+cd ml && python -m uvicorn src.api.app:app --host 0.0.0.0 --port 8000
+
+# Terminal 2: Week 2 Integration Manager
+cd ml && python week2_integration_launcher.py
+
+# Terminal 3: Backend
+cd backend && npm run dev
+
+# Terminal 4: Frontend
+cd frontend && npm start
+
+# Verify Week 2 Components:
+./scripts/verify_week2.sh
 ```
 
 ---
@@ -37,7 +56,7 @@ npm run dev
 ## 🏆 Performance Highlights
 
 **EXCEEDS ALL PROFESSIONAL STANDARDS:**
-- **🎯 82.1% Win Rate** (Target: 68%+) - **EXCEEDED by 14.1%**
+- **🎯 70.5% Win Rate** (Target: 68%+) - **EXCEEDED by 2.5%**
 - **💰 94.1% Annualized Return** - Institutional-level performance
 - **📉 0.06% Max Drawdown** - Exceptional risk control
 - **⚡ 26.95 Profit Factor** (Professional: 2.0+)
@@ -74,6 +93,45 @@ npm run dev
 - **🛡️ Dynamic Risk Management** - ML-driven position sizing and stop/take profit levels
 - **📈 Performance Tracking** - Model contribution analysis and optimization
 
+## 🚢 Exchange Integration: Delta Exchange
+
+**Complete Trading Integration with Delta Exchange**
+- **🔐 Secure API Integration** - Authenticated trading via HMAC-SHA256
+- **🤖 Multiple Trading Bots** - Live trading, paper trading, and ML-powered bots
+- **📊 Real-time Market Data** - WebSocket integration for live order book and price updates
+- **⚙️ Advanced Order Types** - Market, limit, stop-loss, and take-profit orders
+- **📈 Multiple Trading Strategies** - Market making, OHLC-based, and ML-powered strategies
+- **🔄 Dynamic Product ID Management** - Automated product ID fetching and updates
+- **📱 TradingView Integration** - Webhook support for TradingView strategies
+
+**Delta Exchange Trading Bot Files:**
+- `backend/scripts/delta-testnet-live.js` - Live trading on testnet
+- `backend/scripts/delta-paper-trading.js` - Paper trading simulation
+- `backend/scripts/intelligent-delta-live-trading.js` - ML-powered trading
+- `backend/scripts/fetch-delta-products.js` - Update product IDs
+- `backend/scripts/test-delta-connection.js` - Test API connection
+
+**For detailed documentation, see [DELTA_EXCHANGE_IMPLEMENTATION_GUIDE.md](./DELTA_EXCHANGE_IMPLEMENTATION_GUIDE.md)**
+
+## 🆕 Week 2 Multi-Exchange & Multi-Symbol Features
+
+**Enhanced Trading Capabilities:**
+- **Multi-Exchange Support**: Connect to Delta Exchange, Binance, and KuCoin
+- **Multi-Symbol Trading**: Trade BTCUSDT, ETHUSDT, SOLUSDT, ADAUSDT with symbol-specific strategies
+- **Portfolio-Level Risk Management**: Coordinate trading across multiple pairs with correlation awareness
+- **Automated Model Management**: Self-improving ML models with performance-based retraining
+
+**New Components:**
+- **Real Market Data Service**: `ml/src/data/real_market_data_service.py`
+- **Multi-Symbol Trading Manager**: `ml/src/trading/multi_symbol_manager.py`
+- **Advanced Risk Manager**: `ml/src/risk/advanced_risk_manager.py`
+- **Week 2 Integration Launcher**: `ml/week2_integration_launcher.py`
+
+**New Documentation:**
+- **Installation Guide**: [docs/INSTALLATION_GUIDE.md](./docs/INSTALLATION_GUIDE.md)
+- **Troubleshooting Guide**: [docs/TROUBLESHOOTING.md](./docs/TROUBLESHOOTING.md)
+- **Week 2 Report**: [WEEK2_COMPLETION_REPORT.md](./WEEK2_COMPLETION_REPORT.md)
+
 ---
 
 ## 🚨 CRITICAL: Before Any Trading
@@ -81,8 +139,13 @@ npm run dev
 **⚠️ READ THIS FIRST:** [Agent Knowledge Base](./docs/AGENT_KNOWLEDGE_BASE.md) - Solves 95% of daily issues
 
 **Most Common Issue:** Wrong product IDs for environment
-- **Testnet:** BTCUSD=84, ETHUSD=1699
+- **Testnet:** BTCUSD=84, ETHUSD=1699, SOLUSD=92572, ADAUSD=101760
 - **Production:** BTCUSD=27, ETHUSD=3136
+
+**To update product IDs, run:**
+```bash
+node backend/scripts/fetch-delta-products.js
+```
 
 ---
 
@@ -103,7 +166,13 @@ cp example.env .env
 # DELTA_EXCHANGE_API_SECRET=your_api_secret
 ```
 
-### 3. **Run Complete System (Recommended)**
+### 3. **Test Delta Exchange Connection**
+```bash
+# Verify API connection and credentials
+node backend/scripts/test-delta-connection.js
+```
+
+### 4. **Run Complete System (Recommended)**
 ```bash
 # One-command startup - handles all compatibility issues
 chmod +x start.sh
@@ -111,9 +180,24 @@ chmod +x start.sh
 
 # Alternative: Use Python system manager
 python3 start_system.py
+
+# Week 2 Enhanced System:
+./scripts/start_week2.sh
 ```
 
-### 4. **Run ML Trading System Only**
+### 5. **Run Delta Exchange Trading Bot**
+```bash
+# Paper trading mode (no real orders)
+node backend/scripts/delta-paper-trading.js
+
+# Live trading on testnet (real orders, test money)
+node backend/scripts/delta-testnet-live.js
+
+# Intelligent ML-powered trading (advanced)
+node backend/scripts/intelligent-delta-live-trading.js
+```
+
+### 6. **Run ML Trading System Only**
 ```bash
 # Paper trading mode (recommended for testing)
 npm run ml-trading
@@ -123,9 +207,12 @@ npm run ml-trading -- --live
 
 # Conservative mode (higher confidence threshold)
 npm run ml-trading -- --conservative
+
+# Week 2 Multi-Symbol Mode:
+npm run ml-trading -- --multi-symbol
 ```
 
-### 4. **Validate ML Performance**
+### 7. **Validate ML Performance**
 ```bash
 # Run ML model validation
 cd ml && python src/training/validate_models.py
@@ -134,7 +221,7 @@ cd ml && python src/training/validate_models.py
 cd backend && node scripts/ultimate-backtest.js
 ```
 
-### 5. **Launch Dashboard** *(Optional)*
+### 8. **Launch Dashboard** *(Optional)*
 ```bash
 # Terminal 1: Backend
 cd backend && npm run dev
@@ -142,6 +229,21 @@ cd backend && npm run dev
 # Terminal 2: Frontend
 cd frontend && npm run dev
 # Visit http://localhost:3000
+```
+
+### 9. **Start Week 2 Enhanced System**
+```bash
+# Terminal 1: ML Service
+cd ml && python -m uvicorn src.api.app:app --host 0.0.0.0 --port 8000
+
+# Terminal 2: Week 2 Integration Manager
+cd ml && python week2_integration_launcher.py
+
+# Terminal 3: Backend
+cd backend && npm run dev
+
+# Terminal 4: Frontend
+cd frontend && npm start
 ```
 
 ---
@@ -154,176 +256,31 @@ The system now includes comprehensive compatibility checks and automatic fixes:
 - ✅ **Dependency Management** - Automatic Python/Node.js dependency installation
 - ✅ **Environment Setup** - Auto-creation of required directories and config files
 - ✅ **Service Orchestration** - Intelligent startup order with health checks
-- ✅ **Error Recovery** - Graceful handling of missing modules and services
-- ✅ **Cross-Platform** - Works on macOS, Linux, and Windows
 
-### **Prerequisites**
-- **Python 3.8+** (Required)
-- **Node.js 18+** (Required for frontend/backend)
-- **Docker & Docker Compose** (Optional but recommended)
-- **Git** (Required)
-
-### **Startup Options**
-
-1. **Quick Start (Recommended)**
-   ```bash
-   ./start.sh  # Handles everything automatically
-   ```
-
-2. **Python System Manager**
-   ```bash
-   python3 start_system.py  # Advanced startup with monitoring
-   ```
-
-3. **Manual Component Startup**
-   ```bash
-   # Infrastructure
-   docker-compose up -d postgres redis
-
-   # ML System
-   python3 main.py &
-
-   # Backend API
-   cd backend && npm run start:ts &
-
-   # Frontend
-   cd frontend && npm run dev &
-   ```
-
-### **Access Points After Startup**
-- **Frontend Dashboard**: http://localhost:3000
-- **ML Trading System**: http://localhost:8001
-- **Backend API**: http://localhost:3002
-- **API Documentation**: http://localhost:8001/docs
-- **System Health**: http://localhost:8001/health
-
----
-
-## 🎛️ System Architecture
-
-```
-├── backend/
-│   ├── scripts/
-│   │   ├── start-ml-trading.ts           # 🤖 ML Trading System launcher
-│   │   ├── ml-trading-integration.ts     # 🔗 ML-Analysis-Execution bridge
-│   │   └── ultimate-backtest.js          # 📊 Performance validation
-│   ├── src/services/
-│   │   ├── MLTradingDecisionEngine.ts    # 🧠 Core ML decision engine
-│   │   ├── MultiTimeframeAnalysisEngine.ts # 📈 Technical analysis
-│   │   └── EnhancedMLIntegrationService.ts # 🤖 ML model interface
-│   └── docs/                            # API documentation
-├── frontend/                            # React dashboard
-├── ml/                                  # 🧠 AI models & training
-│   ├── src/models/                      # LSTM, Transformer, CNN-LSTM
-│   ├── src/ensemble/                    # Multi-model ensemble
-│   └── src/training/                    # Model training & validation
-└── docs/                               # Complete documentation
-```
-
-**🚀 Revolutionary Components:**
-- **� ML Trading Decision Engine** - AI models as primary traders
-- **📊 Feature Engineering System** - 36 trading features from comprehensive analysis
-- **🧠 Ensemble Intelligence** - LSTM + Transformer + CNN-LSTM voting
-- **⚡ Real-time Integration** - Analysis → ML Decision → Trade Execution
-- **� Adaptive Learning** - Continuous model optimization from trading results
-
----
-
-## 📊 ML Feature Engineering (36 Features)
-
-**🔢 Fibonacci Analysis Features (7):**
-- Proximity to 23.6%, 38.2%, 50%, 61.8%, 78.6% levels
-- Nearest level distance and strength scoring
-- Dynamic retracement calculations
-
-**⏰ Multi-Timeframe Bias Features (6):**
-- 4H, 1H, 15M, 5M trend bias (-1 to 1)
-- Cross-timeframe alignment scoring
-- Overall trend strength measurement
-
-**🕯️ Candle Formation Features (7):**
-- Body/wick percentage analysis
-- Buying/selling pressure calculation
-- Candle type encoding and momentum
-
-**🏛️ Smart Money Concepts Features (5):**
-- Order block strength detection
-- Fair Value Gap presence analysis
-- Liquidity level mapping
-- Market structure break signals
-
-**🎯 Confluence Features (6):**
-- Overall confluence scoring
-- Individual component weights
-- Momentum train detection
-- Entry timing optimization
-
-**📈 Market Context Features (5):**
-- Volatility and volume analysis
-- Time-of-day session encoding
-- Market regime classification
-
----
-
-## 🔧 Tech Stack
-
-**Backend:** Node.js, TypeScript, Express
-**Frontend:** React, Next.js, TradingView charts
-**AI/ML:** Python, PyTorch, LSTM/Transformer models
-**Database:** PostgreSQL, Redis, QuestDB
-**Exchange:** Delta Exchange API integration (Testnet + Production)
-**Infrastructure:** Docker, Vercel, Railway
-
----
-
-## 📚 Documentation
-
-- [**🤖 Agent Knowledge Base**](./docs/AGENT_KNOWLEDGE_BASE.md) - **CRITICAL: Daily troubleshooting guide**
-- [**Ultimate System Guide**](./docs/ULTIMATE_SYSTEM_DOCS.md) - Complete system documentation
-- [**Trading Strategy**](./docs/TRADING_STRATEGY.md) - Daily OHLC + SMC + AI strategy
-- [**Performance Analysis**](./docs/PERFORMANCE_ANALYSIS.md) - Backtest results & metrics
-- [**Delta Exchange Product IDs**](./docs/DELTA_EXCHANGE_PRODUCT_IDS.md) - Testnet vs Production IDs
-- [**API Reference**](./docs/API_REFERENCE.md) - Trading engine APIs
-- [**Deployment Guide**](./docs/DEPLOYMENT.md) - Production deployment
-- [**Project Roadmap**](./docs/ROADMAP.md) - Future development plans
-
----
-
-## 🚀 Deployment Status
-
-**✅ Production Ready** - Validated with comprehensive backtesting and live market integration
-
-**Deployment Targets:**
-- **Trading Engine:** Railway/VPS for 24/7 operation
-- **Dashboard:** Vercel for real-time monitoring
-- **ML Models:** Hugging Face for AI inference
-- **Database:** Supabase for production data
-
----
-
-## 🏆 Performance Validation
-
+### **Week 2 Verification**
+Run the verification script to ensure all Week 2 components are properly installed:
 ```bash
-# Run comprehensive backtest
-cd backend
-node scripts/ultimate-backtest.js
-
-# Expected Results:
-# ✅ 82.1% Win Rate (Target: 68%+)
-# ✅ 94.1% Annualized Return
-# ✅ 0.06% Max Drawdown
-# ✅ 26.95 Profit Factor
-# ✅ 19.68 Sharpe Ratio
+./scripts/verify_week2.sh
 ```
 
----
+## Week 3: Frontend Optimization & Responsive Design
 
-## 📄 License
+Week 3 implementation focuses on enhancing the frontend experience with responsive design and optimized real-time data handling:
 
-MIT - Built for professional traders and institutions.
+### Key Features Implemented
 
----
+- **Responsive Design System**: Mobile-first approach with breakpoints that align with Tailwind CSS
+- **Enhanced Mobile Experience**: Off-canvas navigation, compact views, and touch-friendly controls
+- **Configurable Dashboard**: Drag-and-drop widget system that adapts to different screen sizes
+- **Real-Time Data Optimization**: Performance-focused WebSocket implementation with buffering and throttling
+- **Consistent Theming**: Unified design language across all components
 
-## 🎯 Disclaimer
+### Technical Highlights
 
-**For educational and research purposes.** Past performance does not guarantee future results. Trading involves substantial risk of loss. Use proper risk management and never risk more than you can afford to lose.
+- Custom `useBreakpoints` hook that provides responsive utilities
+- Optimized `useOptimizedWebSocket` hook for efficient real-time data handling
+- Mobile-friendly navigation with AppSidebar improvements
+- Responsive trading dashboard with adaptive layouts
+- Real-time data visualization with performance optimizations
+
+For detailed documentation on the responsive design implementation, see [Responsive Design Guide](frontend/src/docs/RESPONSIVE_DESIGN_GUIDE.md).

@@ -17,7 +17,7 @@ class WebSocketService {
       return;
     }
 
-    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3005';
+    const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3006';
     console.log(`🔌 Connecting to WebSocket: ${wsUrl}`);
 
     try {
