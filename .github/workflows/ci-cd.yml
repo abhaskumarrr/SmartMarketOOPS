@@ -45,17 +45,10 @@ jobs:
         python-version: '3.11'
         cache: 'pip'
         
-    - name: Install dependencies (Frontend)
-      if: matrix.component == 'frontend'
-      working-directory: ./frontend
+    - name: Install dependencies (Root)
+      if: matrix.component == 'frontend' || matrix.component == 'backend'
       run: |
-        NODE_ENV=development npm install --ignore-engines --legacy-peer-deps --include=dev
-        
-    - name: Install dependencies (Backend)
-      if: matrix.component == 'backend'
-      working-directory: ./backend
-      run: |
-        NODE_ENV=development npm install --ignore-engines --legacy-peer-deps --include=dev
+        npm install --ignore-engines --legacy-peer-deps
         
     - name: Install dependencies (ML System)
       if: matrix.component == 'ml-system'
