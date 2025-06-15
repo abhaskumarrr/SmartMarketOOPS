@@ -9,11 +9,9 @@ module.exports = {
   // Use Node.js as the test environment
   testEnvironment: 'node',
 
-  // Define test match patterns
+  // Define test match patterns – includes unit & integration tests under tests/
   testMatch: [
-    '<rootDir>/src/**/__tests__/**/*.test.{ts,js}',
-    '<rootDir>/src/**/*.{test,spec}.{ts,js}',
-    '<rootDir>/tests/**/*.test.{ts,js}',
+    '<rootDir>/tests/**/*.test.ts',
   ],
 
   // Files to ignore
@@ -143,12 +141,11 @@ module.exports = {
   projects: [
     {
       displayName: 'unit',
-      testMatch: ['<rootDir>/src/**/__tests__/**/*.test.ts'],
-      testPathIgnorePatterns: ['/integration/'],
+      testMatch: ['<rootDir>/tests/unit/**/*.test.ts', '<rootDir>/tests/services/**/*.test.ts'],
     },
     {
       displayName: 'integration',
-      testMatch: ['<rootDir>/src/**/__tests__/integration/**/*.test.ts'],
+      testMatch: ['<rootDir>/tests/integration/**/*.test.ts'],
       setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
     },
   ],
