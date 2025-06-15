@@ -49,13 +49,13 @@ jobs:
       if: matrix.component == 'frontend'
       working-directory: ./frontend
       run: |
-        npm install --ignore-engines --legacy-peer-deps
+        NODE_ENV=development npm install --ignore-engines --legacy-peer-deps --include=dev
         
     - name: Install dependencies (Backend)
       if: matrix.component == 'backend'
       working-directory: ./backend
       run: |
-        npm install --ignore-engines --legacy-peer-deps
+        NODE_ENV=development npm install --ignore-engines --legacy-peer-deps --include=dev
         
     - name: Install dependencies (ML System)
       if: matrix.component == 'ml-system'
