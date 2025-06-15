@@ -1,0 +1,12 @@
+{
+  "model": {
+    "provider": "google",
+    "main": "gemini-pro",
+    "research": "gemini-pro",
+    "fallback": "gemini-pro"
+  },
+  "api": {
+    "base_url": "https://generativelanguage.googleapis.com/v1",
+    "key": "${GOOGLE_API_KEY}"
+  }
+} 

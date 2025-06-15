@@ -566,3 +566,194 @@ The Ultimate Trading System is **production-ready** with:
 ✅ **Professional documentation** and support  
 
 **Ready for 24/7 production trading with confidence!** 🚀
+
+# Deployment Guide
+
+This document provides comprehensive instructions for deploying the SmartMarketOOPS system in various environments.
+
+## Table of Contents
+1. [Prerequisites](#prerequisites)
+2. [Environment Setup](#environment-setup)
+3. [Deployment Options](#deployment-options)
+4. [Configuration](#configuration)
+5. [Monitoring](#monitoring)
+6. [Troubleshooting](#troubleshooting)
+
+## Prerequisites
+
+### System Requirements
+- Node.js 14 or higher
+- Python 3.8 or higher
+- Docker and Docker Compose
+- PM2 (optional, for production)
+
+### Required Access
+- Delta Exchange API credentials
+- Cloud platform access (if deploying to cloud)
+- Database credentials
+
+## Environment Setup
+
+1. Clone the repository:
+```bash
+git clone https://github.com/yourusername/SmartMarketOOPS.git
+cd SmartMarketOOPS
+```
+
+2. Install dependencies:
+```bash
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Install Node.js dependencies
+npm install
+```
+
+3. Set up environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
+
+## Deployment Options
+
+### Local Development
+```bash
+# Start the development server
+./scripts/dashboard.sh start
+
+# For full stack (API + WebSocket + Dashboard)
+./scripts/dashboard.sh launch
+```
+
+### Docker Deployment
+```bash
+# Build and start containers
+docker-compose up -d
+
+# Monitor logs
+docker-compose logs -f
+```
+
+### Cloud Deployment
+
+#### AWS
+1. Set up EC2 instance
+2. Configure security groups
+3. Deploy using Docker Compose
+4. Set up load balancer (optional)
+
+#### Google Cloud
+1. Set up Compute Engine
+2. Configure firewall rules
+3. Deploy using Docker Compose
+4. Set up load balancer (optional)
+
+## Configuration
+
+### Core Components
+- Dashboard: Port 3000
+- API Server: Port 3001
+- WebSocket Server: Port 3002
+
+### Environment Variables
+- `DELTA_API_KEY`: Your Delta Exchange API key
+- `DELTA_API_SECRET`: Your Delta Exchange API secret
+- `NODE_ENV`: Environment (development/production)
+- `LOG_LEVEL`: Logging level
+
+### ML Model Configuration
+The system uses two ML models:
+1. Enhanced ML Model
+   - Configurable confidence threshold
+   - Customizable feature engineering
+2. Fibonacci ML Model
+   - Configurable Fibonacci levels
+   - Adjustable trading parameters
+
+## Monitoring
+
+### Health Checks
+- Dashboard: http://localhost:3000/health
+- API: http://localhost:3001/health
+- WebSocket: http://localhost:3002/health
+
+### Logging
+- Application logs: `logs/app.log`
+- Error logs: `logs/error.log`
+- Dashboard logs: `dashboard.log`
+
+### Metrics
+- CPU/Memory usage
+- API response times
+- WebSocket connection count
+- Trading performance metrics
+
+## Troubleshooting
+
+### Common Issues
+
+1. Dashboard Issues
+```bash
+# Fix common dashboard problems
+./scripts/dashboard.sh fix
+```
+
+2. Port Conflicts
+- Check if ports 3000-3002 are available
+- Modify ports in configuration if needed
+
+3. WebSocket Connection Issues
+- Verify WebSocket server is running
+- Check firewall settings
+- Ensure proper SSL configuration
+
+### Support
+
+For additional support:
+1. Check the [Troubleshooting Guide](TROUBLESHOOTING.md)
+2. Submit an issue on GitHub
+3. Contact the development team
+
+## Security Considerations
+
+1. API Key Management
+- Use environment variables
+- Rotate keys regularly
+- Monitor API usage
+
+2. Network Security
+- Configure firewalls
+- Use SSL/TLS
+- Implement rate limiting
+
+3. Access Control
+- Implement authentication
+- Use role-based access
+- Log access attempts
+
+## Maintenance
+
+### Regular Tasks
+1. Update dependencies
+2. Backup configuration
+3. Monitor system health
+4. Review logs
+
+### Emergency Procedures
+1. System rollback process
+2. Data recovery steps
+3. Incident response plan
+
+## Updates and Upgrades
+
+### Version Control
+- Follow semantic versioning
+- Document breaking changes
+- Maintain changelog
+
+### Upgrade Process
+1. Backup current system
+2. Test in staging
+3. Deploy to production
+4. Verify functionality

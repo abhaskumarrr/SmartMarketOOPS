@@ -1,0 +1,17 @@
+model_list:
+  - model_name: gpt-3.5-turbo
+    litellm_params:
+      model: openrouter/mistralai/mistral-7b-instruct:free
+      api_base: https://openrouter.ai/api/v1
+      api_key: ${OPENROUTER_API_KEY}
+  - model_name: deepseek
+    litellm_params:
+      model: deepseek/deepseek-chat-v3-0324:free
+  - model_name: qwen
+    litellm_params:
+      model: thudm/glm-4-32b:free
+
+general_settings:
+  default_model: gpt-3.5-turbo
+  openai_api_key: ${OPENROUTER_API_KEY}
+  openai_api_base: https://openrouter.ai/api/v1 

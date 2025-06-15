@@ -151,4 +151,7 @@ predictions_latest.csv
 
 # Test files
 test-*.js
-*-test.js 
+*-test.js
+
+# Added by Task Master AI
+# Dependency directories

@@ -2,7 +2,7 @@
   "models": {
     "main": {
       "provider": "openrouter",
-      "modelId": "mistralai/mistral-small-3.1-24b-instruct:free",
+      "modelId": "thudm/glm-4-32b:free",
       "maxTokens": 120000,
       "temperature": 0.2
     },

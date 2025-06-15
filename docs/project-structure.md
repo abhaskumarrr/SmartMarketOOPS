@@ -1,183 +1,107 @@
-# SmartMarketOOPS Project Structure
-*Updated: January 2025*
-
-This document outlines the directory structure and organization of the SmartMarketOOPS trading platform project.
-
-## 🎯 Project Status: 75% Complete (26/35 tasks)
-- **Advanced ML Intelligence Phase**: ✅ Complete (Transformer models, Signal Quality, QuestDB, Event-driven architecture)
-- **Real-Time Trading Core**: ✅ Complete (WebSocket dashboard, ML integration)
-- **Free-Tier Infrastructure**: ✅ Complete ($0/month operational cost)
-- **Current Focus**: Trading Bot Management & Performance Optimization
+# Project Structure Documentation
 
 ## Overview
+This document outlines the organization and structure of the SmartMarketOOPS project. The project follows a modular architecture with clear separation of concerns.
 
-The project follows a monorepo structure with three main components:
-
-1. **Frontend**: Next.js 15 + React 19 web application with real-time trading dashboard
-2. **Backend**: Node.js/Express API server with Prisma ORM, Redis Streams, and QuestDB
-3. **ML Service**: Python-based machine learning service with PyTorch Transformer models
-
-## 🚀 Recent Technology Upgrades
-- **Transformer Models**: State-of-the-art PyTorch implementation with 25% performance improvement
-- **QuestDB Integration**: Time-series database with 10-100x query performance improvement
-- **Redis Streams**: Event-driven architecture with 50-80% latency reduction
-- **Real-Time WebSocket**: Live trading dashboard with <50ms update latency
-- **Free-Tier Infrastructure**: $0/month operational cost with enterprise capabilities
-
-## Root Directory
+## Directory Structure
 
 ```
-SMOOPs_dev/
-├── .github/            # GitHub workflows for CI/CD
-├── backend/            # Backend API service
-├── frontend/           # Next.js frontend application
-├── ml/                 # ML models and services
-├── scripts/            # Utility scripts
-├── tasks/              # Task definitions for project management
+.
+├── backend/                 # Backend server implementation
+│   ├── src/                # Source code
+│   ├── tests/              # All backend tests (unit, integration)
+│   ├── prisma/             # Database schema and migrations
+│   └── generated/          # Generated code (e.g., Prisma client)
+│
+├── frontend/               # Frontend application
+│   ├── src/               # Source code
+│   ├── public/            # Static assets
+│   └── components/        # Reusable React components
+│
+├── ml/                    # Machine Learning services
+│   ├── src/              # ML model implementations
+│   ├── data/             # Training and validation data
+│   └── models/           # Trained model storage
+│
+├── monitoring/           # Monitoring and observability
+│   ├── grafana/         # Grafana dashboards
+│   └── prometheus/      # Prometheus configuration
+│
+├── scripts/             # Utility scripts
+│   ├── setup.sh        # Main setup script
+│   └── start.sh        # Main startup script
+│
 ├── docs/               # Project documentation
-├── .env                # Environment variables (not in git)
-├── .env.example        # Example environment file (checked into git)
-├── docker-compose.yml  # Docker services configuration
-├── package.json        # Project dependencies and scripts
-└── README.md           # Project overview
+├── data/              # Application data
+└── config/            # Configuration files
 ```
 
-## Backend Structure
+## Key Components
 
-```
-backend/
-├── .keys/              # Storage for encrypted keys (not in git)
-├── prisma/             # Prisma ORM schema and migrations
-│   ├── migrations/     # Database migration files
-│   └── schema.prisma   # Database schema definition
-├── generated/          # Generated Prisma client code
-├── src/                # Source code
-│   ├── controllers/    # API endpoint controllers
-│   ├── middleware/     # Express middleware
-│   ├── routes/         # API route definitions
-│   ├── services/       # Business logic and data access
-│   ├── utils/          # Utility functions
-│   └── server.js       # Main server entry point
-├── package.json        # Backend dependencies
-├── Dockerfile          # Docker build configuration
-└── README.md           # Backend-specific documentation
-```
+### Backend
+- `backend/src/`: Contains the main application logic
+- `backend/tests/`: Comprehensive test suite
+- `backend/prisma/`: Database schema and migrations
 
-## Frontend Structure
+### Frontend
+- `frontend/src/`: React application source code
+- `frontend/components/`: Reusable UI components
+- `frontend/public/`: Static assets and resources
 
-```
-frontend/
-├── components/         # React components
-│   ├── common/         # Shared/utility components
-│   ├── charts/         # Trading charts and visualizations
-│   ├── dashboard/      # Dashboard-specific components
-│   ├── forms/          # Form components
-│   ├── layouts/        # Page layouts and containers
-│   └── ui/             # UI elements (buttons, cards, etc.)
-├── contexts/           # React context providers
-├── hooks/              # Custom React hooks
-├── lib/                # Utility libraries
-├── pages/              # Next.js pages and routes
-│   ├── api/            # API routes for server-side operations
-│   ├── _app.js         # Next.js application wrapper
-│   └── index.js        # Home page
-├── public/             # Static assets
-│   └── images/         # Image assets
-├── styles/             # CSS/SCSS styles
-├── package.json        # Frontend dependencies
-├── Dockerfile          # Docker build configuration
-└── README.md           # Frontend-specific documentation
-```
+### Machine Learning
+- `ml/src/`: ML model implementations and training code
+- `ml/data/`: Training and validation datasets
+- `ml/models/`: Storage for trained models
 
-## ML Service Structure
+### Monitoring
+- Centralized monitoring solution using Grafana and Prometheus
+- Custom dashboards for system metrics
 
-```
-ml/
-├── backend/            # ML service API
-│   └── src/            # API source code
-│       └── scripts/    # Server scripts
-├── src/                # ML source code
-│   ├── api/            # API endpoints and handlers
-│   ├── backtesting/    # Backtesting framework
-│   ├── data/           # Data processing pipelines
-│   ├── models/         # ML model definitions
-│   ├── training/       # Training pipelines
-│   ├── monitoring/     # Performance monitoring
-│   └── utils/          # Utility functions
-├── data/               # Data storage
-│   ├── raw/            # Raw market data
-│   └── processed/      # Processed features and datasets
-├── logs/               # Log files
-│   └── tensorboard/    # TensorBoard logs for model training
-├── models/             # Saved model checkpoints
-├── Dockerfile          # Docker build configuration
-├── requirements.txt    # Python dependencies
-└── README.md           # ML-specific documentation
-```
+### Scripts
+The project includes two main scripts for setup and execution:
 
-## Scripts Directory
+1. `setup.sh`: Consolidated setup script that:
+   - Checks system requirements
+   - Sets up Python environment
+   - Sets up Node.js environment
+   - Configures Docker environment
+   - Sets up infrastructure
+   - Validates the setup
 
-```
-scripts/
-├── setup-env.sh                  # Environment setup script
-├── check-env.js                  # Environment validation script
-├── generate-encryption-key.js    # Key generation utility
-└── other utility scripts...
-```
+2. `start.sh`: Consolidated start script that:
+   - Starts all backend services
+   - Launches frontend development server
+   - Initializes monitoring
+   - Runs pre-launch tests
+   - Supports both development and production modes
 
-## Documentation Directory
+## Configuration
+- Environment variables are managed through `.env` files
+- Configuration files are stored in the `config/` directory
+- Each component can have its own specific configuration
 
-```
-docs/
-├── project-structure.md          # Project structure documentation (this file)
-├── environment-setup.md          # Environment setup guide
-├── api-documentation.md          # API documentation
-├── ml-model-documentation.md     # ML model documentation
-└── deployment-guide.md           # Deployment guide
-```
+## Data Management
+- Raw data is stored in `data/raw/`
+- Processed data in `data/processed/`
+- Validation data in `data/validation/`
 
-## Design Decisions
+## Documentation
+- Technical documentation in `docs/`
+- API documentation generated from code
+- Component-specific documentation in respective directories
 
-### Monorepo Structure
+## Development Workflow
+1. Run `./scripts/setup.sh` to set up the development environment
+2. Run `./scripts/start.sh` to start all services
+3. Access the application at `http://localhost:3000`
+4. Monitor the system at `http://localhost:9090`
 
-The project uses a monorepo structure to simplify development and deployment while maintaining clear separation of concerns. This approach offers several benefits:
+## Testing
+- Unit tests in respective `tests/` directories
+- Integration tests in `backend/tests/integration/`
+- End-to-end tests in `tests/`
 
-- Shared configuration and tooling
-- Simplified dependency management
-- Easier cross-service refactoring
-- Unified versioning and releases
-
-### Service Separation
-
-Each major component (frontend, backend, ML) has its own directory and can be developed and deployed independently if needed. This separation allows for:
-
-- Independent scaling of services
-- Technology-specific optimizations
-- Clear boundaries between components
-- Specialized teams working on different parts
-
-### Docker-Based Development
-
-The project uses Docker and Docker Compose for development and deployment, providing:
-
-- Consistent development environment
-- Easy onboarding for new developers
-- Production-like environment during development
-- Simplified deployment pipeline
-
-## Adding New Features
-
-When adding new features to the codebase:
-
-1. **Backend**: Add new routes in `backend/src/routes`, controllers in `backend/src/controllers`, and business logic in `backend/src/services`
-2. **Frontend**: Add new pages in `frontend/pages` and components in `frontend/components`
-3. **ML Service**: Add new model definitions in `ml/src/models` and API endpoints in `ml/src/api`
-4. **Documentation**: Update relevant documentation in the `docs` directory
-
-## Best Practices
-
-- Keep service boundaries clear - avoid tight coupling between services
-- Use environment variables for configuration (see `environment-setup.md`)
-- Follow the existing patterns and conventions in each service
-- Add unit tests for new functionality
-- Update documentation as you add or change features 
+## Deployment
+- Docker containers for all services
+- Kubernetes configurations in `k8s/` directory
+- Monitoring setup included in deployment 
