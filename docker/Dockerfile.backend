@@ -1,0 +1,74 @@
+# Multi-stage build for Node.js Backend
+# Optimized for production with minimal attack surface
+
+# Stage 1: Dependencies
+FROM node:20-alpine AS deps
+
+# Install build dependencies
+RUN apk add --no-cache libc6-compat python3 make g++
+
+WORKDIR /app
+
+# Copy package files
+COPY backend/package*.json ./
+
+# Install dependencies
+RUN npm ci --only=production && npm cache clean --force
+
+# Stage 2: Builder
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copy dependencies from deps stage
+COPY --from=deps /app/node_modules ./node_modules
+COPY backend/ .
+
+# Build the application
+RUN npm run build
+
+# Stage 3: Runner
+FROM node:20-alpine AS runner
+
+# Set build arguments
+ARG BUILD_DATE
+ARG VERSION
+ARG VCS_REF
+
+# Add metadata
+LABEL maintainer="SmartMarketOOPS Team" \
+      version="${VERSION}" \
+      description="SmartMarketOOPS Backend - Trading Engine" \
+      build-date="${BUILD_DATE}" \
+      vcs-ref="${VCS_REF}"
+
+WORKDIR /app
+
+# Install production dependencies only
+RUN apk add --no-cache curl ca-certificates
+
+# Create non-root user
+RUN addgroup -g 1001 -S nodejs
+RUN adduser -S nodejs -u 1001
+
+# Copy built application
+COPY --from=builder --chown=nodejs:nodejs /app/dist ./dist
+COPY --from=builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+COPY --from=builder --chown=nodejs:nodejs /app/package.json ./package.json
+
+# Set environment variables
+ENV NODE_ENV production
+ENV PORT 3006
+
+# Switch to non-root user
+USER nodejs
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:3006/health || exit 1
+
+# Expose port
+EXPOSE 3006
+
+# Start the application
+CMD ["npm", "start"] 

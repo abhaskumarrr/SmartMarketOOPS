@@ -1,38 +1,14 @@
 {
   "meta": {
-    "generatedAt": "2025-06-06T03:51:02.292Z",
-    "tasksAnalyzed": 12,
-    "totalTasks": 12,
+    "generatedAt": "2025-06-15T04:20:47.941Z",
+    "tasksAnalyzed": 15,
+    "totalTasks": 15,
     "analysisCount": 25,
     "thresholdScore": 5,
     "projectName": "Taskmaster",
     "usedResearch": true
   },
   "complexityAnalysis": [
-    {
-      "taskId": 13,
-      "taskTitle": "Develop Real-Time Drawdown Monitoring",
-      "complexityScore": 5,
-      "recommendedSubtasks": 3,
-      "expansionPrompt": "Break down the task into subtasks for monitoring account equity and implementing automated risk reduction.",
-      "reasoning": "Each step in drawdown monitoring can be a separate subtask."
-    },
-    {
-      "taskId": 14,
-      "taskTitle": "Enhance Delta Exchange Integration",
-      "complexityScore": 6,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Create subtasks for adding error handling, rate limiting, and implementing WebSocket reconnection strategies.",
-      "reasoning": "Each enhancement can be a separate subtask for thorough implementation."
-    },
-    {
-      "taskId": 15,
-      "taskTitle": "Build User Dashboard",
-      "complexityScore": 7,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Break down the task into subtasks for developing the frontend, integrating real-time updates, and testing responsiveness.",
-      "reasoning": "Dashboard development involves multiple steps that can be broken down into subtasks."
-    },
     {
       "taskId": 16,
       "taskTitle": "Implement Comprehensive Logging",
@@ -116,98 +92,122 @@
     {
       "taskId": 1,
       "taskTitle": "Setup Project Repository",
-      "complexityScore": 3,
+      "complexityScore": 4,
       "recommendedSubtasks": 4,
-      "expansionPrompt": "Break down the repository setup into distinct steps for each configuration and dependency.",
-      "reasoning": "The task involves multiple steps that can be broken down into smaller, manageable subtasks."
+      "expansionPrompt": "Break down the task into subtasks for initializing the repository, setting up CI, configuring dependencies, and verifying the setup.",
+      "reasoning": "The task involves multiple steps that can be broken down into smaller, manageable subtasks. Each step has clear deliverables and can be tested independently."
     },
     {
       "taskId": 2,
-      "taskTitle": "Enhance Delta Exchange Integration",
-      "complexityScore": 5,
-      "recommendedSubtasks": 3,
-      "expansionPrompt": "Separate the task into subtasks for each enhancement area: retry mechanisms, rate limiting, and secure API key storage.",
-      "reasoning": "Each enhancement area can be developed and tested independently."
+      "taskTitle": "Design Database Schema",
+      "complexityScore": 6,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Create subtasks for designing each table, implementing sharding, and validating the schema with sample data.",
+      "reasoning": "Designing a database schema requires careful planning and validation. Breaking it down into subtasks for each table and sharding will make the task more manageable."
     },
     {
       "taskId": 3,
-      "taskTitle": "Implement Multi-Timeframe Data Collection",
-      "complexityScore": 6,
-      "recommendedSubtasks": 4,
-      "expansionPrompt": "Create subtasks for data fetching, caching, synchronization, and validation for each timeframe.",
-      "reasoning": "The task involves multiple technical components that can be developed and tested separately."
+      "taskTitle": "Implement User Authentication",
+      "complexityScore": 7,
+      "recommendedSubtasks": 5,
+      "expansionPrompt": "Break down the task into subtasks for setting up Django, implementing JWT, password hashing, and testing authentication flows.",
+      "reasoning": "User authentication involves multiple components that can be developed and tested independently. Breaking it down into subtasks will ensure thorough implementation and testing."
     },
     {
       "taskId": 4,
-      "taskTitle": "Develop Trading Decision Engine",
-      "complexityScore": 7,
-      "recommendedSubtasks": 5,
-      "expansionPrompt": "Break down the task into subtasks for entry logic, exit logic, data manipulation, calculations, and backtesting.",
-      "reasoning": "The task involves complex logic that can be modularized into smaller, testable components."
+      "taskTitle": "Setup Real-Time Data Processing Pipeline",
+      "complexityScore": 8,
+      "recommendedSubtasks": 6,
+      "expansionPrompt": "Create subtasks for setting up Kafka, implementing producers and consumers, data manipulation, and verifying the pipeline.",
+      "reasoning": "Setting up a real-time data processing pipeline involves multiple steps and technologies. Breaking it down into subtasks will ensure each component is properly implemented and tested."
     },
     {
       "taskId": 5,
-      "taskTitle": "Integrate ML Models with Trade Execution",
-      "complexityScore": 8,
+      "taskTitle": "Develop Order Block Detection",
+      "complexityScore": 6,
       "recommendedSubtasks": 4,
-      "expansionPrompt": "Separate the task into subtasks for ML model inference, ensemble voting, latency optimization, and real-time testing.",
-      "reasoning": "The task involves integrating multiple technologies and ensuring real-time performance."
+      "expansionPrompt": "Break down the task into subtasks for data preprocessing, algorithm implementation, backtesting, and validation.",
+      "reasoning": "Developing an algorithm requires careful planning and validation. Breaking it down into subtasks will ensure thorough implementation and testing."
     },
     {
       "taskId": 6,
-      "taskTitle": "Build Analysis-Execution Bridge",
-      "complexityScore": 6,
+      "taskTitle": "Implement Fair Value Gap (FVG) Identification",
+      "complexityScore": 5,
       "recommendedSubtasks": 4,
-      "expansionPrompt": "Create subtasks for API development, WebSocket implementation, error handling, and failsafe mechanisms.",
-      "reasoning": "The task involves building a real-time communication layer with multiple components."
+      "expansionPrompt": "Create subtasks for data analysis, gap detection, backtesting, and validation.",
+      "reasoning": "The task involves analyzing data and implementing an algorithm. Breaking it down into subtasks will ensure thorough implementation and testing."
     },
     {
       "taskId": 7,
-      "taskTitle": "Implement ML-Powered Position Management",
-      "complexityScore": 7,
+      "taskTitle": "Develop Liquidity Grab/Stop Hunt Detection",
+      "complexityScore": 6,
       "recommendedSubtasks": 4,
-      "expansionPrompt": "Break down the task into subtasks for model training, dynamic calculations, risk assessment, and backtesting.",
-      "reasoning": "The task involves developing and integrating ML models with trading logic."
+      "expansionPrompt": "Break down the task into subtasks for data analysis, algorithm implementation, backtesting, and validation.",
+      "reasoning": "Developing an algorithm requires careful planning and validation. Breaking it down into subtasks will ensure thorough implementation and testing."
     },
     {
       "taskId": 8,
-      "taskTitle": "Develop Performance Monitoring System",
-      "complexityScore": 6,
+      "taskTitle": "Implement Break of Structure (BOS) and Change of Character (ChoCH) Analysis",
+      "complexityScore": 5,
       "recommendedSubtasks": 4,
-      "expansionPrompt": "Separate the task into subtasks for metrics collection, visualization, logging, and alert implementation.",
-      "reasoning": "The task involves setting up a monitoring system with multiple components."
+      "expansionPrompt": "Create subtasks for data analysis, structure analysis, backtesting, and validation.",
+      "reasoning": "The task involves analyzing data and implementing algorithms. Breaking it down into subtasks will ensure thorough implementation and testing."
     },
     {
       "taskId": 9,
-      "taskTitle": "Enhance Risk Management Systems",
-      "complexityScore": 6,
+      "taskTitle": "Develop Buy-Side Liquidity (BSL) and Sell-Side Liquidity (SSL) Mapping",
+      "complexityScore": 5,
       "recommendedSubtasks": 4,
-      "expansionPrompt": "Create subtasks for dynamic position sizing, risk calculations, failsafe mechanisms, and high volatility testing.",
-      "reasoning": "The task involves improving risk management with multiple technical components."
+      "expansionPrompt": "Break down the task into subtasks for data analysis, liquidity mapping, backtesting, and validation.",
+      "reasoning": "The task involves analyzing data and implementing algorithms. Breaking it down into subtasks will ensure thorough implementation and testing."
     },
     {
       "taskId": 10,
-      "taskTitle": "Build User Dashboard",
+      "taskTitle": "Implement Higher Timeframe Bias Analyzer",
       "complexityScore": 5,
       "recommendedSubtasks": 4,
-      "expansionPrompt": "Break down the task into subtasks for frontend development, backend integration, real-time data display, and mobile responsiveness.",
-      "reasoning": "The task involves developing a user interface with multiple features."
+      "expansionPrompt": "Create subtasks for data analysis, bias analysis, backtesting, and validation.",
+      "reasoning": "The task involves analyzing data and implementing an algorithm. Breaking it down into subtasks will ensure thorough implementation and testing."
     },
     {
       "taskId": 11,
-      "taskTitle": "Conduct Comprehensive Testing",
-      "complexityScore": 7,
+      "taskTitle": "Develop Cross-Timeframe Signal Validator",
+      "complexityScore": 5,
       "recommendedSubtasks": 4,
-      "expansionPrompt": "Separate the task into subtasks for unit testing, load testing, validation against acceptance criteria, and documentation.",
-      "reasoning": "The task involves thorough testing of the entire system with multiple testing strategies."
+      "expansionPrompt": "Break down the task into subtasks for data validation, signal validation, backtesting, and validation.",
+      "reasoning": "The task involves analyzing data and implementing an algorithm. Breaking it down into subtasks will ensure thorough implementation and testing."
     },
     {
       "taskId": 12,
-      "taskTitle": "Deploy to Production",
-      "complexityScore": 8,
+      "taskTitle": "Implement Discount/Premium Zone Calculator",
+      "complexityScore": 5,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Create subtasks for data analysis, zone calculation, backtesting, and validation.",
+      "reasoning": "The task involves analyzing data and implementing an algorithm. Breaking it down into subtasks will ensure thorough implementation and testing."
+    },
+    {
+      "taskId": 13,
+      "taskTitle": "Develop Confluence Scoring Engine",
+      "complexityScore": 6,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Break down the task into subtasks for data analysis, scoring implementation, backtesting, and validation.",
+      "reasoning": "Developing a scoring engine requires careful planning and validation. Breaking it down into subtasks will ensure thorough implementation and testing."
+    },
+    {
+      "taskId": 14,
+      "taskTitle": "Integrate Exchange Orderbook API",
+      "complexityScore": 7,
       "recommendedSubtasks": 5,
-      "expansionPrompt": "Break down the task into subtasks for containerization, orchestration, CI/CD pipeline setup, monitoring, and live trading verification.",
-      "reasoning": "The task involves deploying the system to production with multiple technical components and verification steps."
+      "expansionPrompt": "Create subtasks for setting up WebSocket connections, implementing real-time data processing, and verifying data integration.",
+      "reasoning": "Integrating with an API involves multiple steps and technologies. Breaking it down into subtasks will ensure each component is properly implemented and tested."
+    },
+    {
+      "taskId": 15,
+      "taskTitle": "Develop Volume Profile Calculator",
+      "complexityScore": 5,
+      "recommendedSubtasks": 4,
+      "expansionPrompt": "Break down the task into subtasks for data analysis, volume profile calculation, backtesting, and validation.",
+      "reasoning": "The task involves analyzing data and implementing an algorithm. Breaking it down into subtasks will ensure thorough implementation and testing."
     }
   ]
 }

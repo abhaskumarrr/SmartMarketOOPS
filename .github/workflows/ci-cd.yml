@@ -124,7 +124,7 @@ jobs:
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v3
       
-    - name: Log in to Container Registry
+    - name: Log in to GitHub Container Registry
       uses: docker/login-action@v3
       with:
         registry: ${{ env.REGISTRY }}
@@ -181,7 +181,8 @@ jobs:
     - name: Start test environment
       run: |
         docker-compose -f docker-compose.test.yml up -d
-        sleep 60  # Wait for services to start
+        echo "Waiting for services to be healthy..."
+        timeout 300 bash -c 'until $(curl --output /dev/null --silent --fail http://localhost:8000/health); do printf "."; sleep 5; done'
         
     - name: Run load tests
       run: |
@@ -244,7 +245,9 @@ jobs:
       with:
         status: ${{ job.status }}
         channel: '#deployments'
-        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
   # Deploy to Production
   deploy-production:
@@ -287,7 +290,9 @@ jobs:
       with:
         status: ${{ job.status }}
         channel: '#production'
-        webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+        fields: repo,message,commit,author,action,eventName,ref,workflow,job,took
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         
     - name: Create deployment record
       run: |

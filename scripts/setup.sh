@@ -89,7 +89,7 @@ setup_node() {
     
     # Install dependencies
     cd frontend
-    npm install
+            npm install
     cd ..
 }
 
