@@ -1,5 +1,10 @@
 name: SmartMarketOOPS CI/CD Pipeline
 
+# Grant default GITHUB_TOKEN ability to upload SARIF results
+permissions:
+  contents: read
+  security-events: write
+
 on:
   push:
     branches: [ main, develop ]
@@ -44,13 +49,13 @@ jobs:
       if: matrix.component == 'frontend'
       working-directory: ./frontend
       run: |
-        npm install
+        npm install --ignore-engines --legacy-peer-deps
         
     - name: Install dependencies (Backend)
       if: matrix.component == 'backend'
       working-directory: ./backend
       run: |
-        npm install
+        npm install --ignore-engines --legacy-peer-deps
         
     - name: Install dependencies (ML System)
       if: matrix.component == 'ml-system'
@@ -114,7 +119,7 @@ jobs:
         output: 'trivy-results.sarif'
         
     - name: Upload Trivy scan results
-      uses: github/codeql-action/upload-sarif@v2
+      uses: github/codeql-action/upload-sarif@v3
       with:
         sarif_file: 'trivy-results.sarif'
 
