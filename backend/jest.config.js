@@ -85,12 +85,12 @@ module.exports = {
 
   // Setup files before tests
   setupFilesAfterEnv: [
-    '<rootDir>/src/__tests__/setup.ts'
+    '<rootDir>/tests/setup.ts'
   ],
 
   // Global setup and teardown
-  globalSetup: '<rootDir>/src/__tests__/globalSetup.ts',
-  globalTeardown: '<rootDir>/src/__tests__/globalTeardown.ts',
+  globalSetup: '<rootDir>/tests/globalSetup.ts',
+  globalTeardown: '<rootDir>/tests/globalTeardown.ts',
 
   // Test environment options
   testEnvironmentOptions: {
@@ -149,7 +149,7 @@ module.exports = {
     {
       displayName: 'integration',
       testMatch: ['<rootDir>/src/**/__tests__/integration/**/*.test.ts'],
-      setupFilesAfterEnv: ['<rootDir>/src/__tests__/setup.ts'],
+      setupFilesAfterEnv: ['<rootDir>/tests/setup.ts'],
     },
   ],
 };
