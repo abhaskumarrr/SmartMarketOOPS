@@ -1,11 +1,87 @@
-const ccxt = require('ccxt');
+// Type declarations for ccxt
+declare module 'ccxt' {
+  export interface Balances {
+    total: { [key: string]: number };
+  }
 
-// Real trade management bot for Delta Exchange
+  export interface Exchange {
+    loadMarkets(): Promise<any>;
+    fetchTicker(symbol: string): Promise<{
+      indexPrice?: number;
+      info?: any;
+      last?: number;
+      spot_price?: string;
+    }>;
+    fetchBalance(params?: {}): Promise<Balances>;
+    fetchPositions(): Promise<Position[]>;
+    fetchOpenOrders(): Promise<Order[]>;
+    createOrder(
+      symbol: string,
+      type: string,
+      side: string,
+      amount: number,
+      price?: number | null,
+      params?: any
+    ): Promise<Order>;
+    options: { [key: string]: any };
+    isSandboxModeEnabled: boolean;
+    throttleProp: any;
+    sleep: (ms: any) => Promise<unknown>;
+  }
+
+  export interface Position {
+    readonly symbol: string;
+    readonly contracts: number;
+    readonly size: number;
+    readonly side: string;
+    readonly entryPrice: number;
+    readonly markPrice: number;
+    readonly unrealizedPnl: number;
+    readonly percentage: number;
+  }
+
+  export interface Order {
+    readonly id: string;
+    readonly symbol: string;
+    readonly side: string;
+    readonly amount: number;
+    readonly price: number;
+    readonly type: string;
+    readonly status: string;
+  }
+
+  export interface DeltaExchangeOptions {
+    apiKey?: string;
+    secret?: string;
+    sandbox?: boolean;
+    enableRateLimit?: boolean;
+    options?: {
+      defaultType?: string;
+      recvWindow?: number;
+    };
+    urls?: {
+      api?: {
+        public?: string;
+        private?: string;
+      };
+    };
+  }
+
+  export class DeltaExchange extends Exchange {
+    constructor(options: DeltaExchangeOptions);
+  }
+}
+
+import * as ccxt from 'ccxt';
+
 class RealTradeManager {
+  private exchange: ccxt.Exchange;
+  private isInitialized: boolean;
+
   constructor() {
     // Use Delta Exchange INDIAN TESTNET API credentials
     // Based on official documentation: https://github.com/delta-exchange/python-rest-client
-    this.exchange = new ccxt.delta({
+    this.exchange = new (ccxt as any).delta({
       apiKey: 'AjTdJYCVE3aMZDAVQ2r6AQdmkU2mWc',
       secret: 'R29RkXJfUIIt4o3vCDXImyg6q74JvByYltVKFH96UJG51lR1mm88PCGnMrUR',
       sandbox: true, // Indian testnet
@@ -25,7 +101,7 @@ class RealTradeManager {
     this.isInitialized = false;
   }
 
-  async initialize() {
+  async initialize(): Promise<boolean> {
     try {
       console.log('🔄 Initializing Delta Exchange connection...');
       await this.exchange.loadMarkets();
@@ -33,12 +109,12 @@ class RealTradeManager {
       this.isInitialized = true;
       return true;
     } catch (error) {
-      console.error('❌ Failed to initialize:', error.message);
+      console.error('❌ Failed to initialize:', error instanceof Error ? error.message : String(error));
       return false;
     }
   }
 
-  async getAccountInfo() {
+  async getAccountInfo(): Promise<ccxt.Balances | null> {
     try {
       const balance = await this.exchange.fetchBalance();
       console.log('💰 Account Balance:');
@@ -49,12 +125,12 @@ class RealTradeManager {
       });
       return balance;
     } catch (error) {
-      console.error('❌ Error fetching balance:', error.message);
+      console.error('❌ Error fetching balance:', error instanceof Error ? error.message : String(error));
       return null;
     }
   }
 
-  async getOpenPositions() {
+  async getOpenPositions(): Promise<ccxt.Position[]> {
     try {
       const positions = await this.exchange.fetchPositions();
       const openPositions = positions.filter(pos => 
@@ -70,12 +146,12 @@ class RealTradeManager {
       
       return openPositions;
     } catch (error) {
-      console.error('❌ Error fetching positions:', error.message);
+      console.error('❌ Error fetching positions:', error instanceof Error ? error.message : String(error));
       return [];
     }
   }
 
-  async getOpenOrders() {
+  async getOpenOrders(): Promise<ccxt.Order[]> {
     try {
       const orders = await this.exchange.fetchOpenOrders();
       console.log(`📋 Open Orders: ${orders.length}`);
@@ -85,22 +161,22 @@ class RealTradeManager {
       });
       return orders;
     } catch (error) {
-      console.error('❌ Error fetching orders:', error.message);
+      console.error('❌ Error fetching orders:', error instanceof Error ? error.message : String(error));
       return [];
     }
   }
 
-  async getCurrentPrice(symbol) {
+  async getCurrentPrice(symbol: string): Promise<number | null> {
     try {
       const ticker = await this.exchange.fetchTicker(symbol);
-      return ticker.indexPrice || parseFloat(ticker.info?.spot_price) || ticker.last;
+      return ticker.indexPrice || (ticker.info?.spot_price ? parseFloat(ticker.info.spot_price) : null) || ticker.last || null;
     } catch (error) {
-      console.error(`❌ Error fetching price for ${symbol}:`, error.message);
+      console.error(`❌ Error fetching price for ${symbol}:`, error instanceof Error ? error.message : String(error));
       return null;
     }
   }
 
-  async placeStopLoss(symbol, side, amount, stopPrice) {
+  async placeStopLoss(symbol: string, side: 'BUY' | 'SELL', amount: number, stopPrice: number): Promise<ccxt.Order | null> {
     try {
       console.log(`🛑 Placing stop loss: ${side} ${amount} ${symbol} @ $${stopPrice}`);
       
@@ -110,7 +186,6 @@ class RealTradeManager {
         side === 'BUY' ? 'sell' : 'buy', // Opposite side to close position
         amount,
         null, // No limit price for market order
-        null,
         {
           stopPrice: stopPrice,
           timeInForce: 'GTC'
@@ -120,12 +195,12 @@ class RealTradeManager {
       console.log(`✅ Stop loss placed: ${order.id}`);
       return order;
     } catch (error) {
-      console.error('❌ Error placing stop loss:', error.message);
+      console.error('❌ Error placing stop loss:', error instanceof Error ? error.message : String(error));
       return null;
     }
   }
 
-  async placeTakeProfit(symbol, side, amount, price) {
+  async placeTakeProfit(symbol: string, side: 'BUY' | 'SELL', amount: number, price: number): Promise<ccxt.Order | null> {
     try {
       console.log(`🎯 Placing take profit: ${side} ${amount} ${symbol} @ $${price}`);
       
@@ -135,7 +210,6 @@ class RealTradeManager {
         side === 'BUY' ? 'sell' : 'buy', // Opposite side to close position
         amount,
         price,
-        null,
         {
           timeInForce: 'GTC'
         }
@@ -144,12 +218,12 @@ class RealTradeManager {
       console.log(`✅ Take profit placed: ${order.id}`);
       return order;
     } catch (error) {
-      console.error('❌ Error placing take profit:', error.message);
+      console.error('❌ Error placing take profit:', error instanceof Error ? error.message : String(error));
       return null;
     }
   }
 
-  async managePosition(position) {
+  async managePosition(position: ccxt.Position): Promise<void> {
     console.log(`\n🔄 Managing position: ${position.symbol}`);
     console.log('─'.repeat(50));
     
@@ -205,7 +279,7 @@ class RealTradeManager {
     }
   }
 
-  async monitorAndManage() {
+  async monitorAndManage(): Promise<void> {
     if (!this.isInitialized) {
       const initialized = await this.initialize();
       if (!initialized) return;
@@ -247,21 +321,22 @@ class RealTradeManager {
         iteration++;
         
       } catch (error) {
-        console.error('❌ Error in management cycle:', error.message);
-        await new Promise(resolve => setTimeout(resolve, 10000));
+        console.error('❌ Error in management cycle:', error instanceof Error ? error.message : String(error));
+        // Wait before retrying
+        await new Promise(resolve => setTimeout(resolve, 5000));
       }
     }
   }
 }
 
-// Run the real trade manager
-async function main() {
-  try {
-    const manager = new RealTradeManager();
-    await manager.monitorAndManage();
-  } catch (error) {
-    console.error('❌ Fatal error:', error);
-  }
+async function main(): Promise<void> {
+  const manager = new RealTradeManager();
+  await manager.monitorAndManage();
 }
 
-main();
+if (require.main === module) {
+  main().catch(error => {
+    console.error('❌ Fatal error:', error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  });
+} 

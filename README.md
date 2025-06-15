@@ -284,3 +284,192 @@ Week 3 implementation focuses on enhancing the frontend experience with responsi
 - Real-time data visualization with performance optimizations
 
 For detailed documentation on the responsive design implementation, see [Responsive Design Guide](frontend/src/docs/RESPONSIVE_DESIGN_GUIDE.md).
+
+# SmartMarketOOPS
+
+SmartMarketOOPS is a sophisticated ML-driven trading system designed for Delta Exchange, combining professional-grade trading capabilities with AI/ML-powered insights. The platform specializes in order block trading patterns and serves as both a functional trading dashboard and a technical showcase.
+
+## 🌟 Features
+
+- **Advanced Trading Interface**
+  - Real-time market data visualization
+  - Order block pattern detection
+  - Position management dashboard
+  - Risk management controls
+
+- **ML Trading System**
+  - Order block pattern recognition
+  - Real-time market analysis
+  - Trade signal generation
+  - Risk assessment algorithms
+
+- **Professional Infrastructure**
+  - Secure Delta Exchange API integration
+  - Real-time data processing
+  - Trade execution engine
+  - Comprehensive monitoring
+
+## 🛠 Tech Stack
+
+### Frontend
+- Next.js
+- TypeScript
+- WebSocket integration
+- Professional charting libraries
+
+### Backend
+- Node.js/TypeScript
+- PostgreSQL
+- Redis
+- WebSocket server
+
+### ML System
+- Python
+- TensorFlow/PyTorch
+- Real-time inference
+- Model training pipeline
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js >= 20.11.0
+- Python >= 3.10
+- Docker & Docker Compose
+- PostgreSQL >= 16
+- Redis >= 7
+
+### Installation
+
+1. Clone the repository:
+```bash
+git clone https://github.com/abhaskumarrr/SmartMarketOOPS.git
+cd SmartMarketOOPS
+```
+
+2. Install dependencies:
+```bash
+# Install root dependencies
+npm install
+
+# Install frontend dependencies
+cd frontend && npm install
+cd ..
+
+# Install backend dependencies
+cd backend && npm install
+cd ..
+
+# Install Python dependencies
+cd ml-system
+python -m venv venv
+source venv/bin/activate  # or `venv\Scripts\activate` on Windows
+pip install -r requirements.txt
+cd ..
+```
+
+3. Set up environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
+
+4. Start the development environment:
+```bash
+# Start all services
+docker-compose up -d
+
+# Or start individual components
+npm run dev:frontend
+npm run dev:backend
+npm run dev:ml
+```
+
+## 📦 Project Structure
+
+```
+SmartMarketOOPS/
+├── frontend/           # Next.js frontend application
+├── backend/           # Node.js/TypeScript backend
+├── ml-system/         # Python ML system
+├── docker/           # Docker configuration files
+├── scripts/          # Utility scripts
+├── .taskmaster/      # Project management
+└── docs/             # Documentation
+```
+
+## 🔧 Development
+
+### Running Tests
+```bash
+# Run all tests
+npm test
+
+# Run specific tests
+npm run test:frontend
+npm run test:backend
+npm run test:ml
+```
+
+### Code Style
+```bash
+# Run linting
+npm run lint
+
+# Fix linting issues
+npm run lint:fix
+```
+
+## 🚢 Deployment
+
+### Production Build
+```bash
+# Build all services
+docker-compose -f docker-compose.prod.yml build
+
+# Deploy
+docker-compose -f docker-compose.prod.yml up -d
+```
+
+### Infrastructure
+- Containerized deployment
+- Blue-green deployment strategy
+- Automated CI/CD pipeline
+- Regular backups
+- Comprehensive monitoring
+
+## 📈 Monitoring
+
+- System health monitoring
+- Trading performance metrics
+- ML model performance tracking
+- Error logging and alerting
+- User activity monitoring
+
+## 🔐 Security
+
+- End-to-end encryption
+- Secure API key management
+- Rate limiting
+- DDoS protection
+- Regular security audits
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 👥 Team
+
+- Abhas Kumar - Lead Developer & Maintainer
+
+## 📫 Contact
+
+- GitHub: [@abhaskumarrr](https://github.com/abhaskumarrr)
+- Project Link: [https://github.com/abhaskumarrr/SmartMarketOOPS](https://github.com/abhaskumarrr/SmartMarketOOPS)

@@ -1,10 +1,94 @@
-const ccxt = require('ccxt');
+// Type declarations for ccxt
+declare module 'ccxt' {
+  export interface Exchange {
+    loadMarkets(): Promise<any>;
+    fetchTicker(symbol: string): Promise<{
+      indexPrice?: number;
+      info?: any;
+      last?: number;
+    }>;
+    options: { [key: string]: any };
+    isSandboxModeEnabled: boolean;
+    throttleProp: any;
+    sleep: (ms: any) => Promise<unknown>;
+  }
+
+  export interface DeltaOptions {
+    sandbox?: boolean;
+    enableRateLimit?: boolean;
+    options?: {
+      defaultType?: string;
+    };
+    urls?: {
+      api?: {
+        public?: string;
+        private?: string;
+      };
+    };
+  }
+
+  export class Delta extends Exchange {
+    constructor(options: DeltaOptions);
+  }
+}
+
+import * as ccxt from 'ccxt';
+
+interface TradingConfig {
+  initialCapital: number;
+  leverage: number;
+  riskPerTrade: number;
+  assets: string[];
+  stopLossPercentage: number;
+  takeProfitLevels: Array<{
+    percentage: number;
+    ratio: number;
+  }>;
+}
+
+interface Portfolio {
+  balance: number;
+  positions: Position[];
+  orders: any[];
+  trades: any[];
+  totalPnL: number;
+}
+
+interface TakeProfitLevel {
+  percentage: number;
+  ratio: number;
+  price: number;
+  executed: boolean;
+}
+
+interface Position {
+  id: string;
+  symbol: string;
+  side: 'buy' | 'sell';
+  size: number;
+  entryPrice: number;
+  stopLoss: number;
+  takeProfitLevels: TakeProfitLevel[];
+  openTime: Date;
+  status: 'open' | 'closed';
+  closePrice?: number;
+  closeReason?: string;
+  closeTime?: Date;
+  finalPnL?: number;
+}
+
+type TradingSignal = 'BUY' | 'SELL' | 'HOLD';
 
 // Enhanced Paper Trading System for Delta Exchange
 class EnhancedPaperTrading {
+  private exchange: ccxt.Exchange;
+  private config: TradingConfig;
+  private portfolio: Portfolio;
+  private isRunning: boolean;
+
   constructor() {
     // Delta Exchange connection for market data
-    this.exchange = new ccxt.delta({
+    this.exchange = new ccxt.Delta({
       sandbox: true,
       enableRateLimit: true,
       options: { defaultType: 'spot' },
@@ -42,7 +126,7 @@ class EnhancedPaperTrading {
     this.isRunning = false;
   }
 
-  async initialize() {
+  async initialize(): Promise<boolean> {
     try {
       console.log('🔄 Initializing Enhanced Paper Trading System...');
       await this.exchange.loadMarkets();
@@ -50,24 +134,23 @@ class EnhancedPaperTrading {
       console.log('📊 Markets loaded successfully');
       return true;
     } catch (error) {
-      console.error('❌ Failed to initialize:', error.message);
+      console.error('❌ Failed to initialize:', error instanceof Error ? error.message : String(error));
       return false;
     }
   }
 
-  async getCurrentPrice(symbol) {
+  async getCurrentPrice(symbol: string): Promise<number | null> {
     try {
       const ticker = await this.exchange.fetchTicker(symbol);
-      return ticker.indexPrice || parseFloat(ticker.info?.spot_price) || ticker.last;
+      return ticker.indexPrice || (ticker.info && typeof ticker.info === 'object' ? parseFloat((ticker.info as any).spot_price) : null) || ticker.last;
     } catch (error) {
-      console.error(`❌ Error fetching price for ${symbol}:`, error.message);
+      console.error(`❌ Error fetching price for ${symbol}:`, error instanceof Error ? error.message : String(error));
       return null;
     }
   }
 
-  generateTradingSignal(symbol, price) {
+  generateTradingSignal(symbol: string, price: number): TradingSignal {
     // Simple signal generation based on price levels
-    const signals = ['BUY', 'SELL', 'HOLD'];
     
     // For ETH: Buy below 2600, Sell above 3200
     if (symbol === 'ETH/USDT') {
@@ -86,7 +169,7 @@ class EnhancedPaperTrading {
     return 'HOLD';
   }
 
-  calculatePositionSize(signal, price) {
+  calculatePositionSize(signal: TradingSignal, price: number): number {
     if (signal === 'HOLD') return 0;
     
     const riskAmount = this.portfolio.balance * this.config.riskPerTrade;
@@ -106,11 +189,11 @@ class EnhancedPaperTrading {
     return Math.min(positionSize, maxPositionSize);
   }
 
-  async openPosition(symbol, signal, price, size) {
-    const position = {
+  async openPosition(symbol: string, signal: TradingSignal, price: number, size: number): Promise<Position> {
+    const position: Position = {
       id: `pos_${Date.now()}`,
       symbol,
-      side: signal.toLowerCase(),
+      side: signal.toLowerCase() as 'buy' | 'sell',
       size,
       entryPrice: price,
       stopLoss: signal === 'BUY' 
@@ -136,7 +219,7 @@ class EnhancedPaperTrading {
     return position;
   }
 
-  async managePosition(position, currentPrice) {
+  async managePosition(position: Position, currentPrice: number): Promise<boolean> {
     // Check stop loss
     if ((position.side === 'buy' && currentPrice <= position.stopLoss) ||
         (position.side === 'sell' && currentPrice >= position.stopLoss)) {
@@ -156,7 +239,7 @@ class EnhancedPaperTrading {
     return position.status === 'open';
   }
 
-  async partialClose(position, level, price) {
+  async partialClose(position: Position, level: TakeProfitLevel, price: number): Promise<void> {
     const partialSize = (position.size * level.percentage) / 100;
     const pnl = position.side === 'buy' 
       ? (price - position.entryPrice) * partialSize
@@ -176,7 +259,7 @@ class EnhancedPaperTrading {
     }
   }
 
-  async closePosition(position, price, reason) {
+  async closePosition(position: Position, price: number, reason: string): Promise<boolean> {
     const pnl = position.side === 'buy' 
       ? (price - position.entryPrice) * position.size
       : (position.entryPrice - price) * position.size;
@@ -195,7 +278,7 @@ class EnhancedPaperTrading {
     return false; // Position no longer active
   }
 
-  async tradingCycle() {
+  async tradingCycle(): Promise<void> {
     console.log(`\n🔄 Trading Cycle ${new Date().toLocaleTimeString()}`);
     console.log('─'.repeat(60));
     
@@ -239,7 +322,7 @@ class EnhancedPaperTrading {
     console.log(`\n💼 Portfolio: $${this.portfolio.balance.toFixed(2)} | Open Positions: ${openPositions.length} | Total P&L: $${this.portfolio.totalPnL.toFixed(2)}`);
   }
 
-  async startTrading() {
+  async startTrading(): Promise<void> {
     const initialized = await this.initialize();
     if (!initialized) return;
     
@@ -248,54 +331,40 @@ class EnhancedPaperTrading {
     console.log(`💰 Initial Capital: $${this.config.initialCapital}`);
     console.log(`⚡ Leverage: ${this.config.leverage}x`);
     console.log(`🎯 Risk per Trade: ${this.config.riskPerTrade * 100}%`);
-    console.log(`📈 Assets: ${this.config.assets.join(', ')}`);
-    console.log(`🏢 Exchange: Delta Exchange Indian Testnet`);
-    console.log('');
     
     this.isRunning = true;
-    let iteration = 1;
     
-    while (this.isRunning && iteration <= 100) {
-      try {
-        await this.tradingCycle();
-        
-        console.log('\n⏳ Waiting 30 seconds for next cycle...');
-        await new Promise(resolve => setTimeout(resolve, 30000));
-        
-        iteration++;
-      } catch (error) {
-        console.error('❌ Error in trading cycle:', error.message);
-        await new Promise(resolve => setTimeout(resolve, 10000));
-      }
+    while (this.isRunning) {
+      await this.tradingCycle();
+      await new Promise(resolve => setTimeout(resolve, 60000)); // 1-minute cycle
     }
-    
-    console.log('\n🏁 Paper trading session completed');
-    this.generateReport();
   }
 
-  generateReport() {
-    console.log('\n📊 TRADING SESSION REPORT');
-    console.log('═'.repeat(50));
-    
+  generateReport(): string {
     const closedPositions = this.portfolio.positions.filter(pos => pos.status === 'closed');
-    const winningTrades = closedPositions.filter(pos => pos.finalPnL > 0);
+    const winningTrades = closedPositions.filter(pos => (pos.finalPnL || 0) > 0);
+    const winRate = (winningTrades.length / closedPositions.length) * 100 || 0;
     
-    console.log(`📈 Total Trades: ${closedPositions.length}`);
-    console.log(`✅ Winning Trades: ${winningTrades.length}`);
-    console.log(`📊 Win Rate: ${closedPositions.length > 0 ? ((winningTrades.length / closedPositions.length) * 100).toFixed(1) : 0}%`);
-    console.log(`💰 Total P&L: $${this.portfolio.totalPnL.toFixed(2)}`);
-    console.log(`📊 Final Balance: $${(this.portfolio.balance + this.portfolio.totalPnL).toFixed(2)}`);
+    return `
+TRADING REPORT
+═════════════
+Total Trades: ${closedPositions.length}
+Win Rate: ${winRate.toFixed(2)}%
+Total P&L: $${this.portfolio.totalPnL.toFixed(2)}
+Current Balance: $${this.portfolio.balance.toFixed(2)}
+ROI: ${((this.portfolio.totalPnL / this.config.initialCapital) * 100).toFixed(2)}%
+    `;
   }
 }
 
-// Start the enhanced paper trading system
-async function main() {
-  try {
-    const paperTrading = new EnhancedPaperTrading();
-    await paperTrading.startTrading();
-  } catch (error) {
-    console.error('❌ Fatal error:', error);
-  }
+async function main(): Promise<void> {
+  const trader = new EnhancedPaperTrading();
+  await trader.startTrading();
 }
 
-main();
+if (require.main === module) {
+  main().catch(error => {
+    console.error('Fatal error:', error instanceof Error ? error.message : String(error));
+    process.exit(1);
+  });
+} 

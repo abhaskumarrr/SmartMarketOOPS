@@ -1,0 +1,116 @@
+# SmartMarketOOPS - Consolidated Product Requirements Document (PRD)
+
+This PRD consolidates the requirements from multiple prior documents into a single, authoritative source for generating Task Master tasks.
+
+------------------------------------------------------------------------
+
+## 1. Core Trading Platform Requirements (Original PRD)
+
+(Imported from .taskmaster/docs/prd.txt)
+
+---
+
+# SmartMarketOOPS - Smart Money Order Blocks Trading Platform
+
+## Project Overview
+SmartMarketOOPS is a sophisticated ML-driven trading system that functions as both a personal trading dashboard for Delta Exchange and a portfolio showcase. The platform integrates advanced machine learning algorithms with real-time market data to identify and execute trades based on Smart Money Order Block patterns.
+
+## Core Features
+
+### Trading Engine
+- Real-time market data integration with Delta Exchange
+- Smart Money Order Block pattern detection
+- ML-powered trade signal generation
+- Risk management system
+- Position management with automated entry/exit
+- Paper trading and live trading modes
+
+### Frontend Dashboard
+- Modern, responsive Next.js interface
+- Real-time price charts and indicators
+- Trade execution panel
+- Portfolio performance tracking
+- Risk metrics visualization
+- Trade history and analytics
+- WebSocket integration for live updates
+
+### Backend Infrastructure
+- RESTful API for data access and trading operations
+- WebSocket server for real-time updates
+- Database integration (PostgreSQL)
+- Redis caching layer
+- Authentication and security
+- Trading bot management
+- Performance monitoring
+
+### ML System
+- TensorFlow/PyTorch models for pattern recognition
+- Real-time inference engine
+- Model training pipeline
+- Performance tracking and optimization
+- Automated model retraining
+- Feature engineering pipeline
+
+(Additional sections on Technical Requirements, Security, Performance, Monitoring, Deployment, Success Metrics, Development Requirements, etc. are included verbatim from the original file.)
+
+------------------------------------------------------------------------
+
+## 2. Frontend Redesign & Professional Dashboard Requirements
+
+(Imported from .taskmaster/docs/frontend-redesign-prd.txt)
+
+Key additions:
+- Professional, institutional-grade trading dashboard built with **Next.js 15, React 19, Tailwind/shadcn/ui, Zustand, Framer Motion, and TradingView Lightweight Charts**.
+- Advanced charting, multi-timeframe analysis, and real-time data streaming via Socket.io.
+- AI model execution visualisation, confidence scores, and performance metrics.
+- High-performance targets: sub-second page load, <100 ms data latency, 60 fps animations, bundle <500 KB gzipped.
+- Phased implementation roadmap (6 weeks) covering foundation, components, trading dashboard, charts, AI integration, and optimisation/polish.
+
+(Complete feature list, technical architecture, UX requirements, success metrics, and implementation phases are included unchanged from the original document.)
+
+------------------------------------------------------------------------
+
+## 3. Implementation Research Requirements
+
+(Imported from .taskmaster/docs/research-prd.txt)
+
+Objectives:
+1. Audit the **current SmartMarketOOPS implementation** to determine which components are proven vs. theoretical.
+2. Analyse trade-execution capabilities, ML model utilisation, analysis engine accuracy, and infrastructure performance.
+3. Identify **integration gaps** between analysis and execution layers.
+4. Produce research deliverables: trade-execution report, ML integration assessment, analysis-engine evaluation, integration-architecture review, and implementation roadmap.
+
+Timeline: 4-week research plan covering codebase analysis, functionality testing, performance assessment, and gap analysis.
+
+------------------------------------------------------------------------
+
+## 4. Extended Institutional-Grade Feature Roadmap
+
+(Imported from PRD_SmartMarketOOPS.md / private_docs/prd.md)
+
+Highlights:
+- **Smart Money Concepts (SMC) Engine**: Order Block detection, Fair Value Gap (FVG), liquidity levels, BOS/ChoCH, BSL/SSL mapping.
+- **Multi-Timeframe Confluence System**: Higher-timeframe bias, cross-timeframe validations, discount/premium zone logic, confluence scoring.
+- **Order Flow Analysis**: DOM integration, bid-ask imbalance, volume profile, large order tracking.
+- **Confluence Risk Timing (CRT) Logic** and **Advanced Pattern Recognition** modules.
+- Performance goals: signal latency <50 ms, 99.9% uptime, API response <200 ms.
+- Detailed implementation roadmap with phased delivery of SMC, confluence system, order-flow, CRT logic, and optimisation.
+
+------------------------------------------------------------------------
+
+# Consolidation Notes
+
+- Duplicate PRDs have been merged; this file supersedes:
+  - .taskmaster/docs/prd.txt
+  - .taskmaster/docs/frontend-redesign-prd.txt
+  - .taskmaster/docs/research-prd.txt
+  - PRD_SmartMarketOOPS.md / private_docs/prd.md
+  - scripts/prd.txt (now deprecated)
+
+- Future updates to requirements should be made **only in this consolidated PRD** to maintain a single source of truth.
+
+------------------------------------------------------------------------
+
+# Next Step
+
+This consolidated PRD is ready to be parsed by Task Master to generate/update the canonical tasks.json.
