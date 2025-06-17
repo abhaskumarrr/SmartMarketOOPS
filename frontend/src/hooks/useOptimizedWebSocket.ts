@@ -96,6 +96,7 @@ export function useOptimizedWebSocket<T = unknown>(
   const reconnectTimeout = useRef<NodeJS.Timeout | null>(null);
   const bufferTimeout = useRef<NodeJS.Timeout | null>(null);
   const currentBackoff = useRef(mergedOptions.initialBackoff || 300);
+  const activeSubscriptions = useRef(new Set<string>());
   
   // Schedule a reconnection attempt with exponential backoff
   const scheduleReconnect = useCallback(() => {
@@ -226,6 +227,16 @@ export function useOptimizedWebSocket<T = unknown>(
       setError(null);
       reconnectAttempts.current = 0;
       currentBackoff.current = mergedOptions.initialBackoff || 300;
+
+      // Resubscribe to active channels
+      activeSubscriptions.current.forEach(channel => {
+        // Check if sendMessage is available before calling it
+        if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+          sendMessage({ action: "subscribe", channel });
+        } else if (mergedOptions.debug) {
+          console.log("Could not resubscribe to channel onopen (socket not ready):", channel);
+        }
+      });
     };
     
     socket.onclose = () => {
@@ -304,6 +315,27 @@ export function useOptimizedWebSocket<T = unknown>(
     }
     cleanup();
   }, [cleanup]);
+
+  const subscribe = useCallback((channel: string) => {
+    activeSubscriptions.current.add(channel);
+    // Attempt to send message, browser might queue if connecting.
+    // Check if sendMessage is available before calling it
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      sendMessage({ action: "subscribe", channel });
+    } else if (mergedOptions.debug) {
+      console.log("Could not subscribe to channel (socket not ready):", channel);
+    }
+  }, [sendMessage, mergedOptions.debug]);
+
+  const unsubscribe = useCallback((channel: string) => {
+    activeSubscriptions.current.delete(channel);
+    // Check if sendMessage is available before calling it
+    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
+      sendMessage({ action: "unsubscribe", channel });
+    } else if (mergedOptions.debug) {
+      console.log("Could not unsubscribe from channel (socket not ready):", channel);
+    }
+  }, [sendMessage, mergedOptions.debug]);
   
   // Connect when the URL changes
   useEffect(() => {
@@ -323,7 +355,9 @@ export function useOptimizedWebSocket<T = unknown>(
     bufferedData, // Batch of messages for advanced rendering
     sendMessage,
     reconnect,
-    disconnect
+    disconnect,
+    subscribe,
+    unsubscribe
   };
 }
 

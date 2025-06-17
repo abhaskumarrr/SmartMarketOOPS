@@ -1,12 +1,15 @@
 "use client"
 
 import React from 'react';
+import dynamic from 'next/dynamic';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import ConfigurableDashboard from '@/components/dashboard/ConfigurableDashboard';
-import TradingDashboard from '@/components/dashboard/TradingDashboard';
-import { PortfolioDashboard } from '@/components/dashboard/PortfolioDashboard';
-import RealTimeDataChart from '@/components/charts/RealTimeDataChart';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+
+// Dynamically import dashboard components
+const ConfigurableDashboard = dynamic(() => import('@/components/dashboard/ConfigurableDashboard'), { loading: () => <p>Loading Configurable Dashboard...</p>, ssr: false });
+const TradingDashboard = dynamic(() => import('@/components/dashboard/TradingDashboard'), { loading: () => <p>Loading Trading Dashboard...</p>, ssr: false });
+const PortfolioDashboard = dynamic(() => import('@/components/dashboard/PortfolioDashboard').then(mod => mod.PortfolioDashboard), { loading: () => <p>Loading Portfolio Dashboard...</p>, ssr: false });
+const RealTimeDataChart = dynamic(() => import('@/components/charts/RealTimeDataChart'), { loading: () => <p>Loading Chart...</p>, ssr: false });
 
 export default function DashboardPage() {
   return (

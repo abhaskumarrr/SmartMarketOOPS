@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useRef, useEffect } from 'react';
-import TradingViewWidget, { TradingViewWidgetRef } from '../charts/TradingViewWidget';
+import dynamic from 'next/dynamic';
+import { type TradingViewWidgetRef } from '../charts/TradingViewWidget'; // Keep type import
 import TradeExecutionPanel from './TradeExecutionPanel';
 import PositionManagementPanel from './PositionManagementPanel';
 import { Button } from '../ui/button';
@@ -26,6 +27,12 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useBreakpoints } from '@/hooks/use-responsive';
+
+// Dynamically import TradingViewWidget
+const TradingViewWidget = dynamic(() => import('../charts/TradingViewWidget').then(mod => mod.default), {
+  loading: () => <div style={{ height: '400px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>Loading Chart...</div>,
+  ssr: false
+});
 
 interface TradingDashboardProps {
   className?: string;
