@@ -4,7 +4,7 @@
  */
 
 import { Request, Response } from 'express';
-import { AuthenticatedRequest } from '../../middleware/authMiddleware';
+import { AuthenticatedRequest } from '../../types/auth';
 import { createLogger } from '../../utils/logger';
 import perfTestService from '../../services/performance/perfTestService';
 import loadTestService from '../../services/performance/loadTestService';

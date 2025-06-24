@@ -251,7 +251,9 @@ export class DataValidator {
     // JSON validation
     if (prediction.values) {
       try {
-        const values = JSON.parse(prediction.values);
+        const values = typeof prediction.values === 'string' 
+          ? JSON.parse(prediction.values) 
+          : prediction.values;
         if (!Array.isArray(values)) {
           errors.push('Values must be a JSON array');
         } else {
@@ -275,7 +277,9 @@ export class DataValidator {
 
     if (prediction.confidenceScores) {
       try {
-        const scores = JSON.parse(prediction.confidenceScores);
+        const scores = typeof prediction.confidenceScores === 'string' 
+          ? JSON.parse(prediction.confidenceScores) 
+          : prediction.confidenceScores;
         if (!Array.isArray(scores)) {
           errors.push('Confidence scores must be a JSON array');
         } else {

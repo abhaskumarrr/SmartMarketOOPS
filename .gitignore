@@ -1,157 +1,479 @@
-# --- General ---
-.DS_Store
-*.log
-*.pyc
-*.pyo
-*.pyd
-*.swp
-*.swo
-*.swn
-*.bak
-*.tmp
+# SmartMarketOOPS - Comprehensive .gitignore
 
-# --- Python ---
-__pycache__/
-*.py[cod]
-venv/
-.venv/
-
-# --- Node.js ---
-node_modules/
-
-# --- Environment & Secrets ---
+# ============================================================================
+# ENVIRONMENT & SECRETS
+# ============================================================================
 .env
-.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.key
+*.pem
+*.p12
+*.pfx
 
-# --- Editor & IDE ---
-.idea/
-.vscode/
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-
-# --- Taskmaster ---
-tasks.json
-tasks/
-
-# --- Private Docs ---
-private_docs/
-
-# --- Data, Logs, Temp, and Outputs ---
-data/
-logs/
-temp/
-runs/
-ml_server.log
-
-# --- Miscellaneous ---
-# Ignore backup and lock files
-*.lock
-*.bak
-
-# --- OS Specific ---
-.DS_Store
-
-# --- Project Specific ---
-validation_results.json
-optuna_study.db
-predictions.csv
-predictions_latest.csv
-pred_vs_actual.png
-
-# --- Ignore frontend and backend build artifacts ---
-frontend/.next/
-frontend/node_modules/
-frontend/.DS_Store
-frontend/tmp/
-frontend/.env*
-
-backend/node_modules/
-backend/.DS_Store
-backend/logs/
-backend/temp/
-backend/.env*
-
-ml/__pycache__/
-ml/backend/__pycache__/
-ml_server.log
-
-# --- Ignore test and coverage outputs ---
-coverage/
-*.coverage
-
-# --- Ignore docker artifacts ---
-.docker/
-
-# Logs
-logs
-*.log
+# ============================================================================
+# NODE.JS
+# ============================================================================
+node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
-dev-debug.log
+lerna-debug.log*
+.pnpm-debug.log*
 
-# Environment variables
-.env
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
 
-# Editor directories and files
-.idea
-.vscode
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+# Coverage directory used by tools like istanbul
+coverage/
+*.lcov
 
-# OS specific
-.DS_Store
+# nyc test coverage
+.nyc_output
 
-# Task files
-tasks.json
-tasks/
+# Grunt intermediate storage
+.grunt
 
-# Private documentation
-private_docs/
+# Bower dependency directory
+bower_components
 
-# System files
-.DS_Store?
-._*
-.Spotlight-V100
-.Trashes
-ehthumbs.db
-Thumbs.db
+# node-waf configuration
+.lock-wscript
 
-# Python cache
+# Compiled binary addons
+build/Release
+
+# Dependency directories
+jspm_packages/
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Optional npm cache directory
+.npm
+
+# Optional eslint cache
+.eslintcache
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# parcel-bundler cache
+.cache
+.parcel-cache
+
+# Next.js build output
+.next/
+out/
+
+# Nuxt.js build / generate output
+.nuxt
+dist
+
+# Gatsby files
+.cache/
+public
+
+# Storybook build outputs
+.out
+.storybook-out
+
+# Temporary folders
+tmp/
+temp/
+
+# ============================================================================
+# PYTHON
+# ============================================================================
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Temporary and log files
-temp/
-runs/
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Translations
+*.mo
+*.pot
+
+# Django stuff:
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Flask stuff:
+instance/
+.webassets-cache
+
+# Scrapy stuff:
+.scrapy
+
+# Sphinx documentation
+docs/_build/
+
+# PyBuilder
+.pybuilder/
+target/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IPython
+profile_default/
+ipython_config.py
+
+# pyenv
+.python-version
+
+# pipenv
+Pipfile.lock
+
+# poetry
+poetry.lock
+
+# pdm
+.pdm.toml
+
+# PEP 582
+__pypackages__/
+
+# Celery stuff
+celerybeat-schedule
+celerybeat.pid
+
+# SageMath parsed files
+*.sage.py
+
+# Environments
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Spyder project settings
+.spyderproject
+.spyproject
+
+# Rope project settings
+.ropeproject
+
+# mkdocs documentation
+/site
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre type checker
+.pyre/
+
+# pytype static type analyzer
+.pytype/
+
+# Cython debug symbols
+cython_debug/
+
+# ============================================================================
+# MACHINE LEARNING
+# ============================================================================
+# Model files
+*.h5
+*.hdf5
+*.pkl
+*.pickle
+*.joblib
+*.model
+*.pt
+*.pth
+*.ckpt
+*.pb
+*.tflite
+*.onnx
+
+# Training data (large files)
+data/raw/
+data/processed/
+data/external/
+*.csv
+*.parquet
+*.feather
+*.hdf
+*.h5
+
+# Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# MLflow
+mlruns/
+mlartifacts/
+
+# Weights & Biases
+wandb/
+
+# TensorBoard logs
+logs/
+tensorboard_logs/
+
+# Model checkpoints
+checkpoints/
+saved_models/
+
+# ============================================================================
+# TRADING & FINANCIAL DATA
+# ============================================================================
+# Trading data
+data/trading/*.csv
+data/trading/*.json
+data/backtest/*.json
+data/models/*.pt
+data/models/*.pkl
+
+# API keys and credentials
+*api_key*
+*secret*
+*credentials*
+*.credentials
+
+# Trading logs
+trading_logs/
+execution_logs/
+*.log
+
+# Backtest results
+backtest_results/
+performance_reports/
+
+# ============================================================================
+# DATABASES
+# ============================================================================
+# SQLite
+*.sqlite
+*.sqlite3
+*.db
+
+# PostgreSQL
+*.sql.gz
+*.dump
+
+# Redis
+dump.rdb
+
+# QuestDB
+qdb/
+questdb_data/
+
+# ============================================================================
+# DOCKER
+# ============================================================================
+# Docker volumes
+docker_data/
+postgres_data/
+redis_data/
+questdb_data/
+grafana_data/
+prometheus_data/
+
+# ============================================================================
+# MONITORING & LOGS
+# ============================================================================
 logs/
 *.log
-ml_server.log
+*.log.*
+log/
 
-# Virtual environments
-.venv/
-venv/
+# Prometheus data
+prometheus_data/
 
-# Development artifacts
-node_modules/
+# Grafana data
+grafana_data/
+
+# ============================================================================
+# IDE & EDITORS
+# ============================================================================
+# VSCode
+.vscode/
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
+
+# Cursor
 .cursor/
-.roo/
+!.cursor/mcp.json
 
-# ML artifacts
-optuna_study.db
-pred_vs_actual.png
-predictions.csv
-predictions_latest.csv
+# IntelliJ IDEA
+.idea/
+*.iws
+*.iml
+*.ipr
 
-# Test files
-test-*.js
-*-test.js
+# Sublime Text
+*.sublime-project
+*.sublime-workspace
 
-# Added by Task Master AI
-# Dependency directories
+# Vim
+*.swp
+*.swo
+*~
+
+# Emacs
+*~
+\#*\#
+/.emacs.desktop
+/.emacs.desktop.lock
+*.elc
+auto-save-list
+tramp
+.\#*
+
+# ============================================================================
+# OPERATING SYSTEM
+# ============================================================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.DocumentRevisions-V100
+.fseventsd
+.Spotlight-V100
+.TemporaryItems
+.Trashes
+.VolumeIcon.icns
+.com.apple.timemachine.donotpresent
+.AppleDB
+.AppleDesktop
+Network Trash Folder
+Temporary Items
+.apdisk
+
+# Windows
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+*.stackdump
+[Dd]esktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# Linux
+*~
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ============================================================================
+# TEMPORARY & CACHE FILES
+# ============================================================================
+*.tmp
+*.temp
+*.cache
+.cache/
+tmp/
+temp/
+
+# ============================================================================
+# SECURITY & CERTIFICATES
+# ============================================================================
+*.pem
+*.key
+*.crt
+*.csr
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# ============================================================================
+# PROJECT SPECIFIC
+# ============================================================================
+# Build outputs
+backend/dist/
+frontend/.next/
+ml/dist/
+
+# Test outputs
+test-results/
+coverage/
+
+# Generated files
+generated/
+auto-generated/
+
+# Backup files
+*.bak
+*.backup
+*.old
+
+# Archive files
+*.zip
+*.tar.gz
+*.rar
+*.7z

@@ -1,0 +1,11 @@
+# Task ID: 16
+# Title: Build Fair Value Gap (FVG) Detection System
+# Status: done
+# Dependencies: None
+# Priority: high
+# Description: Implement FVG identification system to detect gaps between candle high/low and next candle low/high created by impulsive price movements that act as support/resistance levels.
+# Details:
+Create FVGDetector class with identify_fvgs() and track_fvg_fills() methods. Implement algorithms to detect price gaps in impulsive moves, track FVG fills, and measure reaction strength at these levels.
+
+# Test Strategy:
+

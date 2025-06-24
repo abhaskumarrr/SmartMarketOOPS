@@ -16,7 +16,8 @@
     "noUnusedParameters": false,
     "ignoreDeprecations": "5.0",
     "allowJs": true,
-    "typeRoots": ["./node_modules", "./node_modules/@types"]
+    "typeRoots": ["./node_modules/@types"],
+    "types": []
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "**/*.test.ts", "dist"]

@@ -1,0 +1,265 @@
+{
+  "dashboard": {
+    "id": null,
+    "title": "Personal Trading Dashboard - MacBook Air M2",
+    "tags": ["smartmarket", "personal", "trading"],
+    "timezone": "browser",
+    "panels": [
+      {
+        "id": 1,
+        "title": "Portfolio Value",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "smartmarket_portfolio_total_value",
+            "legendFormat": "Total Value"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "yellow", "value": 1000},
+                {"color": "green", "value": 2000}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+      },
+      {
+        "id": 2,
+        "title": "Daily P&L",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "smartmarket_daily_pnl",
+            "legendFormat": "Daily P&L"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": -50},
+                {"color": "yellow", "value": 0},
+                {"color": "green", "value": 10}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0}
+      },
+      {
+        "id": 3,
+        "title": "Active Positions",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "smartmarket_active_positions_count",
+            "legendFormat": "Active Positions"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "green", "value": 0},
+                {"color": "yellow", "value": 2},
+                {"color": "red", "value": 3}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 12, "y": 0}
+      },
+      {
+        "id": 4,
+        "title": "System Health",
+        "type": "stat",
+        "targets": [
+          {
+            "expr": "up{job=\"smartmarket-backend\"}",
+            "legendFormat": "Backend"
+          },
+          {
+            "expr": "up{job=\"smartmarket-ml\"}",
+            "legendFormat": "ML Service"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "color": {
+              "mode": "thresholds"
+            },
+            "thresholds": {
+              "steps": [
+                {"color": "red", "value": 0},
+                {"color": "green", "value": 1}
+              ]
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0}
+      },
+      {
+        "id": 5,
+        "title": "Portfolio Performance (7 days)",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "smartmarket_portfolio_total_value",
+            "legendFormat": "Portfolio Value"
+          },
+          {
+            "expr": "smartmarket_cumulative_pnl",
+            "legendFormat": "Cumulative P&L"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "currencyUSD",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "lineWidth": 2,
+              "fillOpacity": 10
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 12, "x": 0, "y": 8}
+      },
+      {
+        "id": 6,
+        "title": "ML Model Predictions",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "smartmarket_ml_prediction_confidence",
+            "legendFormat": "Enhanced ML Confidence"
+          },
+          {
+            "expr": "smartmarket_fibonacci_prediction_confidence",
+            "legendFormat": "Fibonacci ML Confidence"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "min": 0,
+            "max": 100,
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "lineWidth": 1,
+              "fillOpacity": 5
+            }
+          }
+        },
+        "gridPos": {"h": 9, "w": 12, "x": 12, "y": 8}
+      },
+      {
+        "id": 7,
+        "title": "Trading Activity",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "rate(smartmarket_orders_total[5m])",
+            "legendFormat": "Orders per minute"
+          },
+          {
+            "expr": "rate(smartmarket_trades_total[5m])",
+            "legendFormat": "Trades per minute"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "ops",
+            "custom": {
+              "drawStyle": "bars",
+              "barAlignment": 0
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 8, "x": 0, "y": 17}
+      },
+      {
+        "id": 8,
+        "title": "Risk Metrics",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "smartmarket_current_drawdown",
+            "legendFormat": "Current Drawdown"
+          },
+          {
+            "expr": "smartmarket_risk_exposure",
+            "legendFormat": "Risk Exposure"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "percent",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "lineWidth": 2
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 8, "x": 8, "y": 17}
+      },
+      {
+        "id": 9,
+        "title": "System Resources (MacBook Air M2)",
+        "type": "timeseries",
+        "targets": [
+          {
+            "expr": "process_resident_memory_bytes{job=\"smartmarket-backend\"} / 1024 / 1024",
+            "legendFormat": "Backend Memory (MB)"
+          },
+          {
+            "expr": "process_resident_memory_bytes{job=\"smartmarket-ml\"} / 1024 / 1024",
+            "legendFormat": "ML Service Memory (MB)"
+          },
+          {
+            "expr": "rate(process_cpu_seconds_total{job=\"smartmarket-backend\"}[5m]) * 100",
+            "legendFormat": "Backend CPU %"
+          }
+        ],
+        "fieldConfig": {
+          "defaults": {
+            "unit": "short",
+            "custom": {
+              "drawStyle": "line",
+              "lineInterpolation": "linear",
+              "lineWidth": 1
+            }
+          }
+        },
+        "gridPos": {"h": 8, "w": 8, "x": 16, "y": 17}
+      }
+    ],
+    "time": {
+      "from": "now-6h",
+      "to": "now"
+    },
+    "refresh": "30s",
+    "schemaVersion": 30,
+    "version": 1
+  }
+}

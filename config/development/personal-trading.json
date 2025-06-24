@@ -1,0 +1,112 @@
+{
+  "personalTradingConfig": {
+    "riskManagement": {
+      "maxDailyLoss": 200,
+      "maxPositionSize": 500,
+      "riskPerTrade": 0.50,
+      "maxPositions": 10,
+      "stopLossPercentage": 1.0,
+      "takeProfitPercentage": 8.0,
+      "trailingStopEnabled": true,
+      "trailingStopPercentage": 1.0
+    },
+    "tradingHours": {
+      "enabled": false,
+      "timezone": "America/New_York",
+      "startTime": "00:00",
+      "endTime": "23:59",
+      "tradingDays": ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+      "avoidNews": false,
+      "newsBlackoutMinutes": 0
+    },
+    "portfolio": {
+      "initialCapital": 10000,
+      "reserveCashPercentage": 0,
+      "maxLeverage": 20.0,
+      "rebalanceFrequency": "realtime",
+      "compoundProfits": true
+    },
+    "mlModels": {
+      "enhancedML": {
+        "enabled": true,
+        "weight": 0.4,
+        "confidenceThreshold": 0.35,
+        "maxPredictionsPerDay": 500
+      },
+      "fibonacciML": {
+        "enabled": true,
+        "weight": 0.3,
+        "confidenceThreshold": 0.35,
+        "fibonacciLevels": [0.236, 0.382, 0.5, 0.618, 0.786]
+      },
+      "ensemble": {
+        "enabled": true,
+        "requireAgreement": false,
+        "minimumConfidence": 0.35,
+        "votingStrategy": "weighted"
+      }
+    },
+    "symbols": {
+      "primary": ["BTCUSD", "ETHUSD"],
+      "secondary": ["ADAUSD", "SOLUSD", "DOTUSD"],
+      "maxSymbolsActive": 10,
+      "correlationLimit": 1.0
+    },
+    "notifications": {
+      "email": {
+        "enabled": false,
+        "address": "your-email@example.com",
+        "events": ["large_loss", "daily_summary", "system_error"]
+      },
+      "slack": {
+        "enabled": false,
+        "webhook": "",
+        "events": ["trade_executed", "position_closed", "risk_alert"]
+      },
+      "desktop": {
+        "enabled": true,
+        "events": ["trade_executed", "risk_alert", "system_error"]
+      }
+    },
+    "performance": {
+      "benchmarkSymbol": "BTCUSD",
+      "reportingFrequency": "realtime",
+      "performanceTargets": {
+        "dailyReturn": 50.0,
+        "weeklyReturn": 200.0,
+        "monthlyReturn": 800.0,
+        "maxDrawdown": -50.0,
+        "sharpeRatio": 3.0,
+        "winRate": 30.0
+      }
+    },
+    "automation": {
+      "autoStart": true,
+      "paperTradingFirst": false,
+      "paperTradingDays": 0,
+      "autoRebalance": true,
+      "autoBackup": true,
+      "autoUpdate": true
+    },
+    "safety": {
+      "emergencyStop": {
+        "enabled": false,
+        "maxDailyLossPercent": 100.0,
+        "maxDrawdownPercent": 80.0,
+        "consecutiveLosses": 50
+      },
+      "circuitBreaker": {
+        "enabled": false,
+        "volatilityThreshold": 1.0,
+        "volumeThreshold": 100.0,
+        "priceGapThreshold": 1.0
+      },
+      "healthChecks": {
+        "apiConnectivity": true,
+        "dataFreshness": 300,
+        "modelPerformance": false,
+        "systemResources": false
+      }
+    }
+  }
+}

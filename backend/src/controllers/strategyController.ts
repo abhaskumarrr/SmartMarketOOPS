@@ -12,7 +12,7 @@ import {
   StrategyExecutionResult,
   StrategyValidationResult
 } from '../types/strategy';
-import { AuthenticatedRequest } from '../middleware/authMiddleware';
+import { AuthenticatedRequest } from '../types/auth';
 import prisma from '../utils/prismaClient';
 
 // Create logger

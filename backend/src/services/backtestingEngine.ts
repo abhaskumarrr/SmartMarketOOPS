@@ -207,7 +207,10 @@ export class BacktestingEngine {
       // Generate trading signal
       const signal = this.strategy.generateSignal(this.marketData, i);
       
-      if (signal && signal.confidence > 0) {
+      // Get confidence threshold from environment (default 65%)
+      const confidenceThreshold = parseFloat(process.env.ML_CONFIDENCE_THRESHOLD || '0.65') * 100;
+      
+      if (signal && signal.confidence >= confidenceThreshold) {
         signalCount++;
         
         // Publish signal to Redis Streams

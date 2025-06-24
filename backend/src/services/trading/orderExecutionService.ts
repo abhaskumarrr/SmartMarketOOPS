@@ -450,6 +450,56 @@ export class OrderExecutionService implements IOrderExecutionService {
   }
   
   /**
+   * Create an order result
+   * @param params - Order result parameters
+   * @returns Order execution result
+   */
+  private createOrderResult(params: Partial<OrderExecutionResult> & {
+    status: OrderExecutionStatus;
+    symbol: string;
+    type: OrderType;
+    side: OrderSide;
+    quantity: number;
+    userId: string;
+    exchangeId: string;
+    source: ExecutionSource;
+  }): OrderExecutionResult {
+    const now = new Date().toISOString();
+    
+         return {
+       id: uuidv4(),
+       requestId: uuidv4(),
+      status: params.status,
+      symbol: params.symbol,
+      type: params.type,
+      side: params.side,
+      quantity: params.quantity,
+      price: params.price,
+      stopPrice: params.stopPrice,
+      avgFillPrice: params.avgFillPrice,
+      filledQuantity: params.filledQuantity || 0,
+      remainingQuantity: params.remainingQuantity || params.quantity,
+      fee: params.fee,
+      feeCurrency: params.feeCurrency,
+      clientOrderId: params.clientOrderId,
+      exchangeOrderId: params.exchangeOrderId,
+      positionId: params.positionId,
+      strategyId: params.strategyId,
+      botId: params.botId,
+      signalId: params.signalId,
+      source: params.source,
+      userId: params.userId,
+      exchangeId: params.exchangeId,
+      exchangeTimestamp: params.exchangeTimestamp,
+      submittedAt: params.submittedAt || now,
+      updatedAt: params.updatedAt || now,
+      completedAt: params.completedAt,
+      error: params.error,
+      raw: params.raw
+    };
+  }
+
+  /**
    * Execute an order
    * @param request - Order execution request
    * @param options - Order execution options
@@ -816,6 +866,101 @@ export class OrderExecutionService implements IOrderExecutionService {
       });
       
       throw new Error(`Failed to get orders: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Get orders by position ID
+   * @param positionId - Position ID
+   * @returns Array of order execution results
+   */
+  async getOrdersByPosition(positionId: string): Promise<OrderExecutionResult[]> {
+    try {
+      logger.info(`Getting orders for position ${positionId}`);
+      
+      // In a real implementation, this would query the database
+      // For now, return empty array
+      return [];
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error(`Failed to get orders for position ${positionId}: ${errorMessage}`);
+      throw new Error(`Failed to get orders: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Get orders by strategy ID
+   * @param strategyId - Strategy ID
+   * @returns Array of order execution results
+   */
+  async getOrdersByStrategy(strategyId: string): Promise<OrderExecutionResult[]> {
+    try {
+      logger.info(`Getting orders for strategy ${strategyId}`);
+      
+      // In a real implementation, this would query the database
+      // For now, return empty array
+      return [];
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error(`Failed to get orders for strategy ${strategyId}: ${errorMessage}`);
+      throw new Error(`Failed to get orders: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Get orders by bot ID
+   * @param botId - Bot ID
+   * @returns Array of order execution results
+   */
+  async getOrdersByBot(botId: string): Promise<OrderExecutionResult[]> {
+    try {
+      logger.info(`Getting orders for bot ${botId}`);
+      
+      // In a real implementation, this would query the database
+      // For now, return empty array
+      return [];
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error(`Failed to get orders for bot ${botId}: ${errorMessage}`);
+      throw new Error(`Failed to get orders: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Get orders by signal ID
+   * @param signalId - Signal ID
+   * @returns Array of order execution results
+   */
+  async getOrdersBySignal(signalId: string): Promise<OrderExecutionResult[]> {
+    try {
+      logger.info(`Getting orders for signal ${signalId}`);
+      
+      // In a real implementation, this would query the database
+      // For now, return empty array
+      return [];
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : String(error);
+      logger.error(`Failed to get orders for signal ${signalId}: ${errorMessage}`);
+      throw new Error(`Failed to get orders: ${errorMessage}`);
+    }
+  }
+
+  /**
+   * Helper method to map exchange order type to internal order type
+   */
+  private mapExchangeOrderTypeToInternal(exchangeType: string): OrderType {
+    switch (exchangeType.toLowerCase()) {
+      case 'market':
+        return OrderType.MARKET;
+      case 'limit':
+        return OrderType.LIMIT;
+             case 'stop':
+       case 'stop_loss':
+         return OrderType.STOP;
+       case 'stop_limit':
+         return OrderType.STOP_LIMIT;
+      default:
+        return OrderType.MARKET;
     }
   }
 }

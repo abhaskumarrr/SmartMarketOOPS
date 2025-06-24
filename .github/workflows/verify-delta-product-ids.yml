@@ -11,12 +11,12 @@ jobs:
     
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
           cache: 'npm'
           
       - name: Install dependencies
@@ -31,10 +31,10 @@ jobs:
         id: check-changes
         run: |
           if grep -q "Product IDs have changed" product-ids.log; then
-            echo "::set-output name=changed::true"
+            echo "changed=true" >> $GITHUB_OUTPUT
             echo "::warning::Delta Exchange product IDs have changed! Please update your configuration."
           else
-            echo "::set-output name=changed::false"
+            echo "changed=false" >> $GITHUB_OUTPUT
           fi
           
       - name: Create issue if product IDs have changed

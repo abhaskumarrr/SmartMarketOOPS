@@ -67,7 +67,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 CMD ["npm", "run", "dev"]
 
 # Stage 4: Production Runner
-FROM node:20-alpine AS runner
+FROM node:20-alpine AS production
 RUN apk add --no-cache curl
 WORKDIR /app
 

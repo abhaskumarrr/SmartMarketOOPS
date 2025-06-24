@@ -4,8 +4,12 @@
  */
 
 import express from 'express';
+import { protect } from '../middleware/auth';
 
 const router = express.Router();
+
+// Apply authentication middleware to all routes
+router.use(protect);
 
 // Health check for metrics routes
 router.get('/metrics/health', (req, res) => {

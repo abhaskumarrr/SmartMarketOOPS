@@ -4,7 +4,7 @@
  */
 
 import { Response } from 'express';
-import { AuthenticatedRequest } from '../../middleware/authMiddleware';
+import { AuthenticatedRequest } from '../../types/auth';
 import { createLogger } from '../../utils/logger';
 import bridgeService from '../../services/bridge/bridgeService';
 import mlBridgeService from '../../services/bridge/mlBridgeService';

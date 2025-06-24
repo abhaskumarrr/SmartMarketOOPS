@@ -6,7 +6,7 @@
 
 import { DynamicTakeProfitManager, DynamicTakeProfitConfig, MarketRegime } from './dynamicTakeProfitManager';
 import { TradingSignal, TakeProfitLevel } from '../types/marketData';
-import { DeltaExchangeService, DeltaCredentials, MarketData } from './deltaExchangeService';
+import DeltaExchangeService, { DeltaCredentials, MarketData } from './deltaExchangeService';
 import { logger } from '../utils/logger';
 
 export interface PaperTrade {
@@ -92,14 +92,14 @@ export class PaperTradingEngine {
 
     // Default frequency-optimized configuration
     this.config = {
-      mlConfidenceThreshold: 80, // 80%+ ML confidence
-      signalScoreThreshold: 72, // 72+/100 signal score
-      qualityScoreThreshold: 78, // 78+/100 quality score
-      targetTradesPerDay: 4, // Target 3-5 trades daily
-      targetWinRate: 75, // Target 75% win rate
+      mlConfidenceThreshold: 35, // 35% ML confidence for maximum signals
+      signalScoreThreshold: 40, // 40/100 signal score for maximum frequency 
+      qualityScoreThreshold: 40, // 40/100 quality score for maximum frequency
+      targetTradesPerDay: 15, // Target 15 trades daily (ultra-high frequency)
+      targetWinRate: 30, // Target 30% win rate (realistic for high frequency)
       mlAccuracy: 85, // 85% ML accuracy
-      maxConcurrentTrades: 3, // Max 3 concurrent trades
-      balanceAllocationPercent: 75, // Use 75% of total balance
+      maxConcurrentTrades: 10, // Max 10 concurrent trades
+      balanceAllocationPercent: 100, // Use 100% of total balance
       ...config
     };
 
@@ -116,8 +116,8 @@ export class PaperTradingEngine {
       winRate: 0,
       maxDrawdown: 0,
       currentDrawdown: 0,
-      leverage: 200, // Start with 200x leverage
-      riskPerTrade: 40, // Start with 40% risk per trade
+      leverage: 20, // Start with 20x leverage (astronomical returns)
+      riskPerTrade: 50, // Start with 50% risk per trade (ultra-aggressive)
       dailyTrades: 0,
       targetTradesPerDay: this.config.targetTradesPerDay,
       mlAccuracy: this.config.mlAccuracy,

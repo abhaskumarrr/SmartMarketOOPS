@@ -1,0 +1,72 @@
+# Task ID: 11
+# Title: Update ML Backend for Trading Predictions
+# Status: done
+# Dependencies: None
+# Priority: medium
+# Description: Modify the ML model endpoint to provide specific trading-relevant predictions (e.g., predicted price movement direction, confidence scores) for a given symbol and timeframe.
+# Details:
+
+
+# Test Strategy:
+
+
+# Subtasks:
+## 1. Review Existing ML Model [done]
+### Dependencies: None
+### Description: Assess the current ML model architecture and its training data to identify necessary modifications for trading-relevant predictions.
+### Details:
+Evaluate model performance, data sources, and feature engineering.
+<info added on 2025-05-29T09:53:28.349Z>
+Added 'predicted_direction' field to PredictionOutput model schema to capture directional signals. Modified predict method logic to extract both confidence scores and directional predictions from model outputs, ensuring proper mapping between raw model results and structured API response format.
+</info added on 2025-05-29T09:53:28.349Z>
+
+## 2. Update ML Model for Trading Predictions [done]
+### Dependencies: 11.1
+### Description: Modify the ML model to generate trading-relevant predictions with confidence scores.
+### Details:
+Implement changes to model architecture, feature engineering, or training data as needed.
+<info added on 2025-05-29T10:12:35.261Z>
+1. Update data loader to handle categorical target variable: Modify ml/backend/src/data/loader.py to convert log returns into categorical labels (Up/Down/Neutral) using threshold values for class determination  
+2. Redesign model architectures: Implement 3-class classification output layers with Softmax activation in relevant model files under ml/backend/src/models/  
+3. Adjust training configuration: Update scripts in ml/backend/src/training/ to use Cross-Entropy Loss and include classification metrics (accuracy, precision, recall) for model evaluation
+</info added on 2025-05-29T10:12:35.261Z>
+
+## 3. Implement Confidence Score Calculation [done]
+### Dependencies: 11.2
+### Description: Develop and integrate a method to calculate confidence scores for the model's predictions.
+### Details:
+Choose an appropriate method (e.g., Bayesian neural networks, ensemble methods) and implement it.
+
+## 4. Test and Validate Updated Model [done]
+### Dependencies: 11.3
+### Description: Perform thorough testing and validation of the updated ML model endpoint.
+### Details:
+Ensure the model provides accurate trading-relevant predictions with reliable confidence scores.
+<info added on 2025-05-29T10:19:32.710Z>
+To test and validate the updated ML model for trading predictions, the following steps will be performed: 
+1. Set up a local test environment for the ML backend to ensure isolated testing without affecting production.
+2. Prepare a distinct set of test data that was not used during the model's training phase to accurately assess its performance on unseen data.
+3. Utilize the test data to send requests to the /predict endpoint, simulating real-world prediction requests.
+4. Analyze the structure and content of the responses, focusing on predicted probabilities, confidence scores, and direction to ensure they align with expectations.
+5. Conduct a qualitative assessment by manually comparing the model's predictions with actual historical market movements to gauge its predictive accuracy.
+6. Document all findings and observations from the testing process for future reference and potential model refinement.
+</info added on 2025-05-29T10:19:32.710Z>
+
+## 5. Data and Feature Engineering for Larger Time Frames [done]
+### Dependencies: None
+### Description: Identify, acquire, and process data for larger time frames (1h, 4h, 1d). Revisit and implement relevant technical indicators and define a new target variable for long/strong trades.
+### Details:
+
+
+## 6. Model Adaptation and Training for Larger Time Frames [done]
+### Dependencies: None
+### Description: Adapt the model architecture and loss function to the new data and target from larger time frames. Retrain and evaluate the model.
+### Details:
+
+
+## 7. Strategy Development and Integration for Larger Time Frames [done]
+### Dependencies: None
+### Description: Develop and backtest the trading strategy based on the new model predictions, focusing on entry/exit signals for long/strong trades and risk management for minimal drawdown.
+### Details:
+
+

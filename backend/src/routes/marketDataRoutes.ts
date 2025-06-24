@@ -6,6 +6,7 @@
 import express from 'express';
 import { marketDataService } from '../services/marketDataService';
 import { accurateMarketDataService } from '../services/accurateMarketDataService';
+import { protect as auth } from '../middleware/auth';
 // import { logger } from '../utils/logger';
 
 // Simple console logger for now
@@ -17,6 +18,9 @@ const logger = {
 };
 
 const router = express.Router();
+
+// Apply authentication middleware to all routes
+router.use(auth);
 
 /**
  * GET /api/market-data

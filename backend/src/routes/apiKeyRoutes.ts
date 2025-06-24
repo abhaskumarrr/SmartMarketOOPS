@@ -6,11 +6,11 @@
 import express from 'express';
 import { 
   createApiKey, 
-  getApiKeys, 
-  getApiKey, 
-  deleteApiKey,
+  getAllApiKeys, 
+  getApiKeyById, 
+  revokeApiKey,
   validateApiKey
-} from '../controllers/apiKeyController';
+} from '../controllers/trading/apiKeyController';
 import { protect, requireVerified, requirePermission } from '../middleware/auth';
 
 const router = express.Router();
@@ -25,13 +25,13 @@ router.use(requireVerified);
 router.post('/', requirePermission(['apiKeys:create']), createApiKey);
 
 // Get all API keys for current user
-router.get('/', requirePermission(['apiKeys:read']), getApiKeys);
+router.get('/', requirePermission(['apiKeys:read']), getAllApiKeys);
 
 // Get a specific API key
-router.get('/:id', requirePermission(['apiKeys:read']), getApiKey);
+router.get('/:id', requirePermission(['apiKeys:read']), getApiKeyById);
 
 // Delete an API key
-router.delete('/:id', requirePermission(['apiKeys:delete']), deleteApiKey);
+router.delete('/:id', requirePermission(['apiKeys:delete']), revokeApiKey);
 
 // Validate an API key with Delta Exchange
 router.post('/validate', requirePermission(['apiKeys:read']), validateApiKey);

@@ -1,188 +1,162 @@
-# SmartMarketOOPS - Smart Money Order Blocks Trading Platform
+# SmartMarketOOPS Trading Platform PRD
 
 ## Project Overview
-SmartMarketOOPS is a sophisticated ML-driven trading system that functions as both a personal trading dashboard for Delta Exchange and a portfolio showcase. The platform integrates advanced machine learning algorithms with real-time market data to identify and execute trades based on Smart Money Order Block patterns.
+SmartMarketOOPS is a sophisticated ML-driven trading system that functions as both a personal trading platform and a portfolio showcase. The platform integrates advanced machine learning algorithms with traditional trading strategies, focusing on Order Block trading patterns in the cryptocurrency markets.
 
 ## Core Features
 
 ### Trading Engine
-- Real-time market data integration with Delta Exchange
-- Smart Money Order Block pattern detection
+- Real-time market data processing and analysis
 - ML-powered trade signal generation
+- Order block pattern recognition
 - Risk management system
-- Position management with automated entry/exit
-- Paper trading and live trading modes
+- Position sizing calculator
+- Multiple timeframe analysis
+- Automated trade execution
+- Paper trading mode for testing
 
-### Frontend Dashboard
-- Modern, responsive Next.js interface
-- Real-time price charts and indicators
-- Trade execution panel
-- Portfolio performance tracking
-- Risk metrics visualization
-- Trade history and analytics
-- WebSocket integration for live updates
-
-### Backend Infrastructure
-- RESTful API for data access and trading operations
-- WebSocket server for real-time updates
-- Database integration (PostgreSQL)
-- Redis caching layer
-- Authentication and security
-- Trading bot management
-- Performance monitoring
-
-### ML System
+### Machine Learning System
 - TensorFlow/PyTorch models for pattern recognition
 - Real-time inference engine
 - Model training pipeline
-- Performance tracking and optimization
-- Automated model retraining
+- Performance analytics
+- Backtesting framework
+- Model versioning and deployment
 - Feature engineering pipeline
+
+### Frontend Interface
+- Professional-grade trading charts
+- Real-time portfolio dashboard
+- Trade management interface
+- Performance analytics
+- Risk metrics visualization
+- Market sentiment analysis
+- System health monitoring
+- Mobile-responsive design
+
+### Backend Infrastructure
+- High-performance WebSocket server
+- Secure API gateway
+- Database optimization
+- Caching layer
+- Authentication system
+- Rate limiting
+- Error handling
+- Logging system
+
+### Data Management
+- Time-series database (QuestDB)
+- PostgreSQL for application data
+- Redis for caching and real-time data
+- Data validation and cleaning
+- Historical data management
+- Backup and recovery system
+
+### Security Features
+- Multi-factor authentication
+- API key management
+- Rate limiting
+- Input validation
+- Data encryption
+- Audit logging
+- Session management
+
+### Monitoring & Analytics
+- System health monitoring
+- Performance metrics
+- Trading analytics
+- Error tracking
+- Resource usage monitoring
+- Alert system
+- Audit trails
 
 ## Technical Requirements
 
 ### Frontend
-- Next.js 14+ with TypeScript
-- Professional charting libraries
+- Next.js 14
+- TypeScript
 - WebSocket integration
+- Professional charting libraries
 - Responsive design
-- Performance optimization
-- Error handling and logging
+- Progressive Web App capabilities
 
 ### Backend
-- Node.js 20+ with TypeScript
-- Express.js framework
-- Prisma ORM
-- PostgreSQL database
-- Redis caching
+- Node.js 20
+- TypeScript
+- Express.js
 - WebSocket server
-- JWT authentication
-- Rate limiting and security
+- PostgreSQL 16
+- Redis 7
+- QuestDB
+- Prisma ORM
 
 ### ML System
 - Python 3.10+
 - TensorFlow/PyTorch
-- FastAPI for ML service
-- Model versioning
-- Automated training pipeline
-- Real-time inference
-- Performance monitoring
+- Scikit-learn
+- Pandas
+- NumPy
+- Feature engineering pipeline
+- Model serving infrastructure
 
 ### Infrastructure
 - Docker containerization
 - Docker Compose orchestration
-- CI/CD pipeline
-- Monitoring and logging
+- Nginx reverse proxy
+- Load balancing
+- Auto-scaling capabilities
+- Health monitoring
 - Backup system
-- Security measures
 
-## Security Requirements
-- End-to-end encryption
-- Secure API key management
-- Rate limiting
-- DDoS protection
-- Regular security audits
-- Secure WebSocket connections
-- Data encryption at rest
+### Development Tools
+- Git version control
+- CI/CD pipeline
+- Testing framework
+- Code quality tools
+- Documentation system
+- Development environment setup
 
 ## Performance Requirements
 - Sub-second trade execution
-- Real-time data updates
-- Efficient caching strategy
+- Real-time data processing
+- 99.9% system uptime
+- Scalable to handle multiple users
+- Efficient resource utilization
+- Low latency WebSocket connections
 - Optimized database queries
-- Scalable WebSocket connections
-- Fast model inference
-- Minimal latency
 
-## Monitoring and Analytics
-- System health monitoring
-- Trading performance metrics
-- ML model performance tracking
-- Error logging and alerting
-- User activity monitoring
-- Performance analytics
-- Resource utilization tracking
+## Security Requirements
+- Secure API endpoints
+- Data encryption at rest and in transit
+- Regular security audits
+- Compliance with financial regulations
+- Secure key management
+- Rate limiting implementation
+- Input validation and sanitization
 
-## Deployment Strategy
-- Containerized deployment
-- Blue-green deployment
-- Automated CI/CD pipeline
-- Regular backups
-- Comprehensive monitoring
-- Rollback capabilities
-- Zero-downtime updates
+## Deployment Requirements
+- Production-ready Docker setup
+- Blue-green deployment strategy
+- Automated backup system
+- Monitoring and alerting
+- Log aggregation
+- Error tracking
+- Performance monitoring
 
-## Success Metrics
-- Trading performance accuracy
-- System uptime and reliability
-- Trade execution speed
-- User engagement metrics
-- Portfolio performance
-- ML model accuracy
-- System resource efficiency
+## Testing Requirements
+- Unit testing
+- Integration testing
+- End-to-end testing
+- Performance testing
+- Security testing
+- Load testing
+- User acceptance testing
 
-## Project Goals
-1. Maintain and enhance existing system components
-2. Improve system reliability and performance
-3. Add new features while ensuring system stability
-4. Implement better testing and validation
-5. Enhance monitoring and alerting capabilities
-
-## Development Requirements
-
-### System Maintenance
-- Regular system health checks
-- Dependency updates and security patches
-- Performance optimization
-- Bug fixes and issue resolution
-
-### Feature Enhancements
-1. Trading System
-   - Enhance event processing pipeline
-   - Improve order execution logic
-   - Add more sophisticated trading strategies
-   - Implement better risk management
-
-2. ML System
-   - Enhance model accuracy
-   - Add new ML models and strategies
-   - Improve feature engineering
-   - Better model monitoring and validation
-
-3. Monitoring System
-   - Enhanced metrics collection
-   - Better alerting system
-   - More comprehensive dashboards
-   - Performance analytics improvements
-
-4. Frontend
-   - UI/UX improvements
-   - New visualization features
-   - Better real-time updates
-   - Enhanced user controls
-
-### Testing & Validation
-- Comprehensive test coverage
-- Automated testing pipeline
-- Better validation tools
-- Performance testing suite
-
-### Documentation
-- Code documentation
+## Documentation Requirements
 - API documentation
 - System architecture documentation
-- Operational procedures
-
-## Success Criteria
-1. System stability at 99.9% uptime
-2. Improved trading performance
-3. Better ML model accuracy
-4. Reduced system latency
-5. Comprehensive test coverage
-6. Updated documentation
-
-## Timeline
-- Phase 1: System stabilization and maintenance (2 weeks)
-- Phase 2: Core feature enhancements (4 weeks)
-- Phase 3: Testing and validation (2 weeks)
-- Phase 4: Documentation and deployment (2 weeks)
+- User guides
+- Development guides
+- Deployment guides
+- Security documentation
+- Troubleshooting guides

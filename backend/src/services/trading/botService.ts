@@ -923,33 +923,35 @@ export const getBacktestHistory = async (
       throw new Error('Bot not found or access denied');
     }
 
-    // For now, return mock data since we don't have a backtest table
-    // TODO: Implement proper backtest storage in database
-    const mockBacktests = [
-      {
-        id: `backtest_${Date.now()}`,
-        botId,
-        symbol: bot.symbol,
-        timeframe: bot.timeframe,
-        startDate: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
-        endDate: new Date(),
-        performance: {
-          totalReturn: 1250.75,
-          totalReturnPercent: 12.51,
-          sharpeRatio: 1.85,
-          winRate: 68.5,
-          totalTrades: 127
-        },
-        createdAt: new Date()
+    // Get backtests from database
+    const backtests = await prisma.backtest.findMany({
+      where: { botId },
+      orderBy: { createdAt: 'desc' },
+      skip: offset,
+      take: limit,
+      select: {
+        id: true,
+        botId: true,
+        symbol: true,
+        timeframe: true,
+        startDate: true,
+        endDate: true,
+        performance: true,
+        createdAt: true
       }
-    ];
+    });
+    
+    // Get total count for pagination
+    const totalCount = await prisma.backtest.count({
+      where: { botId }
+    });
 
     return {
-      backtests: mockBacktests.slice(offset, offset + limit),
-      total: mockBacktests.length,
+      backtests,
+      total: totalCount,
       limit,
       offset,
-      hasMore: offset + limit < mockBacktests.length
+      hasMore: offset + limit < totalCount
     };
   } catch (error) {
     console.error('Error getting backtest history:', error);

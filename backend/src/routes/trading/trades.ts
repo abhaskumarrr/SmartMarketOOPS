@@ -4,8 +4,12 @@
  */
 
 import express from 'express';
+import { protect as auth } from '../../middleware/auth';
 
 const router = express.Router();
+
+// Apply authentication middleware to all routes
+router.use(auth);
 
 /**
  * GET /api/trades/history

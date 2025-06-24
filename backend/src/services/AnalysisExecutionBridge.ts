@@ -5,17 +5,18 @@
  */
 
 import express, { Express, Request, Response, NextFunction } from 'express';
-import { createServer, Server } from 'http';
-import { WebSocketServer, WebSocket } from 'ws';
+import { Server } from 'http';
+import WebSocket, { WebSocketServer } from 'ws';
 import cors from 'cors';
 import helmet from 'helmet';
 import rateLimit from 'express-rate-limit';
+import { logger } from '../utils/logger';
 import { EnhancedTradingDecisionEngine, TradingDecision } from './EnhancedTradingDecisionEngine';
 import { MLPositionManager, Position } from './MLPositionManager';
 import { EnhancedRiskManagementSystem, RiskAssessment } from './EnhancedRiskManagementSystem';
 import { DataCollectorIntegration } from './DataCollectorIntegration';
-import { DeltaTradingBot } from './DeltaTradingBot';
-import { logger } from '../utils/logger';
+import { DeltaTradingBot, BotConfig } from './DeltaTradingBot';
+import { DeltaExchangeUnified } from './DeltaExchangeUnified';
 
 // Bridge types and interfaces
 export interface BridgeConfig {
@@ -31,7 +32,7 @@ export interface BridgeConfig {
 export interface TradingSignal {
   id: string;
   symbol: string;
-  action: 'buy' | 'sell' | 'hold' | 'close';
+  action: 'buy' | 'sell' | 'hold' | 'close' | 'close_long' | 'close_short';
   confidence: number;
   timestamp: number;
   source: 'ml_decision' | 'risk_management' | 'position_manager' | 'manual';
@@ -62,7 +63,7 @@ export interface BridgeStatus {
 
 // WebSocket message types
 export interface WebSocketMessage {
-  type: 'signal' | 'execution' | 'status' | 'error' | 'heartbeat';
+  type: 'signal' | 'execution' | 'status' | 'error' | 'heartbeat' | 'pong' | 'positions' | 'risk' | 'signal_sent';
   data: any;
   timestamp: number;
   id: string;
@@ -132,15 +133,11 @@ export class AnalysisExecutionBridge {
   };
 
   constructor(customConfig?: Partial<BridgeConfig>) {
-    if (customConfig) {
-      this.config = { ...this.config, ...customConfig };
-    }
-
+    this.config = { ...this.config, ...customConfig };
+    
     // Initialize Express app
     this.app = express();
-    this.server = createServer(this.app);
-    
-    // Initialize WebSocket server
+    this.server = new Server(this.app);
     this.wss = new WebSocketServer({ server: this.server });
     
     // Initialize trading components
@@ -148,7 +145,31 @@ export class AnalysisExecutionBridge {
     this.positionManager = new MLPositionManager();
     this.riskManager = new EnhancedRiskManagementSystem();
     this.dataIntegration = new DataCollectorIntegration();
-    this.tradingBot = new DeltaTradingBot();
+    
+    // Initialize DeltaTradingBot with proper configuration
+    const defaultBotConfig: BotConfig = {
+      id: 'bridge-bot-001',
+      name: 'Analysis-Execution Bridge Bot',
+      symbol: 'BTCUSDT',
+      strategy: 'ml_driven',
+      capital: 1000,
+      leverage: 1,
+      riskPerTrade: 2,
+      maxPositions: 3,
+      stopLoss: 3,
+      takeProfit: 5,
+      enabled: true,
+      testnet: true
+    };
+    
+    const deltaCredentials = {
+      apiKey: process.env.DELTA_EXCHANGE_API_KEY || '',
+      apiSecret: process.env.DELTA_EXCHANGE_API_SECRET || '',
+      testnet: true
+    };
+    
+    const deltaService = new DeltaExchangeUnified(deltaCredentials);
+    this.tradingBot = new DeltaTradingBot(defaultBotConfig, deltaService);
   }
 
   /**
@@ -619,7 +640,7 @@ export class AnalysisExecutionBridge {
 
       // Handle WebSocket errors
       ws.on('error', (error: Error) => {
-        logger.error(`❌ WebSocket error from ${clientId}:`, error.message);
+        logger.error(`❌ WebSocket error from ${clientId}:`, error);
         this.connectedClients.delete(ws);
       });
 
@@ -647,7 +668,7 @@ export class AnalysisExecutionBridge {
   private setupErrorHandlers(): void {
     // Custom error handler
     this.app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
-      logger.error(`❌ API Error: ${error.message}`, error.stack);
+      logger.error(`❌ API Error: ${error.message}`, error);
 
       if (error instanceof ValidationError) {
         res.status(error.statusCode).json({

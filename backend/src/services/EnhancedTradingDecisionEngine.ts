@@ -99,35 +99,35 @@ export class EnhancedTradingDecisionEngine {
   
   // Enhanced configuration for small capital + high leverage
   private config: DecisionEngineConfig = {
-    // Higher confidence thresholds for pinpoint entries
-    minConfidenceThreshold: 0.70,
-    highConfidenceThreshold: 0.85,
+    // Lower confidence thresholds for maximum signal frequency
+    minConfidenceThreshold: 0.35,
+    highConfidenceThreshold: 0.60,
     
-    // Optimized position sizing for small capital
-    basePositionSize: 0.03,           // 3% base position
-    maxPositionSize: 0.08,            // 8% maximum position
-    confidenceMultiplier: 1.5,        // Scale with confidence
+    // Ultra-aggressive position sizing for astronomical returns
+    basePositionSize: 0.50,           // 50% base position
+    maxPositionSize: 1.0,             // 100% maximum position
+    confidenceMultiplier: 2.0,        // Scale aggressively with confidence
     
-    // Enhanced leverage for maximum profit
-    baseLeverage: 100,                // 100x base leverage
-    maxLeverage: 200,                 // 200x maximum leverage
-    stopLossBase: 0.012,              // 1.2% stop loss (tight for pinpoint entries)
-    takeProfitBase: 0.040,            // 4% take profit (maximize profit)
+    // Maximum leverage for astronomical profit
+    baseLeverage: 20,                 // 20x base leverage
+    maxLeverage: 20,                  // 20x maximum leverage
+    stopLossBase: 0.010,              // 1.0% stop loss (tight for maximum frequency)
+    takeProfitBase: 0.080,            // 8% take profit (8:1 risk reward)
     
-    // Optimized model weights based on backtesting
+    // Optimized model weights based on astronomical backtesting
     modelWeights: {
-      lstm: 0.35,                     // LSTM for sequential patterns
+      lstm: 0.30,                     // LSTM for sequential patterns
       transformer: 0.40,              // Transformer for attention-based analysis
-      ensemble: 0.25                  // Ensemble for stability
+      ensemble: 0.30                  // Ensemble for stability
     },
     
-    // Feature importance weights
+    // Feature importance weights optimized for astronomical returns
     featureWeights: {
-      fibonacci: 0.30,                // High weight for Fibonacci levels
-      bias: 0.25,                     // Multi-timeframe bias importance
+      fibonacci: 0.20,                // Balanced weight for Fibonacci levels
+      bias: 0.20,                     // Multi-timeframe bias importance
       candles: 0.20,                  // Candle formation analysis
-      volume: 0.15,                   // Volume confirmation
-      timing: 0.10                    // Market timing
+      volume: 0.20,                   // Volume confirmation
+      timing: 0.20                    // Market timing
     }
   };
 

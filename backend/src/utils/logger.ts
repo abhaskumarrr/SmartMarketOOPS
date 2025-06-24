@@ -16,10 +16,12 @@ export interface LogData {
   [key: string]: any;
 }
 
+import env from '../config/environment';
+
 // Current log level from environment variable or default to INFO
 const currentLogLevel: LogLevel = 
-  process.env.LOG_LEVEL ? 
-    LogLevel[process.env.LOG_LEVEL as keyof typeof LogLevel] : 
+  env.LOG_LEVEL ? 
+    LogLevel[env.LOG_LEVEL as keyof typeof LogLevel] : 
     LogLevel.INFO;
 
 /**

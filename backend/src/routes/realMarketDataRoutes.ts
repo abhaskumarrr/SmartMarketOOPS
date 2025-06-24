@@ -1,8 +1,12 @@
 import express from 'express';
 import { realMarketDataService } from '../services/realMarketDataService';
 import { logger } from '../utils/logger';
+import { protect as auth } from '../middleware/auth';
 
 const router = express.Router();
+
+// Apply authentication middleware to all routes
+router.use(auth);
 
 /**
  * GET /api/real-market-data/portfolio

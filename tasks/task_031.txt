@@ -1,0 +1,49 @@
+# Task ID: 31
+# Title: ML Trading Intelligence Integration
+# Status: done
+# Dependencies: 30
+# Priority: high
+# Description: Integrate Phase 6.1-6.4 ML systems with real-time trading interface
+# Details:
+Seamlessly integrate the advanced ML intelligence systems with the trading dashboard:
+1. Real-time ML prediction display with confidence scores
+2. Automated signal generation based on ML outputs
+3. ML performance tracking and accuracy visualization
+4. Sentiment analysis integration from news and social media
+5. Ensemble prediction system with multiple model outputs
+6. ML-driven trade recommendations with risk scoring
+
+This integration should demonstrate the practical application of advanced ML techniques in a real trading environment while maintaining the 85.3% win rate achieved in Phase 6.4.
+
+# Test Strategy:
+1. ML prediction accuracy validation
+2. Real-time signal generation latency testing
+3. Integration with existing ML models verification
+4. Performance impact assessment
+5. User interface for ML insights testing
+
+# Subtasks:
+## 1. ML Prediction API Integration [done]
+### Dependencies: None
+### Description: Connect Hugging Face ML service with trading dashboard
+### Details:
+Create API client for ML service, implement prediction data models, add error handling and fallbacks, and set up performance monitoring for 95% service availability.
+
+## 2. Real-Time Signal Generation [done]
+### Dependencies: 31.1
+### Description: Implement automated trading signal generation from ML predictions
+### Details:
+Create signal generation system with confidence scoring, signal history tracking, alert notifications, and automated signal broadcasting within 1 minute of price changes.
+
+## 3. ML Prediction Visualization [done]
+### Dependencies: 31.2
+### Description: Create visualization components for ML predictions and performance
+### Details:
+Build prediction confidence charts, signal accuracy tracking, ML performance dashboard, and historical prediction analysis using Recharts and custom visualizations.
+
+## 4. Sentiment Analysis Dashboard [done]
+### Dependencies: 31.1
+### Description: Integrate sentiment analysis with market sentiment indicators
+### Details:
+Create sentiment indicators, news sentiment analysis display, social media sentiment tracking, and sentiment-based alerts for comprehensive market intelligence.
+

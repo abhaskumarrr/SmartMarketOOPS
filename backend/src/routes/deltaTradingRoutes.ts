@@ -8,7 +8,7 @@ import { Request, Response } from 'express';
 import { DeltaBotManager } from '../services/DeltaBotManager';
 import { BotConfig } from '../services/DeltaTradingBot';
 import { logger } from '../utils/logger';
-import { auth } from '../middleware/auth';
+import { protect as auth } from '../middleware/auth';
 import { broadcastToClients } from '../sockets/websocketServer';
 
 const router = express.Router();
@@ -109,8 +109,7 @@ router.get('/test-connection', async (req: Request, res: Response) => {
 });
 
 // Apply authentication middleware to all other routes
-// TODO: Re-enable authentication for production
-// router.use(auth);
+router.use(auth);
 
 /**
  * GET /api/delta-trading/status

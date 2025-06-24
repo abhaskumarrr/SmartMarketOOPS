@@ -1,0 +1,11 @@
+# Task ID: 25
+# Title: Update README
+# Status: pending
+# Dependencies: None
+# Priority: low
+# Description: Ensure the README file is up-to-date with the latest information.
+# Details:
+Update the README file to include installation instructions, usage examples, and contribution guidelines. Ensure that the README is clear and informative.
+
+# Test Strategy:
+Verify that the README file is up-to-date and accurate. Ensure that it provides all necessary information for users and contributors.

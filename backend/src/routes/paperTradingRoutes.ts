@@ -1,8 +1,12 @@
 import express from 'express';
 import { marketDataService } from '../services/marketDataService';
 import { logger } from '../utils/logger';
+import { protect as auth } from '../middleware/auth';
 
 const router = express.Router();
+
+// Apply authentication middleware to all routes
+router.use(auth);
 
 // In-memory storage for paper trading data with REAL market data simulation
 let paperTradingState = {

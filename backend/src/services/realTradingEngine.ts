@@ -94,18 +94,18 @@ export class RealTradingEngine {
 
     // Enhanced configuration for real trading
     this.config = {
-      balanceAllocationPercent: 75, // Use 75% of available balance
-      maxLeverage: 100, // Delta Exchange testnet supports max 100x leverage
-      riskPerTrade: 40, // Start with high risk
-      targetTradesPerDay: 4,
-      targetWinRate: 75,
-      mlConfidenceThreshold: 80,
-      signalScoreThreshold: 72,
-      qualityScoreThreshold: 78,
-      maxDrawdownPercent: 20,
-      tradingAssets: ['BTCUSD', 'ETHUSD'],
-      checkIntervalMs: 30000, // 30 seconds
-      progressReportIntervalMs: 60000, // 1 minute
+      balanceAllocationPercent: 100, // Use 100% of available balance
+      maxLeverage: 20, // 20x leverage for astronomical returns
+      riskPerTrade: 50, // Ultra-high risk per trade (50% of balance)
+      targetTradesPerDay: 15, // Target 15 trades per day (high frequency)
+      targetWinRate: 30, // Realistic 30% win rate for high frequency
+      mlConfidenceThreshold: 35, // 35% ML confidence for maximum signals
+      signalScoreThreshold: 40, // 40+ signal score
+      qualityScoreThreshold: 40, // 40+ quality score
+      maxDrawdownPercent: 80, // Allow 80% drawdown for astronomical gains
+      tradingAssets: ['BTCUSD', 'ETHUSD'], // Trade BTC and ETH perpetuals
+      checkIntervalMs: 15000, // Check every 15 seconds (high frequency)
+      progressReportIntervalMs: 30000, // Report every 30 seconds
       ...config
     };
 

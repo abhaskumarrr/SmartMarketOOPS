@@ -13,12 +13,25 @@ class PaperTradingRunner {
   private statusInterval: NodeJS.Timeout | null = null;
 
   constructor() {
-    // Initialize with Delta Exchange spot trading configuration
-    const initialBalance = 2000; // $2000 starting capital for spot trading
-    const leverage = 3; // 3x leverage for spot trading (more conservative)
-    const riskPerTrade = 2; // 2% risk per trade
+    // Initialize with Delta Exchange credentials and configuration
+    const deltaCredentials = {
+      apiKey: process.env.DELTA_API_KEY || 'test-key',
+      apiSecret: process.env.DELTA_SECRET_KEY || 'test-secret',
+      testnet: true
+    };
 
-    this.engine = new PaperTradingEngine(initialBalance, leverage, riskPerTrade);
+    const config = {
+      mlConfidenceThreshold: 80, // 80%+ ML confidence
+      signalScoreThreshold: 72, // 72+/100 signal score
+      qualityScoreThreshold: 78, // 78+/100 quality score
+      targetTradesPerDay: 4, // Target 3-5 trades daily
+      targetWinRate: 75, // Target 75% win rate
+      mlAccuracy: 85, // 85% ML accuracy
+      maxConcurrentTrades: 3, // Max 3 concurrent trades
+      balanceAllocationPercent: 75, // Use 75% of total balance
+    };
+
+    this.engine = new PaperTradingEngine(deltaCredentials, config);
   }
 
   /**

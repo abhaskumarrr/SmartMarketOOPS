@@ -4,6 +4,7 @@
  */
 
 import { Request, Response } from 'express';
+import { AuthenticatedRequest } from '../types/auth';
 import prisma from '../utils/prismaClient';
 import { createLogger, LogData } from '../utils/logger';
 import riskManagementService from '../services/trading/riskManagementService';
@@ -12,14 +13,6 @@ import circuitBreakerService from '../services/trading/circuitBreakerService';
 
 // Create logger
 const logger = createLogger('RiskController');
-
-// Extend Request type to include user
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    [key: string]: any;
-  };
-}
 
 /**
  * Get risk settings for a user or bot

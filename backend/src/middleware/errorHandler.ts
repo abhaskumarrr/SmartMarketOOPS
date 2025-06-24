@@ -24,6 +24,22 @@ interface ErrorResponse {
 }
 
 /**
+ * Application Error class
+ */
+export class AppError extends Error {
+  public statusCode: number;
+  public isOperational: boolean;
+
+  constructor(message: string, statusCode = 500, isOperational = true) {
+    super(message);
+    this.statusCode = statusCode;
+    this.isOperational = isOperational;
+    
+    Error.captureStackTrace(this, this.constructor);
+  }
+}
+
+/**
  * Helper function to create standardized error objects
  * @param {string} message - Error message
  * @param {number} statusCode - HTTP status code

@@ -438,14 +438,425 @@ class ParameterOptimizer:
         }
     
     def _genetic_optimization(self, data: pd.DataFrame, analyzer) -> Dict[str, Any]:
-        """Genetic algorithm optimization (placeholder)"""
-        print("🧬 Genetic optimization not implemented yet, using walk-forward")
-        return self._walk_forward_optimization(data, analyzer)
+        """Genetic algorithm optimization for trading parameters"""
+        print("🧬 Starting genetic algorithm optimization...")
+        
+        # Genetic algorithm parameters
+        population_size = 50
+        generations = 20
+        mutation_rate = 0.1
+        crossover_rate = 0.8
+        elite_size = 5
+        
+        # Parameter space for genetic algorithm
+        param_space = {
+            'lookback_period': (5, 50),
+            'momentum_threshold': (0.01, 0.1),
+            'volatility_window': (10, 30),
+            'trend_strength': (0.1, 0.9),
+            'risk_factor': (0.01, 0.05),
+            'stop_loss_pct': (0.01, 0.05),
+            'take_profit_pct': (0.02, 0.1)
+        }
+        
+        # Initialize population
+        population = self._initialize_population(param_space, population_size)
+        
+        # Track best solutions
+        best_fitness_history = []
+        best_individual = None
+        best_fitness = float('-inf')
+        
+        print(f"Population size: {population_size}, Generations: {generations}")
+        
+        for generation in range(generations):
+            print(f"\n🧬 Generation {generation + 1}/{generations}")
+            
+            # Evaluate fitness for each individual
+            fitness_scores = []
+            for i, individual in enumerate(population):
+                try:
+                    # Convert individual to parameters
+                    params = self._individual_to_params(individual, param_space)
+                    
+                    # Run backtest with these parameters
+                    results = self._evaluate_individual(data, analyzer, params)
+                    
+                    # Calculate fitness (Sharpe ratio with penalty for drawdown)
+                    fitness = self._calculate_fitness(results)
+                    fitness_scores.append(fitness)
+                    
+                    # Track best individual
+                    if fitness > best_fitness:
+                        best_fitness = fitness
+                        best_individual = individual.copy()
+                    
+                    if i % 10 == 0:
+                        print(f"  Evaluated {i+1}/{population_size} individuals...")
+                        
+                except Exception as e:
+                    print(f"  Error evaluating individual {i}: {e}")
+                    fitness_scores.append(float('-inf'))
+            
+            # Record best fitness for this generation
+            gen_best_fitness = max(fitness_scores)
+            best_fitness_history.append(gen_best_fitness)
+            
+            print(f"  Best fitness this generation: {gen_best_fitness:.4f}")
+            print(f"  Overall best fitness: {best_fitness:.4f}")
+            
+            # Selection and reproduction
+            if generation < generations - 1:  # Don't reproduce on last generation
+                # Elite selection
+                elite_indices = sorted(range(len(fitness_scores)), 
+                                     key=lambda i: fitness_scores[i], reverse=True)[:elite_size]
+                elite = [population[i] for i in elite_indices]
+                
+                # Create new population
+                new_population = elite.copy()  # Keep elite
+                
+                # Generate offspring
+                while len(new_population) < population_size:
+                    # Tournament selection
+                    parent1 = self._tournament_selection(population, fitness_scores)
+                    parent2 = self._tournament_selection(population, fitness_scores)
+                    
+                    # Crossover
+                    if np.random.random() < crossover_rate:
+                        child1, child2 = self._crossover(parent1, parent2)
+                    else:
+                        child1, child2 = parent1.copy(), parent2.copy()
+                    
+                    # Mutation
+                    if np.random.random() < mutation_rate:
+                        child1 = self._mutate(child1, param_space)
+                    if np.random.random() < mutation_rate:
+                        child2 = self._mutate(child2, param_space)
+                    
+                    new_population.extend([child1, child2])
+                
+                # Trim to population size
+                population = new_population[:population_size]
+        
+        # Convert best individual to final parameters
+        best_params = self._individual_to_params(best_individual, param_space)
+        
+        # Run final evaluation
+        final_results = self._evaluate_individual(data, analyzer, best_params)
+        
+        print(f"\n🎯 Genetic optimization completed!")
+        print(f"Best fitness achieved: {best_fitness:.4f}")
+        print(f"Best parameters: {best_params}")
+        
+        return {
+            'best_params': best_params,
+            'best_fitness': best_fitness,
+            'fitness_history': best_fitness_history,
+            'final_results': final_results,
+            'optimization_method': 'genetic_algorithm',
+            'generations': generations,
+            'population_size': population_size
+        }
+    
+    def _initialize_population(self, param_space: Dict, population_size: int) -> List[List[float]]:
+        """Initialize random population for genetic algorithm"""
+        population = []
+        param_names = list(param_space.keys())
+        
+        for _ in range(population_size):
+            individual = []
+            for param_name in param_names:
+                min_val, max_val = param_space[param_name]
+                # Random value between 0 and 1 (will be scaled later)
+                individual.append(np.random.random())
+            population.append(individual)
+        
+        return population
+    
+    def _individual_to_params(self, individual: List[float], param_space: Dict) -> Dict:
+        """Convert genetic algorithm individual to parameter dictionary"""
+        params = {}
+        param_names = list(param_space.keys())
+        
+        for i, param_name in enumerate(param_names):
+            min_val, max_val = param_space[param_name]
+            # Scale from [0,1] to [min_val, max_val]
+            scaled_value = min_val + individual[i] * (max_val - min_val)
+            
+            # Round integer parameters
+            if param_name in ['lookback_period', 'volatility_window']:
+                params[param_name] = int(round(scaled_value))
+            else:
+                params[param_name] = scaled_value
+        
+        return params
+    
+    def _evaluate_individual(self, data: pd.DataFrame, analyzer, params: Dict) -> Dict:
+        """Evaluate an individual's fitness by running backtest"""
+        try:
+            # Create a simple momentum strategy with the given parameters
+            signals = self._generate_signals(data, params)
+            
+            # Calculate returns
+            returns = self._calculate_returns(data, signals, params)
+            
+            # Calculate performance metrics
+            total_return = (returns + 1).prod() - 1
+            volatility = returns.std() * np.sqrt(252)  # Annualized
+            sharpe_ratio = (returns.mean() * 252) / (volatility + 1e-8)
+            
+            # Calculate maximum drawdown
+            cumulative_returns = (returns + 1).cumprod()
+            rolling_max = cumulative_returns.expanding().max()
+            drawdown = (cumulative_returns - rolling_max) / rolling_max
+            max_drawdown = drawdown.min()
+            
+            # Win rate
+            winning_trades = (returns > 0).sum()
+            total_trades = (returns != 0).sum()
+            win_rate = winning_trades / max(total_trades, 1)
+            
+            return {
+                'total_return': total_return,
+                'sharpe_ratio': sharpe_ratio,
+                'max_drawdown': max_drawdown,
+                'volatility': volatility,
+                'win_rate': win_rate,
+                'total_trades': total_trades
+            }
+            
+        except Exception as e:
+            print(f"Error in individual evaluation: {e}")
+            return {
+                'total_return': -1.0,
+                'sharpe_ratio': -10.0,
+                'max_drawdown': -1.0,
+                'volatility': 1.0,
+                'win_rate': 0.0,
+                'total_trades': 0
+            }
+    
+    def _generate_signals(self, data: pd.DataFrame, params: Dict) -> pd.Series:
+        """Generate trading signals based on parameters"""
+        close_prices = data['close']
+        
+        # Calculate momentum
+        lookback = params['lookback_period']
+        momentum = close_prices.pct_change(lookback)
+        
+        # Calculate volatility
+        vol_window = params['volatility_window']
+        volatility = close_prices.pct_change().rolling(vol_window).std()
+        
+        # Generate signals
+        signals = pd.Series(0, index=data.index)
+        
+        # Buy signal: positive momentum above threshold, low volatility
+        buy_condition = (
+            (momentum > params['momentum_threshold']) &
+            (volatility < volatility.quantile(0.7))
+        )
+        
+        # Sell signal: negative momentum below threshold
+        sell_condition = (momentum < -params['momentum_threshold'])
+        
+        signals[buy_condition] = 1
+        signals[sell_condition] = -1
+        
+        return signals
+    
+    def _calculate_returns(self, data: pd.DataFrame, signals: pd.Series, params: Dict) -> pd.Series:
+        """Calculate returns based on signals and risk management"""
+        close_prices = data['close']
+        returns = pd.Series(0.0, index=data.index)
+        
+        position = 0
+        entry_price = 0
+        
+        for i in range(1, len(data)):
+            current_price = close_prices.iloc[i]
+            signal = signals.iloc[i]
+            
+            # Exit logic (stop loss / take profit)
+            if position != 0:
+                price_change = (current_price - entry_price) / entry_price
+                
+                # Apply position direction
+                if position == -1:
+                    price_change = -price_change
+                
+                # Check stop loss
+                if price_change < -params['stop_loss_pct']:
+                    returns.iloc[i] = -params['stop_loss_pct'] * params['risk_factor']
+                    position = 0
+                    continue
+                
+                # Check take profit
+                if price_change > params['take_profit_pct']:
+                    returns.iloc[i] = params['take_profit_pct'] * params['risk_factor']
+                    position = 0
+                    continue
+            
+            # Entry logic
+            if position == 0 and signal != 0:
+                position = signal
+                entry_price = current_price
+            
+            # Exit on opposite signal
+            elif position != 0 and signal == -position:
+                price_change = (current_price - entry_price) / entry_price
+                if position == -1:
+                    price_change = -price_change
+                
+                returns.iloc[i] = price_change * params['risk_factor']
+                position = signal
+                entry_price = current_price
+        
+        return returns
+    
+    def _calculate_fitness(self, results: Dict) -> float:
+        """Calculate fitness score for genetic algorithm"""
+        # Weighted combination of metrics
+        sharpe_weight = 0.4
+        return_weight = 0.3
+        drawdown_weight = 0.2
+        winrate_weight = 0.1
+        
+        # Normalize and combine metrics
+        fitness = (
+            sharpe_weight * max(results['sharpe_ratio'], -5) +  # Cap at -5
+            return_weight * results['total_return'] +
+            drawdown_weight * (1 + results['max_drawdown']) +  # Penalty for drawdown
+            winrate_weight * results['win_rate']
+        )
+        
+        return fitness
+    
+    def _tournament_selection(self, population: List, fitness_scores: List, tournament_size: int = 3) -> List[float]:
+        """Tournament selection for genetic algorithm"""
+        tournament_indices = np.random.choice(len(population), tournament_size, replace=False)
+        tournament_fitness = [fitness_scores[i] for i in tournament_indices]
+        winner_idx = tournament_indices[np.argmax(tournament_fitness)]
+        return population[winner_idx].copy()
+    
+    def _crossover(self, parent1: List[float], parent2: List[float]) -> Tuple[List[float], List[float]]:
+        """Single-point crossover for genetic algorithm"""
+        if len(parent1) != len(parent2):
+            return parent1.copy(), parent2.copy()
+        
+        crossover_point = np.random.randint(1, len(parent1))
+        
+        child1 = parent1[:crossover_point] + parent2[crossover_point:]
+        child2 = parent2[:crossover_point] + parent1[crossover_point:]
+        
+        return child1, child2
+    
+    def _mutate(self, individual: List[float], param_space: Dict, mutation_strength: float = 0.1) -> List[float]:
+        """Gaussian mutation for genetic algorithm"""
+        mutated = individual.copy()
+        
+        for i in range(len(mutated)):
+            if np.random.random() < 0.1:  # 10% chance to mutate each gene
+                # Add Gaussian noise
+                noise = np.random.normal(0, mutation_strength)
+                mutated[i] = np.clip(mutated[i] + noise, 0, 1)
+        
+        return mutated
     
     def _grid_search_optimization(self, data: pd.DataFrame, analyzer) -> Dict[str, Any]:
-        """Grid search optimization (placeholder)"""
-        print("🔍 Grid search optimization not implemented yet, using walk-forward")
-        return self._walk_forward_optimization(data, analyzer)
+        """Grid search optimization for trading parameters"""
+        print("🔍 Starting grid search optimization...")
+        
+        # Define parameter grid
+        param_grid = {
+            'lookback_period': [10, 15, 20, 25, 30],
+            'momentum_threshold': [0.02, 0.03, 0.05, 0.07],
+            'volatility_window': [10, 15, 20, 25],
+            'trend_strength': [0.3, 0.5, 0.7],
+            'risk_factor': [0.02, 0.03, 0.04],
+            'stop_loss_pct': [0.02, 0.03, 0.04],
+            'take_profit_pct': [0.04, 0.06, 0.08]
+        }
+        
+        # Generate all parameter combinations
+        param_combinations = self._generate_param_combinations(param_grid)
+        total_combinations = len(param_combinations)
+        
+        print(f"Total parameter combinations to test: {total_combinations}")
+        
+        best_params = None
+        best_score = float('-inf')
+        best_results = None
+        all_results = []
+        
+        # Test each parameter combination
+        for i, params in enumerate(param_combinations):
+            try:
+                # Run backtest with current parameters
+                results = self._evaluate_individual(data, analyzer, params)
+                
+                # Calculate score
+                score = self._calculate_fitness(results)
+                
+                # Track results
+                result_entry = {
+                    'params': params.copy(),
+                    'score': score,
+                    'results': results.copy()
+                }
+                all_results.append(result_entry)
+                
+                # Update best if this is better
+                if score > best_score:
+                    best_score = score
+                    best_params = params.copy()
+                    best_results = results.copy()
+                
+                # Progress reporting
+                if (i + 1) % max(1, total_combinations // 20) == 0:
+                    progress = (i + 1) / total_combinations * 100
+                    print(f"  Progress: {progress:.1f}% ({i+1}/{total_combinations})")
+                    print(f"  Current best score: {best_score:.4f}")
+                
+            except Exception as e:
+                print(f"  Error testing combination {i}: {e}")
+                continue
+        
+        # Sort results by score
+        all_results.sort(key=lambda x: x['score'], reverse=True)
+        
+        print(f"\n🎯 Grid search optimization completed!")
+        print(f"Best score achieved: {best_score:.4f}")
+        print(f"Best parameters: {best_params}")
+        
+        # Get top 10 parameter sets
+        top_results = all_results[:10]
+        
+        return {
+            'best_params': best_params,
+            'best_score': best_score,
+            'best_results': best_results,
+            'top_results': top_results,
+            'all_results': all_results,
+            'optimization_method': 'grid_search',
+            'total_combinations': total_combinations
+        }
+    
+    def _generate_param_combinations(self, param_grid: Dict) -> List[Dict]:
+        """Generate all combinations of parameters for grid search"""
+        import itertools
+        
+        # Get parameter names and values
+        param_names = list(param_grid.keys())
+        param_values = [param_grid[name] for name in param_names]
+        
+        # Generate all combinations
+        combinations = []
+        for combination in itertools.product(*param_values):
+            param_dict = dict(zip(param_names, combination))
+            combinations.append(param_dict)
+        
+        return combinations
 
 
 def run_perfect_parameter_optimization():

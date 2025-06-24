@@ -46,6 +46,50 @@ interface BacktestResult {
 }
 
 /**
+ * Generate mock trades for backtest results
+ */
+function generateMockTrades(
+  totalTrades: number,
+  winningTrades: number,
+  averageWin: number,
+  averageLoss: number,
+  startTime: number,
+  endTime: number
+): any[] {
+  const trades = [];
+  const timeStep = (endTime - startTime) / totalTrades;
+  
+  for (let i = 0; i < totalTrades; i++) {
+    const isWin = i < winningTrades;
+    const entryTime = startTime + i * timeStep;
+    const exitTime = entryTime + timeStep * 0.8;
+    const side = Math.random() > 0.5 ? 'buy' : 'sell';
+    const entryPrice = 100 + Math.random() * 10;
+    const exitPrice = isWin 
+      ? side === 'buy' ? entryPrice + (averageWin / 100 * entryPrice) : entryPrice - (averageWin / 100 * entryPrice)
+      : side === 'buy' ? entryPrice - (Math.abs(averageLoss) / 100 * entryPrice) : entryPrice + (Math.abs(averageLoss) / 100 * entryPrice);
+    
+    trades.push({
+      id: `trade-${i}`,
+      side,
+      entryTime: new Date(entryTime).toISOString(),
+      exitTime: new Date(exitTime).toISOString(),
+      entryPrice,
+      exitPrice,
+      size: 1,
+      pnl: isWin ? averageWin : averageLoss,
+      pnlPercent: isWin ? averageWin / 100 : averageLoss / 100,
+      fees: 0.1,
+      status: 'closed',
+      symbol: 'BTCUSD',
+      strategy: 'backtest'
+    });
+  }
+  
+  return trades;
+}
+
+/**
  * Run backtest for a bot strategy
  */
 export const runBacktest = async (config: BacktestConfig): Promise<BacktestResult> => {
@@ -122,24 +166,28 @@ function createStrategy(strategyType: string, parameters: Record<string, any>) {
       const currentPrice = marketData[index].close;
       const previousPrice = marketData[index - 1].close;
       
-      // Simple momentum strategy
-      if (currentPrice > previousPrice * 1.01) {
+      // Simple momentum strategy (reduced threshold for more realistic signals)
+      if (currentPrice > previousPrice * 1.003) { // 0.3% instead of 1%
+        const priceMovement = Math.abs(currentPrice - previousPrice) / previousPrice;
+        const confidence = Math.min(95, 65 + (priceMovement * 3000)); // Scale movement to confidence
         return {
           id: `signal_${Date.now()}_${Math.random()}`,
           type: 'BUY',
           symbol: marketData[index].symbol,
           price: currentPrice,
-          confidence: Math.random() * 40 + 60, // 60-100%
+          confidence: confidence, // Based on price movement strength
           riskReward: 2,
           timestamp: marketData[index].timestamp,
         };
-      } else if (currentPrice < previousPrice * 0.99) {
+      } else if (currentPrice < previousPrice * 0.997) { // 0.3% instead of 1%
+        const priceMovement = Math.abs(currentPrice - previousPrice) / previousPrice;
+        const confidence = Math.min(95, 65 + (priceMovement * 3000)); // Scale movement to confidence
         return {
           id: `signal_${Date.now()}_${Math.random()}`,
           type: 'SELL',
           symbol: marketData[index].symbol,
           price: currentPrice,
-          confidence: Math.random() * 40 + 60, // 60-100%
+          confidence: confidence, // Based on price movement strength
           riskReward: 2,
           timestamp: marketData[index].timestamp,
         };
@@ -220,7 +268,7 @@ function createMockBacktestResult(config: BacktestConfig, startTime: number): Ba
       largestWin: averageWin * 2,
       largestLoss: averageLoss * 2,
     },
-    trades: [], // TODO: Generate mock trades
+    trades: generateMockTrades(totalTrades, winningTrades, averageWin, averageLoss, startTime, Date.now()),
     config,
     startTime,
     endTime: Date.now(),

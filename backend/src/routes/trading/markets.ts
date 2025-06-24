@@ -2,8 +2,12 @@ import express from 'express';
 import { DeltaExchangeUnified } from '../../services/DeltaExchangeUnified';
 import { validateMarketLookupParams } from '../../schemas/orderValidation';
 import logger from '../../utils/logger';
+import { protect as auth } from '../../middleware/auth';
 
 const router = express.Router();
+
+// Apply authentication middleware to all routes
+router.use(auth);
 
 // Create DeltaExchangeUnified instance with test credentials
 const deltaExchange = new DeltaExchangeUnified({

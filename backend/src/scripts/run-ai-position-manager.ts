@@ -6,17 +6,28 @@
  */
 
 import DeltaExchangeAPI from '../services/deltaApiService';
+import { DeltaExchangeUnified } from '../services/DeltaExchangeUnified';
 import { AIPositionManager } from '../services/aiPositionManager';
 import { logger } from '../utils/logger';
 
 class AIPositionManagerRunner {
   private deltaApi: DeltaExchangeAPI;
+  private deltaUnified: DeltaExchangeUnified;
   private aiManager: AIPositionManager;
   private isRunning: boolean = false;
 
   constructor() {
     this.deltaApi = new DeltaExchangeAPI({ testnet: true });
-    this.aiManager = new AIPositionManager(this.deltaApi);
+    
+    // Initialize DeltaExchangeUnified with proper credentials
+    const deltaCredentials = {
+      apiKey: process.env.DELTA_EXCHANGE_API_KEY || '',
+      apiSecret: process.env.DELTA_EXCHANGE_API_SECRET || '',
+      testnet: true
+    };
+    
+    this.deltaUnified = new DeltaExchangeUnified(deltaCredentials);
+    this.aiManager = new AIPositionManager(this.deltaApi, this.deltaUnified);
   }
 
   /**
@@ -44,6 +55,7 @@ class AIPositionManagerRunner {
 
       // Initialize Delta API
       await this.deltaApi.initialize(credentials);
+      await this.deltaUnified.initialize();
       logger.info('✅ Delta Exchange API initialized');
 
       // Test connection

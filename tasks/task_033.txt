@@ -1,0 +1,43 @@
+# Task ID: 33
+# Title: Free Monitoring & Analytics Setup
+# Status: pending
+# Dependencies: 32
+# Priority: medium
+# Description: Implement comprehensive monitoring using free tools and services
+# Details:
+Set up production-ready monitoring and analytics using entirely free tools:
+1. Grafana Cloud free tier for application monitoring
+2. UptimeRobot for uptime monitoring and alerts
+3. Umami self-hosted analytics for user behavior tracking
+4. Discord webhooks for alert notifications
+5. GitHub Actions for automated health checks
+6. Custom metrics endpoints for trading performance
+
+This monitoring setup should demonstrate DevOps skills and production readiness while maintaining zero infrastructure costs.
+
+# Test Strategy:
+1. Alert delivery testing for critical events
+2. Metrics accuracy validation
+3. Dashboard performance under load
+4. Uptime monitoring reliability
+5. Analytics data collection verification
+
+# Subtasks:
+## 1. Grafana Cloud Monitoring Setup [pending]
+### Dependencies: None
+### Description: Configure Grafana Cloud for application performance monitoring
+### Details:
+Set up Grafana Cloud free tier, create custom metrics endpoints, implement performance dashboards, and configure alerting rules for system health monitoring.
+
+## 2. Uptime and Health Monitoring [pending]
+### Dependencies: None
+### Description: Implement uptime monitoring with UptimeRobot and health checks
+### Details:
+Configure UptimeRobot for service uptime monitoring, create comprehensive health check endpoints, implement service status pages, and set up alert notifications.
+
+## 3. Trading Performance Analytics [pending]
+### Dependencies: 33.1
+### Description: Create custom analytics for trading performance and user behavior
+### Details:
+Implement Umami analytics for user behavior tracking, create custom trading performance metrics, build performance dashboards, and set up automated reporting.
+

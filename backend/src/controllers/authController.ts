@@ -14,9 +14,14 @@ import sessionManager from '../utils/sessionManager';
 import { setRememberMeCookie } from '../middleware/sessionMiddleware';
 import { createLogger } from '../utils/logger';
 import { createAuditLog } from '../utils/auditLog';
+import { AuthenticatedRequest } from '../types/auth';
+import { SessionService, generateToken, generateRefreshToken } from '../services/sessionService';
 
 // Environment variables
 const { JWT_SECRET = 'your-secret-key', JWT_EXPIRY = '1d' } = process.env;
+
+// Initialize session service
+const sessionService = new SessionService();
 
 // Create logger
 const logger = createLogger('AuthController');
@@ -46,10 +51,6 @@ interface OAuthLoginRequest {
   token: string;
   email?: string;
   name?: string;
-}
-
-interface AuthenticatedRequest extends Request {
-  user?: any;
 }
 
 /**
@@ -306,7 +307,19 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
     }
 
     // Try session manager first (for backward compatibility)
-    let result = await sessionManager.refreshSession(requestRefreshToken, req);
+    let result = null;
+    
+    // Create session service instance for refresh
+    const sessionService = new SessionService();
+    const sessionResult = await sessionService.refreshSession(crypto.randomUUID(), requestRefreshToken);
+    
+    if (sessionResult) {
+      result = {
+        token: sessionResult.accessToken,
+        refreshToken: sessionResult.refreshToken,
+        session: { id: sessionResult.id }
+      };
+    }
 
     if (!result) {
       // If session manager fails, try direct JWT refresh with rotation
@@ -586,8 +599,9 @@ export const oauthLogin = async (req: Request, res: Response): Promise<void> => 
     }
 
     // Generate tokens
-    const jwtToken = generateToken(user.id);
-    const refreshToken = generateRefreshToken(user.id);
+    const sessionId = crypto.randomUUID();
+    const jwtToken = generateToken(user.id, sessionId);
+    const refreshTokenValue = generateRefreshToken(user.id, sessionId);
 
     res.status(200).json({
       success: true,
@@ -597,7 +611,7 @@ export const oauthLogin = async (req: Request, res: Response): Promise<void> => 
         email: user.email,
         isVerified: user.isVerified,
         token: jwtToken,
-        refreshToken
+        refreshToken: refreshTokenValue
       }
     });
   } catch (error) {

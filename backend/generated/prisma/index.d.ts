@@ -158,6 +158,21 @@ export type AuditEvent = $Result.DefaultSelection<Prisma.$AuditEventPayload>
  * 
  */
 export type AuditLog = $Result.DefaultSelection<Prisma.$AuditLogPayload>
+/**
+ * Model Backtest
+ * 
+ */
+export type Backtest = $Result.DefaultSelection<Prisma.$BacktestPayload>
+/**
+ * Model BacktestComparison
+ * 
+ */
+export type BacktestComparison = $Result.DefaultSelection<Prisma.$BacktestComparisonPayload>
+/**
+ * Model BacktestComparisonBacktest
+ * 
+ */
+export type BacktestComparisonBacktest = $Result.DefaultSelection<Prisma.$BacktestComparisonBacktestPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -573,6 +588,36 @@ export class PrismaClient<
     * ```
     */
   get auditLog(): Prisma.AuditLogDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.backtest`: Exposes CRUD operations for the **Backtest** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Backtests
+    * const backtests = await prisma.backtest.findMany()
+    * ```
+    */
+  get backtest(): Prisma.BacktestDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.backtestComparison`: Exposes CRUD operations for the **BacktestComparison** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BacktestComparisons
+    * const backtestComparisons = await prisma.backtestComparison.findMany()
+    * ```
+    */
+  get backtestComparison(): Prisma.BacktestComparisonDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.backtestComparisonBacktest`: Exposes CRUD operations for the **BacktestComparisonBacktest** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more BacktestComparisonBacktests
+    * const backtestComparisonBacktests = await prisma.backtestComparisonBacktest.findMany()
+    * ```
+    */
+  get backtestComparisonBacktest(): Prisma.BacktestComparisonBacktestDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -631,8 +676,8 @@ export namespace Prisma {
   export import Exact = $Public.Exact
 
   /**
-   * Prisma Client JS version: 6.8.2
-   * Query Engine version: 2060c79ba17c6bb9f5823312b6f6b7f4a845738e
+   * Prisma Client JS version: 6.9.0
+   * Query Engine version: 81e4af48011447c3cc503a190e86995b66d2a28e
    */
   export type PrismaVersion = {
     client: string
@@ -1041,7 +1086,10 @@ export namespace Prisma {
     DecisionLog: 'DecisionLog',
     AuditTrail: 'AuditTrail',
     AuditEvent: 'AuditEvent',
-    AuditLog: 'AuditLog'
+    AuditLog: 'AuditLog',
+    Backtest: 'Backtest',
+    BacktestComparison: 'BacktestComparison',
+    BacktestComparisonBacktest: 'BacktestComparisonBacktest'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -1060,7 +1108,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "session" | "apiKey" | "tradeLog" | "bot" | "position" | "metric" | "tradingSignal" | "riskSettings" | "riskAlert" | "circuitBreaker" | "tradingStrategy" | "strategyExecution" | "strategyExecutionResult" | "mLModel" | "mLPrediction" | "mLTrainingJob" | "bridgeConfig" | "performanceTest" | "performanceTestResult" | "optimizationRecommendation" | "aBTest" | "aBTestResult" | "performanceMetric" | "order" | "decisionLog" | "auditTrail" | "auditEvent" | "auditLog"
+      modelProps: "user" | "session" | "apiKey" | "tradeLog" | "bot" | "position" | "metric" | "tradingSignal" | "riskSettings" | "riskAlert" | "circuitBreaker" | "tradingStrategy" | "strategyExecution" | "strategyExecutionResult" | "mLModel" | "mLPrediction" | "mLTrainingJob" | "bridgeConfig" | "performanceTest" | "performanceTestResult" | "optimizationRecommendation" | "aBTest" | "aBTestResult" | "performanceMetric" | "order" | "decisionLog" | "auditTrail" | "auditEvent" | "auditLog" | "backtest" | "backtestComparison" | "backtestComparisonBacktest"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -3210,6 +3258,228 @@ export namespace Prisma {
           }
         }
       }
+      Backtest: {
+        payload: Prisma.$BacktestPayload<ExtArgs>
+        fields: Prisma.BacktestFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BacktestFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BacktestFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestPayload>
+          }
+          findFirst: {
+            args: Prisma.BacktestFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BacktestFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestPayload>
+          }
+          findMany: {
+            args: Prisma.BacktestFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestPayload>[]
+          }
+          create: {
+            args: Prisma.BacktestCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestPayload>
+          }
+          createMany: {
+            args: Prisma.BacktestCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BacktestCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestPayload>[]
+          }
+          delete: {
+            args: Prisma.BacktestDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestPayload>
+          }
+          update: {
+            args: Prisma.BacktestUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestPayload>
+          }
+          deleteMany: {
+            args: Prisma.BacktestDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BacktestUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BacktestUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestPayload>[]
+          }
+          upsert: {
+            args: Prisma.BacktestUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestPayload>
+          }
+          aggregate: {
+            args: Prisma.BacktestAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBacktest>
+          }
+          groupBy: {
+            args: Prisma.BacktestGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BacktestGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BacktestCountArgs<ExtArgs>
+            result: $Utils.Optional<BacktestCountAggregateOutputType> | number
+          }
+        }
+      }
+      BacktestComparison: {
+        payload: Prisma.$BacktestComparisonPayload<ExtArgs>
+        fields: Prisma.BacktestComparisonFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BacktestComparisonFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BacktestComparisonFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonPayload>
+          }
+          findFirst: {
+            args: Prisma.BacktestComparisonFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BacktestComparisonFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonPayload>
+          }
+          findMany: {
+            args: Prisma.BacktestComparisonFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonPayload>[]
+          }
+          create: {
+            args: Prisma.BacktestComparisonCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonPayload>
+          }
+          createMany: {
+            args: Prisma.BacktestComparisonCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BacktestComparisonCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonPayload>[]
+          }
+          delete: {
+            args: Prisma.BacktestComparisonDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonPayload>
+          }
+          update: {
+            args: Prisma.BacktestComparisonUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonPayload>
+          }
+          deleteMany: {
+            args: Prisma.BacktestComparisonDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BacktestComparisonUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BacktestComparisonUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonPayload>[]
+          }
+          upsert: {
+            args: Prisma.BacktestComparisonUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonPayload>
+          }
+          aggregate: {
+            args: Prisma.BacktestComparisonAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBacktestComparison>
+          }
+          groupBy: {
+            args: Prisma.BacktestComparisonGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BacktestComparisonGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BacktestComparisonCountArgs<ExtArgs>
+            result: $Utils.Optional<BacktestComparisonCountAggregateOutputType> | number
+          }
+        }
+      }
+      BacktestComparisonBacktest: {
+        payload: Prisma.$BacktestComparisonBacktestPayload<ExtArgs>
+        fields: Prisma.BacktestComparisonBacktestFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.BacktestComparisonBacktestFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonBacktestPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.BacktestComparisonBacktestFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonBacktestPayload>
+          }
+          findFirst: {
+            args: Prisma.BacktestComparisonBacktestFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonBacktestPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.BacktestComparisonBacktestFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonBacktestPayload>
+          }
+          findMany: {
+            args: Prisma.BacktestComparisonBacktestFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonBacktestPayload>[]
+          }
+          create: {
+            args: Prisma.BacktestComparisonBacktestCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonBacktestPayload>
+          }
+          createMany: {
+            args: Prisma.BacktestComparisonBacktestCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.BacktestComparisonBacktestCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonBacktestPayload>[]
+          }
+          delete: {
+            args: Prisma.BacktestComparisonBacktestDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonBacktestPayload>
+          }
+          update: {
+            args: Prisma.BacktestComparisonBacktestUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonBacktestPayload>
+          }
+          deleteMany: {
+            args: Prisma.BacktestComparisonBacktestDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.BacktestComparisonBacktestUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.BacktestComparisonBacktestUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonBacktestPayload>[]
+          }
+          upsert: {
+            args: Prisma.BacktestComparisonBacktestUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$BacktestComparisonBacktestPayload>
+          }
+          aggregate: {
+            args: Prisma.BacktestComparisonBacktestAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateBacktestComparisonBacktest>
+          }
+          groupBy: {
+            args: Prisma.BacktestComparisonBacktestGroupByArgs<ExtArgs>
+            result: $Utils.Optional<BacktestComparisonBacktestGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.BacktestComparisonBacktestCountArgs<ExtArgs>
+            result: $Utils.Optional<BacktestComparisonBacktestCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -3323,6 +3593,9 @@ export namespace Prisma {
     auditTrail?: AuditTrailOmit
     auditEvent?: AuditEventOmit
     auditLog?: AuditLogOmit
+    backtest?: BacktestOmit
+    backtestComparison?: BacktestComparisonOmit
+    backtestComparisonBacktest?: BacktestComparisonBacktestOmit
   }
 
   /* Types for Logging */
@@ -3533,6 +3806,7 @@ export namespace Prisma {
     riskSettings: number
     orders: number
     decisionLogs: number
+    backtests: number
   }
 
   export type BotCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3540,6 +3814,7 @@ export namespace Prisma {
     riskSettings?: boolean | BotCountOutputTypeCountRiskSettingsArgs
     orders?: boolean | BotCountOutputTypeCountOrdersArgs
     decisionLogs?: boolean | BotCountOutputTypeCountDecisionLogsArgs
+    backtests?: boolean | BotCountOutputTypeCountBacktestsArgs
   }
 
   // Custom InputTypes
@@ -3579,6 +3854,13 @@ export namespace Prisma {
    */
   export type BotCountOutputTypeCountDecisionLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DecisionLogWhereInput
+  }
+
+  /**
+   * BotCountOutputType without action
+   */
+  export type BotCountOutputTypeCountBacktestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BacktestWhereInput
   }
 
 
@@ -3916,6 +4198,68 @@ export namespace Prisma {
    */
   export type AuditTrailCountOutputTypeCountDecisionLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: DecisionLogWhereInput
+  }
+
+
+  /**
+   * Count Type BacktestCountOutputType
+   */
+
+  export type BacktestCountOutputType = {
+    comparisons: number
+  }
+
+  export type BacktestCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    comparisons?: boolean | BacktestCountOutputTypeCountComparisonsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * BacktestCountOutputType without action
+   */
+  export type BacktestCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestCountOutputType
+     */
+    select?: BacktestCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * BacktestCountOutputType without action
+   */
+  export type BacktestCountOutputTypeCountComparisonsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BacktestComparisonBacktestWhereInput
+  }
+
+
+  /**
+   * Count Type BacktestComparisonCountOutputType
+   */
+
+  export type BacktestComparisonCountOutputType = {
+    backtests: number
+  }
+
+  export type BacktestComparisonCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    backtests?: boolean | BacktestComparisonCountOutputTypeCountBacktestsArgs
+  }
+
+  // Custom InputTypes
+  /**
+   * BacktestComparisonCountOutputType without action
+   */
+  export type BacktestComparisonCountOutputTypeDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparisonCountOutputType
+     */
+    select?: BacktestComparisonCountOutputTypeSelect<ExtArgs> | null
+  }
+
+  /**
+   * BacktestComparisonCountOutputType without action
+   */
+  export type BacktestComparisonCountOutputTypeCountBacktestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BacktestComparisonBacktestWhereInput
   }
 
 
@@ -9178,6 +9522,7 @@ export namespace Prisma {
     riskSettings?: boolean | Bot$riskSettingsArgs<ExtArgs>
     orders?: boolean | Bot$ordersArgs<ExtArgs>
     decisionLogs?: boolean | Bot$decisionLogsArgs<ExtArgs>
+    backtests?: boolean | Bot$backtestsArgs<ExtArgs>
     _count?: boolean | BotCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["bot"]>
 
@@ -9229,6 +9574,7 @@ export namespace Prisma {
     riskSettings?: boolean | Bot$riskSettingsArgs<ExtArgs>
     orders?: boolean | Bot$ordersArgs<ExtArgs>
     decisionLogs?: boolean | Bot$decisionLogsArgs<ExtArgs>
+    backtests?: boolean | Bot$backtestsArgs<ExtArgs>
     _count?: boolean | BotCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type BotIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -9246,6 +9592,7 @@ export namespace Prisma {
       riskSettings: Prisma.$RiskSettingsPayload<ExtArgs>[]
       orders: Prisma.$OrderPayload<ExtArgs>[]
       decisionLogs: Prisma.$DecisionLogPayload<ExtArgs>[]
+      backtests: Prisma.$BacktestPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -9657,6 +10004,7 @@ export namespace Prisma {
     riskSettings<T extends Bot$riskSettingsArgs<ExtArgs> = {}>(args?: Subset<T, Bot$riskSettingsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$RiskSettingsPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     orders<T extends Bot$ordersArgs<ExtArgs> = {}>(args?: Subset<T, Bot$ordersArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$OrderPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     decisionLogs<T extends Bot$decisionLogsArgs<ExtArgs> = {}>(args?: Subset<T, Bot$decisionLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$DecisionLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    backtests<T extends Bot$backtestsArgs<ExtArgs> = {}>(args?: Subset<T, Bot$backtestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BacktestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -10185,6 +10533,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: DecisionLogScalarFieldEnum | DecisionLogScalarFieldEnum[]
+  }
+
+  /**
+   * Bot.backtests
+   */
+  export type Bot$backtestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Backtest
+     */
+    select?: BacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Backtest
+     */
+    omit?: BacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestInclude<ExtArgs> | null
+    where?: BacktestWhereInput
+    orderBy?: BacktestOrderByWithRelationInput | BacktestOrderByWithRelationInput[]
+    cursor?: BacktestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BacktestScalarFieldEnum | BacktestScalarFieldEnum[]
   }
 
   /**
@@ -39583,6 +39955,3395 @@ export namespace Prisma {
 
 
   /**
+   * Model Backtest
+   */
+
+  export type AggregateBacktest = {
+    _count: BacktestCountAggregateOutputType | null
+    _avg: BacktestAvgAggregateOutputType | null
+    _sum: BacktestSumAggregateOutputType | null
+    _min: BacktestMinAggregateOutputType | null
+    _max: BacktestMaxAggregateOutputType | null
+  }
+
+  export type BacktestAvgAggregateOutputType = {
+    duration: number | null
+    optimizationScore: number | null
+  }
+
+  export type BacktestSumAggregateOutputType = {
+    duration: number | null
+    optimizationScore: number | null
+  }
+
+  export type BacktestMinAggregateOutputType = {
+    id: string | null
+    botId: string | null
+    symbol: string | null
+    timeframe: string | null
+    startDate: Date | null
+    endDate: Date | null
+    status: string | null
+    duration: number | null
+    modelName: string | null
+    modelVersion: string | null
+    optimizationMethod: string | null
+    optimizationScore: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BacktestMaxAggregateOutputType = {
+    id: string | null
+    botId: string | null
+    symbol: string | null
+    timeframe: string | null
+    startDate: Date | null
+    endDate: Date | null
+    status: string | null
+    duration: number | null
+    modelName: string | null
+    modelVersion: string | null
+    optimizationMethod: string | null
+    optimizationScore: number | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BacktestCountAggregateOutputType = {
+    id: number
+    botId: number
+    symbol: number
+    timeframe: number
+    startDate: number
+    endDate: number
+    performance: number
+    config: number
+    trades: number
+    status: number
+    duration: number
+    modelName: number
+    modelVersion: number
+    optimizationMethod: number
+    optimizationScore: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type BacktestAvgAggregateInputType = {
+    duration?: true
+    optimizationScore?: true
+  }
+
+  export type BacktestSumAggregateInputType = {
+    duration?: true
+    optimizationScore?: true
+  }
+
+  export type BacktestMinAggregateInputType = {
+    id?: true
+    botId?: true
+    symbol?: true
+    timeframe?: true
+    startDate?: true
+    endDate?: true
+    status?: true
+    duration?: true
+    modelName?: true
+    modelVersion?: true
+    optimizationMethod?: true
+    optimizationScore?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BacktestMaxAggregateInputType = {
+    id?: true
+    botId?: true
+    symbol?: true
+    timeframe?: true
+    startDate?: true
+    endDate?: true
+    status?: true
+    duration?: true
+    modelName?: true
+    modelVersion?: true
+    optimizationMethod?: true
+    optimizationScore?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BacktestCountAggregateInputType = {
+    id?: true
+    botId?: true
+    symbol?: true
+    timeframe?: true
+    startDate?: true
+    endDate?: true
+    performance?: true
+    config?: true
+    trades?: true
+    status?: true
+    duration?: true
+    modelName?: true
+    modelVersion?: true
+    optimizationMethod?: true
+    optimizationScore?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type BacktestAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Backtest to aggregate.
+     */
+    where?: BacktestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Backtests to fetch.
+     */
+    orderBy?: BacktestOrderByWithRelationInput | BacktestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BacktestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Backtests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Backtests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Backtests
+    **/
+    _count?: true | BacktestCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to average
+    **/
+    _avg?: BacktestAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: BacktestSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BacktestMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BacktestMaxAggregateInputType
+  }
+
+  export type GetBacktestAggregateType<T extends BacktestAggregateArgs> = {
+        [P in keyof T & keyof AggregateBacktest]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBacktest[P]>
+      : GetScalarType<T[P], AggregateBacktest[P]>
+  }
+
+
+
+
+  export type BacktestGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BacktestWhereInput
+    orderBy?: BacktestOrderByWithAggregationInput | BacktestOrderByWithAggregationInput[]
+    by: BacktestScalarFieldEnum[] | BacktestScalarFieldEnum
+    having?: BacktestScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BacktestCountAggregateInputType | true
+    _avg?: BacktestAvgAggregateInputType
+    _sum?: BacktestSumAggregateInputType
+    _min?: BacktestMinAggregateInputType
+    _max?: BacktestMaxAggregateInputType
+  }
+
+  export type BacktestGroupByOutputType = {
+    id: string
+    botId: string
+    symbol: string
+    timeframe: string
+    startDate: Date
+    endDate: Date
+    performance: JsonValue
+    config: JsonValue
+    trades: JsonValue | null
+    status: string
+    duration: number | null
+    modelName: string | null
+    modelVersion: string | null
+    optimizationMethod: string | null
+    optimizationScore: number | null
+    createdAt: Date
+    updatedAt: Date
+    _count: BacktestCountAggregateOutputType | null
+    _avg: BacktestAvgAggregateOutputType | null
+    _sum: BacktestSumAggregateOutputType | null
+    _min: BacktestMinAggregateOutputType | null
+    _max: BacktestMaxAggregateOutputType | null
+  }
+
+  type GetBacktestGroupByPayload<T extends BacktestGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BacktestGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BacktestGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BacktestGroupByOutputType[P]>
+            : GetScalarType<T[P], BacktestGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BacktestSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    botId?: boolean
+    symbol?: boolean
+    timeframe?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    performance?: boolean
+    config?: boolean
+    trades?: boolean
+    status?: boolean
+    duration?: boolean
+    modelName?: boolean
+    modelVersion?: boolean
+    optimizationMethod?: boolean
+    optimizationScore?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    bot?: boolean | BotDefaultArgs<ExtArgs>
+    comparisons?: boolean | Backtest$comparisonsArgs<ExtArgs>
+    _count?: boolean | BacktestCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["backtest"]>
+
+  export type BacktestSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    botId?: boolean
+    symbol?: boolean
+    timeframe?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    performance?: boolean
+    config?: boolean
+    trades?: boolean
+    status?: boolean
+    duration?: boolean
+    modelName?: boolean
+    modelVersion?: boolean
+    optimizationMethod?: boolean
+    optimizationScore?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    bot?: boolean | BotDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["backtest"]>
+
+  export type BacktestSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    botId?: boolean
+    symbol?: boolean
+    timeframe?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    performance?: boolean
+    config?: boolean
+    trades?: boolean
+    status?: boolean
+    duration?: boolean
+    modelName?: boolean
+    modelVersion?: boolean
+    optimizationMethod?: boolean
+    optimizationScore?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    bot?: boolean | BotDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["backtest"]>
+
+  export type BacktestSelectScalar = {
+    id?: boolean
+    botId?: boolean
+    symbol?: boolean
+    timeframe?: boolean
+    startDate?: boolean
+    endDate?: boolean
+    performance?: boolean
+    config?: boolean
+    trades?: boolean
+    status?: boolean
+    duration?: boolean
+    modelName?: boolean
+    modelVersion?: boolean
+    optimizationMethod?: boolean
+    optimizationScore?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type BacktestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "botId" | "symbol" | "timeframe" | "startDate" | "endDate" | "performance" | "config" | "trades" | "status" | "duration" | "modelName" | "modelVersion" | "optimizationMethod" | "optimizationScore" | "createdAt" | "updatedAt", ExtArgs["result"]["backtest"]>
+  export type BacktestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    bot?: boolean | BotDefaultArgs<ExtArgs>
+    comparisons?: boolean | Backtest$comparisonsArgs<ExtArgs>
+    _count?: boolean | BacktestCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type BacktestIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    bot?: boolean | BotDefaultArgs<ExtArgs>
+  }
+  export type BacktestIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    bot?: boolean | BotDefaultArgs<ExtArgs>
+  }
+
+  export type $BacktestPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Backtest"
+    objects: {
+      bot: Prisma.$BotPayload<ExtArgs>
+      comparisons: Prisma.$BacktestComparisonBacktestPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      botId: string
+      symbol: string
+      timeframe: string
+      startDate: Date
+      endDate: Date
+      performance: Prisma.JsonValue
+      config: Prisma.JsonValue
+      trades: Prisma.JsonValue | null
+      status: string
+      duration: number | null
+      modelName: string | null
+      modelVersion: string | null
+      optimizationMethod: string | null
+      optimizationScore: number | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["backtest"]>
+    composites: {}
+  }
+
+  type BacktestGetPayload<S extends boolean | null | undefined | BacktestDefaultArgs> = $Result.GetResult<Prisma.$BacktestPayload, S>
+
+  type BacktestCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BacktestFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BacktestCountAggregateInputType | true
+    }
+
+  export interface BacktestDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Backtest'], meta: { name: 'Backtest' } }
+    /**
+     * Find zero or one Backtest that matches the filter.
+     * @param {BacktestFindUniqueArgs} args - Arguments to find a Backtest
+     * @example
+     * // Get one Backtest
+     * const backtest = await prisma.backtest.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BacktestFindUniqueArgs>(args: SelectSubset<T, BacktestFindUniqueArgs<ExtArgs>>): Prisma__BacktestClient<$Result.GetResult<Prisma.$BacktestPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Backtest that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BacktestFindUniqueOrThrowArgs} args - Arguments to find a Backtest
+     * @example
+     * // Get one Backtest
+     * const backtest = await prisma.backtest.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BacktestFindUniqueOrThrowArgs>(args: SelectSubset<T, BacktestFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BacktestClient<$Result.GetResult<Prisma.$BacktestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Backtest that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestFindFirstArgs} args - Arguments to find a Backtest
+     * @example
+     * // Get one Backtest
+     * const backtest = await prisma.backtest.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BacktestFindFirstArgs>(args?: SelectSubset<T, BacktestFindFirstArgs<ExtArgs>>): Prisma__BacktestClient<$Result.GetResult<Prisma.$BacktestPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Backtest that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestFindFirstOrThrowArgs} args - Arguments to find a Backtest
+     * @example
+     * // Get one Backtest
+     * const backtest = await prisma.backtest.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BacktestFindFirstOrThrowArgs>(args?: SelectSubset<T, BacktestFindFirstOrThrowArgs<ExtArgs>>): Prisma__BacktestClient<$Result.GetResult<Prisma.$BacktestPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Backtests that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Backtests
+     * const backtests = await prisma.backtest.findMany()
+     * 
+     * // Get first 10 Backtests
+     * const backtests = await prisma.backtest.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const backtestWithIdOnly = await prisma.backtest.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BacktestFindManyArgs>(args?: SelectSubset<T, BacktestFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BacktestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Backtest.
+     * @param {BacktestCreateArgs} args - Arguments to create a Backtest.
+     * @example
+     * // Create one Backtest
+     * const Backtest = await prisma.backtest.create({
+     *   data: {
+     *     // ... data to create a Backtest
+     *   }
+     * })
+     * 
+     */
+    create<T extends BacktestCreateArgs>(args: SelectSubset<T, BacktestCreateArgs<ExtArgs>>): Prisma__BacktestClient<$Result.GetResult<Prisma.$BacktestPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Backtests.
+     * @param {BacktestCreateManyArgs} args - Arguments to create many Backtests.
+     * @example
+     * // Create many Backtests
+     * const backtest = await prisma.backtest.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BacktestCreateManyArgs>(args?: SelectSubset<T, BacktestCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Backtests and returns the data saved in the database.
+     * @param {BacktestCreateManyAndReturnArgs} args - Arguments to create many Backtests.
+     * @example
+     * // Create many Backtests
+     * const backtest = await prisma.backtest.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Backtests and only return the `id`
+     * const backtestWithIdOnly = await prisma.backtest.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BacktestCreateManyAndReturnArgs>(args?: SelectSubset<T, BacktestCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BacktestPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Backtest.
+     * @param {BacktestDeleteArgs} args - Arguments to delete one Backtest.
+     * @example
+     * // Delete one Backtest
+     * const Backtest = await prisma.backtest.delete({
+     *   where: {
+     *     // ... filter to delete one Backtest
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BacktestDeleteArgs>(args: SelectSubset<T, BacktestDeleteArgs<ExtArgs>>): Prisma__BacktestClient<$Result.GetResult<Prisma.$BacktestPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Backtest.
+     * @param {BacktestUpdateArgs} args - Arguments to update one Backtest.
+     * @example
+     * // Update one Backtest
+     * const backtest = await prisma.backtest.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BacktestUpdateArgs>(args: SelectSubset<T, BacktestUpdateArgs<ExtArgs>>): Prisma__BacktestClient<$Result.GetResult<Prisma.$BacktestPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Backtests.
+     * @param {BacktestDeleteManyArgs} args - Arguments to filter Backtests to delete.
+     * @example
+     * // Delete a few Backtests
+     * const { count } = await prisma.backtest.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BacktestDeleteManyArgs>(args?: SelectSubset<T, BacktestDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Backtests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Backtests
+     * const backtest = await prisma.backtest.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BacktestUpdateManyArgs>(args: SelectSubset<T, BacktestUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Backtests and returns the data updated in the database.
+     * @param {BacktestUpdateManyAndReturnArgs} args - Arguments to update many Backtests.
+     * @example
+     * // Update many Backtests
+     * const backtest = await prisma.backtest.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Backtests and only return the `id`
+     * const backtestWithIdOnly = await prisma.backtest.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BacktestUpdateManyAndReturnArgs>(args: SelectSubset<T, BacktestUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BacktestPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Backtest.
+     * @param {BacktestUpsertArgs} args - Arguments to update or create a Backtest.
+     * @example
+     * // Update or create a Backtest
+     * const backtest = await prisma.backtest.upsert({
+     *   create: {
+     *     // ... data to create a Backtest
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Backtest we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BacktestUpsertArgs>(args: SelectSubset<T, BacktestUpsertArgs<ExtArgs>>): Prisma__BacktestClient<$Result.GetResult<Prisma.$BacktestPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Backtests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestCountArgs} args - Arguments to filter Backtests to count.
+     * @example
+     * // Count the number of Backtests
+     * const count = await prisma.backtest.count({
+     *   where: {
+     *     // ... the filter for the Backtests we want to count
+     *   }
+     * })
+    **/
+    count<T extends BacktestCountArgs>(
+      args?: Subset<T, BacktestCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BacktestCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Backtest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BacktestAggregateArgs>(args: Subset<T, BacktestAggregateArgs>): Prisma.PrismaPromise<GetBacktestAggregateType<T>>
+
+    /**
+     * Group by Backtest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BacktestGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BacktestGroupByArgs['orderBy'] }
+        : { orderBy?: BacktestGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BacktestGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBacktestGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Backtest model
+   */
+  readonly fields: BacktestFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Backtest.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BacktestClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    bot<T extends BotDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BotDefaultArgs<ExtArgs>>): Prisma__BotClient<$Result.GetResult<Prisma.$BotPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    comparisons<T extends Backtest$comparisonsArgs<ExtArgs> = {}>(args?: Subset<T, Backtest$comparisonsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BacktestComparisonBacktestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Backtest model
+   */
+  interface BacktestFieldRefs {
+    readonly id: FieldRef<"Backtest", 'String'>
+    readonly botId: FieldRef<"Backtest", 'String'>
+    readonly symbol: FieldRef<"Backtest", 'String'>
+    readonly timeframe: FieldRef<"Backtest", 'String'>
+    readonly startDate: FieldRef<"Backtest", 'DateTime'>
+    readonly endDate: FieldRef<"Backtest", 'DateTime'>
+    readonly performance: FieldRef<"Backtest", 'Json'>
+    readonly config: FieldRef<"Backtest", 'Json'>
+    readonly trades: FieldRef<"Backtest", 'Json'>
+    readonly status: FieldRef<"Backtest", 'String'>
+    readonly duration: FieldRef<"Backtest", 'Int'>
+    readonly modelName: FieldRef<"Backtest", 'String'>
+    readonly modelVersion: FieldRef<"Backtest", 'String'>
+    readonly optimizationMethod: FieldRef<"Backtest", 'String'>
+    readonly optimizationScore: FieldRef<"Backtest", 'Float'>
+    readonly createdAt: FieldRef<"Backtest", 'DateTime'>
+    readonly updatedAt: FieldRef<"Backtest", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Backtest findUnique
+   */
+  export type BacktestFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Backtest
+     */
+    select?: BacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Backtest
+     */
+    omit?: BacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestInclude<ExtArgs> | null
+    /**
+     * Filter, which Backtest to fetch.
+     */
+    where: BacktestWhereUniqueInput
+  }
+
+  /**
+   * Backtest findUniqueOrThrow
+   */
+  export type BacktestFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Backtest
+     */
+    select?: BacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Backtest
+     */
+    omit?: BacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestInclude<ExtArgs> | null
+    /**
+     * Filter, which Backtest to fetch.
+     */
+    where: BacktestWhereUniqueInput
+  }
+
+  /**
+   * Backtest findFirst
+   */
+  export type BacktestFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Backtest
+     */
+    select?: BacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Backtest
+     */
+    omit?: BacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestInclude<ExtArgs> | null
+    /**
+     * Filter, which Backtest to fetch.
+     */
+    where?: BacktestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Backtests to fetch.
+     */
+    orderBy?: BacktestOrderByWithRelationInput | BacktestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Backtests.
+     */
+    cursor?: BacktestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Backtests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Backtests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Backtests.
+     */
+    distinct?: BacktestScalarFieldEnum | BacktestScalarFieldEnum[]
+  }
+
+  /**
+   * Backtest findFirstOrThrow
+   */
+  export type BacktestFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Backtest
+     */
+    select?: BacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Backtest
+     */
+    omit?: BacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestInclude<ExtArgs> | null
+    /**
+     * Filter, which Backtest to fetch.
+     */
+    where?: BacktestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Backtests to fetch.
+     */
+    orderBy?: BacktestOrderByWithRelationInput | BacktestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Backtests.
+     */
+    cursor?: BacktestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Backtests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Backtests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Backtests.
+     */
+    distinct?: BacktestScalarFieldEnum | BacktestScalarFieldEnum[]
+  }
+
+  /**
+   * Backtest findMany
+   */
+  export type BacktestFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Backtest
+     */
+    select?: BacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Backtest
+     */
+    omit?: BacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestInclude<ExtArgs> | null
+    /**
+     * Filter, which Backtests to fetch.
+     */
+    where?: BacktestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Backtests to fetch.
+     */
+    orderBy?: BacktestOrderByWithRelationInput | BacktestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Backtests.
+     */
+    cursor?: BacktestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Backtests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Backtests.
+     */
+    skip?: number
+    distinct?: BacktestScalarFieldEnum | BacktestScalarFieldEnum[]
+  }
+
+  /**
+   * Backtest create
+   */
+  export type BacktestCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Backtest
+     */
+    select?: BacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Backtest
+     */
+    omit?: BacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Backtest.
+     */
+    data: XOR<BacktestCreateInput, BacktestUncheckedCreateInput>
+  }
+
+  /**
+   * Backtest createMany
+   */
+  export type BacktestCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Backtests.
+     */
+    data: BacktestCreateManyInput | BacktestCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Backtest createManyAndReturn
+   */
+  export type BacktestCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Backtest
+     */
+    select?: BacktestSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Backtest
+     */
+    omit?: BacktestOmit<ExtArgs> | null
+    /**
+     * The data used to create many Backtests.
+     */
+    data: BacktestCreateManyInput | BacktestCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Backtest update
+   */
+  export type BacktestUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Backtest
+     */
+    select?: BacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Backtest
+     */
+    omit?: BacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Backtest.
+     */
+    data: XOR<BacktestUpdateInput, BacktestUncheckedUpdateInput>
+    /**
+     * Choose, which Backtest to update.
+     */
+    where: BacktestWhereUniqueInput
+  }
+
+  /**
+   * Backtest updateMany
+   */
+  export type BacktestUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Backtests.
+     */
+    data: XOR<BacktestUpdateManyMutationInput, BacktestUncheckedUpdateManyInput>
+    /**
+     * Filter which Backtests to update
+     */
+    where?: BacktestWhereInput
+    /**
+     * Limit how many Backtests to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Backtest updateManyAndReturn
+   */
+  export type BacktestUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Backtest
+     */
+    select?: BacktestSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Backtest
+     */
+    omit?: BacktestOmit<ExtArgs> | null
+    /**
+     * The data used to update Backtests.
+     */
+    data: XOR<BacktestUpdateManyMutationInput, BacktestUncheckedUpdateManyInput>
+    /**
+     * Filter which Backtests to update
+     */
+    where?: BacktestWhereInput
+    /**
+     * Limit how many Backtests to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Backtest upsert
+   */
+  export type BacktestUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Backtest
+     */
+    select?: BacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Backtest
+     */
+    omit?: BacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Backtest to update in case it exists.
+     */
+    where: BacktestWhereUniqueInput
+    /**
+     * In case the Backtest found by the `where` argument doesn't exist, create a new Backtest with this data.
+     */
+    create: XOR<BacktestCreateInput, BacktestUncheckedCreateInput>
+    /**
+     * In case the Backtest was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BacktestUpdateInput, BacktestUncheckedUpdateInput>
+  }
+
+  /**
+   * Backtest delete
+   */
+  export type BacktestDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Backtest
+     */
+    select?: BacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Backtest
+     */
+    omit?: BacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestInclude<ExtArgs> | null
+    /**
+     * Filter which Backtest to delete.
+     */
+    where: BacktestWhereUniqueInput
+  }
+
+  /**
+   * Backtest deleteMany
+   */
+  export type BacktestDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Backtests to delete
+     */
+    where?: BacktestWhereInput
+    /**
+     * Limit how many Backtests to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Backtest.comparisons
+   */
+  export type Backtest$comparisonsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparisonBacktest
+     */
+    select?: BacktestComparisonBacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparisonBacktest
+     */
+    omit?: BacktestComparisonBacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonBacktestInclude<ExtArgs> | null
+    where?: BacktestComparisonBacktestWhereInput
+    orderBy?: BacktestComparisonBacktestOrderByWithRelationInput | BacktestComparisonBacktestOrderByWithRelationInput[]
+    cursor?: BacktestComparisonBacktestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BacktestComparisonBacktestScalarFieldEnum | BacktestComparisonBacktestScalarFieldEnum[]
+  }
+
+  /**
+   * Backtest without action
+   */
+  export type BacktestDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Backtest
+     */
+    select?: BacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Backtest
+     */
+    omit?: BacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model BacktestComparison
+   */
+
+  export type AggregateBacktestComparison = {
+    _count: BacktestComparisonCountAggregateOutputType | null
+    _min: BacktestComparisonMinAggregateOutputType | null
+    _max: BacktestComparisonMaxAggregateOutputType | null
+  }
+
+  export type BacktestComparisonMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    winner: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BacktestComparisonMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+    description: string | null
+    winner: string | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type BacktestComparisonCountAggregateOutputType = {
+    id: number
+    name: number
+    description: number
+    results: number
+    winner: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type BacktestComparisonMinAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    winner?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BacktestComparisonMaxAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    winner?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type BacktestComparisonCountAggregateInputType = {
+    id?: true
+    name?: true
+    description?: true
+    results?: true
+    winner?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type BacktestComparisonAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BacktestComparison to aggregate.
+     */
+    where?: BacktestComparisonWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BacktestComparisons to fetch.
+     */
+    orderBy?: BacktestComparisonOrderByWithRelationInput | BacktestComparisonOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BacktestComparisonWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BacktestComparisons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BacktestComparisons.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BacktestComparisons
+    **/
+    _count?: true | BacktestComparisonCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BacktestComparisonMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BacktestComparisonMaxAggregateInputType
+  }
+
+  export type GetBacktestComparisonAggregateType<T extends BacktestComparisonAggregateArgs> = {
+        [P in keyof T & keyof AggregateBacktestComparison]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBacktestComparison[P]>
+      : GetScalarType<T[P], AggregateBacktestComparison[P]>
+  }
+
+
+
+
+  export type BacktestComparisonGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BacktestComparisonWhereInput
+    orderBy?: BacktestComparisonOrderByWithAggregationInput | BacktestComparisonOrderByWithAggregationInput[]
+    by: BacktestComparisonScalarFieldEnum[] | BacktestComparisonScalarFieldEnum
+    having?: BacktestComparisonScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BacktestComparisonCountAggregateInputType | true
+    _min?: BacktestComparisonMinAggregateInputType
+    _max?: BacktestComparisonMaxAggregateInputType
+  }
+
+  export type BacktestComparisonGroupByOutputType = {
+    id: string
+    name: string
+    description: string | null
+    results: JsonValue | null
+    winner: string | null
+    createdAt: Date
+    updatedAt: Date
+    _count: BacktestComparisonCountAggregateOutputType | null
+    _min: BacktestComparisonMinAggregateOutputType | null
+    _max: BacktestComparisonMaxAggregateOutputType | null
+  }
+
+  type GetBacktestComparisonGroupByPayload<T extends BacktestComparisonGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BacktestComparisonGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BacktestComparisonGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BacktestComparisonGroupByOutputType[P]>
+            : GetScalarType<T[P], BacktestComparisonGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BacktestComparisonSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    results?: boolean
+    winner?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    backtests?: boolean | BacktestComparison$backtestsArgs<ExtArgs>
+    _count?: boolean | BacktestComparisonCountOutputTypeDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["backtestComparison"]>
+
+  export type BacktestComparisonSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    results?: boolean
+    winner?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["backtestComparison"]>
+
+  export type BacktestComparisonSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    results?: boolean
+    winner?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }, ExtArgs["result"]["backtestComparison"]>
+
+  export type BacktestComparisonSelectScalar = {
+    id?: boolean
+    name?: boolean
+    description?: boolean
+    results?: boolean
+    winner?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type BacktestComparisonOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "description" | "results" | "winner" | "createdAt" | "updatedAt", ExtArgs["result"]["backtestComparison"]>
+  export type BacktestComparisonInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    backtests?: boolean | BacktestComparison$backtestsArgs<ExtArgs>
+    _count?: boolean | BacktestComparisonCountOutputTypeDefaultArgs<ExtArgs>
+  }
+  export type BacktestComparisonIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+  export type BacktestComparisonIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {}
+
+  export type $BacktestComparisonPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BacktestComparison"
+    objects: {
+      backtests: Prisma.$BacktestComparisonBacktestPayload<ExtArgs>[]
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      name: string
+      description: string | null
+      results: Prisma.JsonValue | null
+      winner: string | null
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["backtestComparison"]>
+    composites: {}
+  }
+
+  type BacktestComparisonGetPayload<S extends boolean | null | undefined | BacktestComparisonDefaultArgs> = $Result.GetResult<Prisma.$BacktestComparisonPayload, S>
+
+  type BacktestComparisonCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BacktestComparisonFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BacktestComparisonCountAggregateInputType | true
+    }
+
+  export interface BacktestComparisonDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BacktestComparison'], meta: { name: 'BacktestComparison' } }
+    /**
+     * Find zero or one BacktestComparison that matches the filter.
+     * @param {BacktestComparisonFindUniqueArgs} args - Arguments to find a BacktestComparison
+     * @example
+     * // Get one BacktestComparison
+     * const backtestComparison = await prisma.backtestComparison.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BacktestComparisonFindUniqueArgs>(args: SelectSubset<T, BacktestComparisonFindUniqueArgs<ExtArgs>>): Prisma__BacktestComparisonClient<$Result.GetResult<Prisma.$BacktestComparisonPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BacktestComparison that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BacktestComparisonFindUniqueOrThrowArgs} args - Arguments to find a BacktestComparison
+     * @example
+     * // Get one BacktestComparison
+     * const backtestComparison = await prisma.backtestComparison.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BacktestComparisonFindUniqueOrThrowArgs>(args: SelectSubset<T, BacktestComparisonFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BacktestComparisonClient<$Result.GetResult<Prisma.$BacktestComparisonPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BacktestComparison that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestComparisonFindFirstArgs} args - Arguments to find a BacktestComparison
+     * @example
+     * // Get one BacktestComparison
+     * const backtestComparison = await prisma.backtestComparison.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BacktestComparisonFindFirstArgs>(args?: SelectSubset<T, BacktestComparisonFindFirstArgs<ExtArgs>>): Prisma__BacktestComparisonClient<$Result.GetResult<Prisma.$BacktestComparisonPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BacktestComparison that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestComparisonFindFirstOrThrowArgs} args - Arguments to find a BacktestComparison
+     * @example
+     * // Get one BacktestComparison
+     * const backtestComparison = await prisma.backtestComparison.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BacktestComparisonFindFirstOrThrowArgs>(args?: SelectSubset<T, BacktestComparisonFindFirstOrThrowArgs<ExtArgs>>): Prisma__BacktestComparisonClient<$Result.GetResult<Prisma.$BacktestComparisonPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BacktestComparisons that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestComparisonFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BacktestComparisons
+     * const backtestComparisons = await prisma.backtestComparison.findMany()
+     * 
+     * // Get first 10 BacktestComparisons
+     * const backtestComparisons = await prisma.backtestComparison.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const backtestComparisonWithIdOnly = await prisma.backtestComparison.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends BacktestComparisonFindManyArgs>(args?: SelectSubset<T, BacktestComparisonFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BacktestComparisonPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BacktestComparison.
+     * @param {BacktestComparisonCreateArgs} args - Arguments to create a BacktestComparison.
+     * @example
+     * // Create one BacktestComparison
+     * const BacktestComparison = await prisma.backtestComparison.create({
+     *   data: {
+     *     // ... data to create a BacktestComparison
+     *   }
+     * })
+     * 
+     */
+    create<T extends BacktestComparisonCreateArgs>(args: SelectSubset<T, BacktestComparisonCreateArgs<ExtArgs>>): Prisma__BacktestComparisonClient<$Result.GetResult<Prisma.$BacktestComparisonPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BacktestComparisons.
+     * @param {BacktestComparisonCreateManyArgs} args - Arguments to create many BacktestComparisons.
+     * @example
+     * // Create many BacktestComparisons
+     * const backtestComparison = await prisma.backtestComparison.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BacktestComparisonCreateManyArgs>(args?: SelectSubset<T, BacktestComparisonCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BacktestComparisons and returns the data saved in the database.
+     * @param {BacktestComparisonCreateManyAndReturnArgs} args - Arguments to create many BacktestComparisons.
+     * @example
+     * // Create many BacktestComparisons
+     * const backtestComparison = await prisma.backtestComparison.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BacktestComparisons and only return the `id`
+     * const backtestComparisonWithIdOnly = await prisma.backtestComparison.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BacktestComparisonCreateManyAndReturnArgs>(args?: SelectSubset<T, BacktestComparisonCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BacktestComparisonPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BacktestComparison.
+     * @param {BacktestComparisonDeleteArgs} args - Arguments to delete one BacktestComparison.
+     * @example
+     * // Delete one BacktestComparison
+     * const BacktestComparison = await prisma.backtestComparison.delete({
+     *   where: {
+     *     // ... filter to delete one BacktestComparison
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BacktestComparisonDeleteArgs>(args: SelectSubset<T, BacktestComparisonDeleteArgs<ExtArgs>>): Prisma__BacktestComparisonClient<$Result.GetResult<Prisma.$BacktestComparisonPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BacktestComparison.
+     * @param {BacktestComparisonUpdateArgs} args - Arguments to update one BacktestComparison.
+     * @example
+     * // Update one BacktestComparison
+     * const backtestComparison = await prisma.backtestComparison.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BacktestComparisonUpdateArgs>(args: SelectSubset<T, BacktestComparisonUpdateArgs<ExtArgs>>): Prisma__BacktestComparisonClient<$Result.GetResult<Prisma.$BacktestComparisonPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BacktestComparisons.
+     * @param {BacktestComparisonDeleteManyArgs} args - Arguments to filter BacktestComparisons to delete.
+     * @example
+     * // Delete a few BacktestComparisons
+     * const { count } = await prisma.backtestComparison.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BacktestComparisonDeleteManyArgs>(args?: SelectSubset<T, BacktestComparisonDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BacktestComparisons.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestComparisonUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BacktestComparisons
+     * const backtestComparison = await prisma.backtestComparison.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BacktestComparisonUpdateManyArgs>(args: SelectSubset<T, BacktestComparisonUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BacktestComparisons and returns the data updated in the database.
+     * @param {BacktestComparisonUpdateManyAndReturnArgs} args - Arguments to update many BacktestComparisons.
+     * @example
+     * // Update many BacktestComparisons
+     * const backtestComparison = await prisma.backtestComparison.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BacktestComparisons and only return the `id`
+     * const backtestComparisonWithIdOnly = await prisma.backtestComparison.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BacktestComparisonUpdateManyAndReturnArgs>(args: SelectSubset<T, BacktestComparisonUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BacktestComparisonPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BacktestComparison.
+     * @param {BacktestComparisonUpsertArgs} args - Arguments to update or create a BacktestComparison.
+     * @example
+     * // Update or create a BacktestComparison
+     * const backtestComparison = await prisma.backtestComparison.upsert({
+     *   create: {
+     *     // ... data to create a BacktestComparison
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BacktestComparison we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BacktestComparisonUpsertArgs>(args: SelectSubset<T, BacktestComparisonUpsertArgs<ExtArgs>>): Prisma__BacktestComparisonClient<$Result.GetResult<Prisma.$BacktestComparisonPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BacktestComparisons.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestComparisonCountArgs} args - Arguments to filter BacktestComparisons to count.
+     * @example
+     * // Count the number of BacktestComparisons
+     * const count = await prisma.backtestComparison.count({
+     *   where: {
+     *     // ... the filter for the BacktestComparisons we want to count
+     *   }
+     * })
+    **/
+    count<T extends BacktestComparisonCountArgs>(
+      args?: Subset<T, BacktestComparisonCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BacktestComparisonCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BacktestComparison.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestComparisonAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BacktestComparisonAggregateArgs>(args: Subset<T, BacktestComparisonAggregateArgs>): Prisma.PrismaPromise<GetBacktestComparisonAggregateType<T>>
+
+    /**
+     * Group by BacktestComparison.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestComparisonGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BacktestComparisonGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BacktestComparisonGroupByArgs['orderBy'] }
+        : { orderBy?: BacktestComparisonGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BacktestComparisonGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBacktestComparisonGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BacktestComparison model
+   */
+  readonly fields: BacktestComparisonFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BacktestComparison.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BacktestComparisonClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    backtests<T extends BacktestComparison$backtestsArgs<ExtArgs> = {}>(args?: Subset<T, BacktestComparison$backtestsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BacktestComparisonBacktestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BacktestComparison model
+   */
+  interface BacktestComparisonFieldRefs {
+    readonly id: FieldRef<"BacktestComparison", 'String'>
+    readonly name: FieldRef<"BacktestComparison", 'String'>
+    readonly description: FieldRef<"BacktestComparison", 'String'>
+    readonly results: FieldRef<"BacktestComparison", 'Json'>
+    readonly winner: FieldRef<"BacktestComparison", 'String'>
+    readonly createdAt: FieldRef<"BacktestComparison", 'DateTime'>
+    readonly updatedAt: FieldRef<"BacktestComparison", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BacktestComparison findUnique
+   */
+  export type BacktestComparisonFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparison
+     */
+    select?: BacktestComparisonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparison
+     */
+    omit?: BacktestComparisonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonInclude<ExtArgs> | null
+    /**
+     * Filter, which BacktestComparison to fetch.
+     */
+    where: BacktestComparisonWhereUniqueInput
+  }
+
+  /**
+   * BacktestComparison findUniqueOrThrow
+   */
+  export type BacktestComparisonFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparison
+     */
+    select?: BacktestComparisonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparison
+     */
+    omit?: BacktestComparisonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonInclude<ExtArgs> | null
+    /**
+     * Filter, which BacktestComparison to fetch.
+     */
+    where: BacktestComparisonWhereUniqueInput
+  }
+
+  /**
+   * BacktestComparison findFirst
+   */
+  export type BacktestComparisonFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparison
+     */
+    select?: BacktestComparisonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparison
+     */
+    omit?: BacktestComparisonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonInclude<ExtArgs> | null
+    /**
+     * Filter, which BacktestComparison to fetch.
+     */
+    where?: BacktestComparisonWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BacktestComparisons to fetch.
+     */
+    orderBy?: BacktestComparisonOrderByWithRelationInput | BacktestComparisonOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BacktestComparisons.
+     */
+    cursor?: BacktestComparisonWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BacktestComparisons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BacktestComparisons.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BacktestComparisons.
+     */
+    distinct?: BacktestComparisonScalarFieldEnum | BacktestComparisonScalarFieldEnum[]
+  }
+
+  /**
+   * BacktestComparison findFirstOrThrow
+   */
+  export type BacktestComparisonFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparison
+     */
+    select?: BacktestComparisonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparison
+     */
+    omit?: BacktestComparisonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonInclude<ExtArgs> | null
+    /**
+     * Filter, which BacktestComparison to fetch.
+     */
+    where?: BacktestComparisonWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BacktestComparisons to fetch.
+     */
+    orderBy?: BacktestComparisonOrderByWithRelationInput | BacktestComparisonOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BacktestComparisons.
+     */
+    cursor?: BacktestComparisonWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BacktestComparisons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BacktestComparisons.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BacktestComparisons.
+     */
+    distinct?: BacktestComparisonScalarFieldEnum | BacktestComparisonScalarFieldEnum[]
+  }
+
+  /**
+   * BacktestComparison findMany
+   */
+  export type BacktestComparisonFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparison
+     */
+    select?: BacktestComparisonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparison
+     */
+    omit?: BacktestComparisonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonInclude<ExtArgs> | null
+    /**
+     * Filter, which BacktestComparisons to fetch.
+     */
+    where?: BacktestComparisonWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BacktestComparisons to fetch.
+     */
+    orderBy?: BacktestComparisonOrderByWithRelationInput | BacktestComparisonOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BacktestComparisons.
+     */
+    cursor?: BacktestComparisonWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BacktestComparisons from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BacktestComparisons.
+     */
+    skip?: number
+    distinct?: BacktestComparisonScalarFieldEnum | BacktestComparisonScalarFieldEnum[]
+  }
+
+  /**
+   * BacktestComparison create
+   */
+  export type BacktestComparisonCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparison
+     */
+    select?: BacktestComparisonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparison
+     */
+    omit?: BacktestComparisonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BacktestComparison.
+     */
+    data: XOR<BacktestComparisonCreateInput, BacktestComparisonUncheckedCreateInput>
+  }
+
+  /**
+   * BacktestComparison createMany
+   */
+  export type BacktestComparisonCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BacktestComparisons.
+     */
+    data: BacktestComparisonCreateManyInput | BacktestComparisonCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BacktestComparison createManyAndReturn
+   */
+  export type BacktestComparisonCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparison
+     */
+    select?: BacktestComparisonSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparison
+     */
+    omit?: BacktestComparisonOmit<ExtArgs> | null
+    /**
+     * The data used to create many BacktestComparisons.
+     */
+    data: BacktestComparisonCreateManyInput | BacktestComparisonCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BacktestComparison update
+   */
+  export type BacktestComparisonUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparison
+     */
+    select?: BacktestComparisonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparison
+     */
+    omit?: BacktestComparisonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BacktestComparison.
+     */
+    data: XOR<BacktestComparisonUpdateInput, BacktestComparisonUncheckedUpdateInput>
+    /**
+     * Choose, which BacktestComparison to update.
+     */
+    where: BacktestComparisonWhereUniqueInput
+  }
+
+  /**
+   * BacktestComparison updateMany
+   */
+  export type BacktestComparisonUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BacktestComparisons.
+     */
+    data: XOR<BacktestComparisonUpdateManyMutationInput, BacktestComparisonUncheckedUpdateManyInput>
+    /**
+     * Filter which BacktestComparisons to update
+     */
+    where?: BacktestComparisonWhereInput
+    /**
+     * Limit how many BacktestComparisons to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BacktestComparison updateManyAndReturn
+   */
+  export type BacktestComparisonUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparison
+     */
+    select?: BacktestComparisonSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparison
+     */
+    omit?: BacktestComparisonOmit<ExtArgs> | null
+    /**
+     * The data used to update BacktestComparisons.
+     */
+    data: XOR<BacktestComparisonUpdateManyMutationInput, BacktestComparisonUncheckedUpdateManyInput>
+    /**
+     * Filter which BacktestComparisons to update
+     */
+    where?: BacktestComparisonWhereInput
+    /**
+     * Limit how many BacktestComparisons to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BacktestComparison upsert
+   */
+  export type BacktestComparisonUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparison
+     */
+    select?: BacktestComparisonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparison
+     */
+    omit?: BacktestComparisonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BacktestComparison to update in case it exists.
+     */
+    where: BacktestComparisonWhereUniqueInput
+    /**
+     * In case the BacktestComparison found by the `where` argument doesn't exist, create a new BacktestComparison with this data.
+     */
+    create: XOR<BacktestComparisonCreateInput, BacktestComparisonUncheckedCreateInput>
+    /**
+     * In case the BacktestComparison was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BacktestComparisonUpdateInput, BacktestComparisonUncheckedUpdateInput>
+  }
+
+  /**
+   * BacktestComparison delete
+   */
+  export type BacktestComparisonDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparison
+     */
+    select?: BacktestComparisonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparison
+     */
+    omit?: BacktestComparisonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonInclude<ExtArgs> | null
+    /**
+     * Filter which BacktestComparison to delete.
+     */
+    where: BacktestComparisonWhereUniqueInput
+  }
+
+  /**
+   * BacktestComparison deleteMany
+   */
+  export type BacktestComparisonDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BacktestComparisons to delete
+     */
+    where?: BacktestComparisonWhereInput
+    /**
+     * Limit how many BacktestComparisons to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BacktestComparison.backtests
+   */
+  export type BacktestComparison$backtestsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparisonBacktest
+     */
+    select?: BacktestComparisonBacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparisonBacktest
+     */
+    omit?: BacktestComparisonBacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonBacktestInclude<ExtArgs> | null
+    where?: BacktestComparisonBacktestWhereInput
+    orderBy?: BacktestComparisonBacktestOrderByWithRelationInput | BacktestComparisonBacktestOrderByWithRelationInput[]
+    cursor?: BacktestComparisonBacktestWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: BacktestComparisonBacktestScalarFieldEnum | BacktestComparisonBacktestScalarFieldEnum[]
+  }
+
+  /**
+   * BacktestComparison without action
+   */
+  export type BacktestComparisonDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparison
+     */
+    select?: BacktestComparisonSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparison
+     */
+    omit?: BacktestComparisonOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model BacktestComparisonBacktest
+   */
+
+  export type AggregateBacktestComparisonBacktest = {
+    _count: BacktestComparisonBacktestCountAggregateOutputType | null
+    _min: BacktestComparisonBacktestMinAggregateOutputType | null
+    _max: BacktestComparisonBacktestMaxAggregateOutputType | null
+  }
+
+  export type BacktestComparisonBacktestMinAggregateOutputType = {
+    backtestId: string | null
+    backtestComparisonId: string | null
+  }
+
+  export type BacktestComparisonBacktestMaxAggregateOutputType = {
+    backtestId: string | null
+    backtestComparisonId: string | null
+  }
+
+  export type BacktestComparisonBacktestCountAggregateOutputType = {
+    backtestId: number
+    backtestComparisonId: number
+    _all: number
+  }
+
+
+  export type BacktestComparisonBacktestMinAggregateInputType = {
+    backtestId?: true
+    backtestComparisonId?: true
+  }
+
+  export type BacktestComparisonBacktestMaxAggregateInputType = {
+    backtestId?: true
+    backtestComparisonId?: true
+  }
+
+  export type BacktestComparisonBacktestCountAggregateInputType = {
+    backtestId?: true
+    backtestComparisonId?: true
+    _all?: true
+  }
+
+  export type BacktestComparisonBacktestAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BacktestComparisonBacktest to aggregate.
+     */
+    where?: BacktestComparisonBacktestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BacktestComparisonBacktests to fetch.
+     */
+    orderBy?: BacktestComparisonBacktestOrderByWithRelationInput | BacktestComparisonBacktestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: BacktestComparisonBacktestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BacktestComparisonBacktests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BacktestComparisonBacktests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned BacktestComparisonBacktests
+    **/
+    _count?: true | BacktestComparisonBacktestCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: BacktestComparisonBacktestMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: BacktestComparisonBacktestMaxAggregateInputType
+  }
+
+  export type GetBacktestComparisonBacktestAggregateType<T extends BacktestComparisonBacktestAggregateArgs> = {
+        [P in keyof T & keyof AggregateBacktestComparisonBacktest]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateBacktestComparisonBacktest[P]>
+      : GetScalarType<T[P], AggregateBacktestComparisonBacktest[P]>
+  }
+
+
+
+
+  export type BacktestComparisonBacktestGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: BacktestComparisonBacktestWhereInput
+    orderBy?: BacktestComparisonBacktestOrderByWithAggregationInput | BacktestComparisonBacktestOrderByWithAggregationInput[]
+    by: BacktestComparisonBacktestScalarFieldEnum[] | BacktestComparisonBacktestScalarFieldEnum
+    having?: BacktestComparisonBacktestScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: BacktestComparisonBacktestCountAggregateInputType | true
+    _min?: BacktestComparisonBacktestMinAggregateInputType
+    _max?: BacktestComparisonBacktestMaxAggregateInputType
+  }
+
+  export type BacktestComparisonBacktestGroupByOutputType = {
+    backtestId: string
+    backtestComparisonId: string
+    _count: BacktestComparisonBacktestCountAggregateOutputType | null
+    _min: BacktestComparisonBacktestMinAggregateOutputType | null
+    _max: BacktestComparisonBacktestMaxAggregateOutputType | null
+  }
+
+  type GetBacktestComparisonBacktestGroupByPayload<T extends BacktestComparisonBacktestGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<BacktestComparisonBacktestGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof BacktestComparisonBacktestGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], BacktestComparisonBacktestGroupByOutputType[P]>
+            : GetScalarType<T[P], BacktestComparisonBacktestGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type BacktestComparisonBacktestSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    backtestId?: boolean
+    backtestComparisonId?: boolean
+    backtest?: boolean | BacktestDefaultArgs<ExtArgs>
+    backtestComparison?: boolean | BacktestComparisonDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["backtestComparisonBacktest"]>
+
+  export type BacktestComparisonBacktestSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    backtestId?: boolean
+    backtestComparisonId?: boolean
+    backtest?: boolean | BacktestDefaultArgs<ExtArgs>
+    backtestComparison?: boolean | BacktestComparisonDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["backtestComparisonBacktest"]>
+
+  export type BacktestComparisonBacktestSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    backtestId?: boolean
+    backtestComparisonId?: boolean
+    backtest?: boolean | BacktestDefaultArgs<ExtArgs>
+    backtestComparison?: boolean | BacktestComparisonDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["backtestComparisonBacktest"]>
+
+  export type BacktestComparisonBacktestSelectScalar = {
+    backtestId?: boolean
+    backtestComparisonId?: boolean
+  }
+
+  export type BacktestComparisonBacktestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"backtestId" | "backtestComparisonId", ExtArgs["result"]["backtestComparisonBacktest"]>
+  export type BacktestComparisonBacktestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    backtest?: boolean | BacktestDefaultArgs<ExtArgs>
+    backtestComparison?: boolean | BacktestComparisonDefaultArgs<ExtArgs>
+  }
+  export type BacktestComparisonBacktestIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    backtest?: boolean | BacktestDefaultArgs<ExtArgs>
+    backtestComparison?: boolean | BacktestComparisonDefaultArgs<ExtArgs>
+  }
+  export type BacktestComparisonBacktestIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    backtest?: boolean | BacktestDefaultArgs<ExtArgs>
+    backtestComparison?: boolean | BacktestComparisonDefaultArgs<ExtArgs>
+  }
+
+  export type $BacktestComparisonBacktestPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "BacktestComparisonBacktest"
+    objects: {
+      backtest: Prisma.$BacktestPayload<ExtArgs>
+      backtestComparison: Prisma.$BacktestComparisonPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      backtestId: string
+      backtestComparisonId: string
+    }, ExtArgs["result"]["backtestComparisonBacktest"]>
+    composites: {}
+  }
+
+  type BacktestComparisonBacktestGetPayload<S extends boolean | null | undefined | BacktestComparisonBacktestDefaultArgs> = $Result.GetResult<Prisma.$BacktestComparisonBacktestPayload, S>
+
+  type BacktestComparisonBacktestCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<BacktestComparisonBacktestFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: BacktestComparisonBacktestCountAggregateInputType | true
+    }
+
+  export interface BacktestComparisonBacktestDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['BacktestComparisonBacktest'], meta: { name: 'BacktestComparisonBacktest' } }
+    /**
+     * Find zero or one BacktestComparisonBacktest that matches the filter.
+     * @param {BacktestComparisonBacktestFindUniqueArgs} args - Arguments to find a BacktestComparisonBacktest
+     * @example
+     * // Get one BacktestComparisonBacktest
+     * const backtestComparisonBacktest = await prisma.backtestComparisonBacktest.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends BacktestComparisonBacktestFindUniqueArgs>(args: SelectSubset<T, BacktestComparisonBacktestFindUniqueArgs<ExtArgs>>): Prisma__BacktestComparisonBacktestClient<$Result.GetResult<Prisma.$BacktestComparisonBacktestPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one BacktestComparisonBacktest that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {BacktestComparisonBacktestFindUniqueOrThrowArgs} args - Arguments to find a BacktestComparisonBacktest
+     * @example
+     * // Get one BacktestComparisonBacktest
+     * const backtestComparisonBacktest = await prisma.backtestComparisonBacktest.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends BacktestComparisonBacktestFindUniqueOrThrowArgs>(args: SelectSubset<T, BacktestComparisonBacktestFindUniqueOrThrowArgs<ExtArgs>>): Prisma__BacktestComparisonBacktestClient<$Result.GetResult<Prisma.$BacktestComparisonBacktestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BacktestComparisonBacktest that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestComparisonBacktestFindFirstArgs} args - Arguments to find a BacktestComparisonBacktest
+     * @example
+     * // Get one BacktestComparisonBacktest
+     * const backtestComparisonBacktest = await prisma.backtestComparisonBacktest.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends BacktestComparisonBacktestFindFirstArgs>(args?: SelectSubset<T, BacktestComparisonBacktestFindFirstArgs<ExtArgs>>): Prisma__BacktestComparisonBacktestClient<$Result.GetResult<Prisma.$BacktestComparisonBacktestPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first BacktestComparisonBacktest that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestComparisonBacktestFindFirstOrThrowArgs} args - Arguments to find a BacktestComparisonBacktest
+     * @example
+     * // Get one BacktestComparisonBacktest
+     * const backtestComparisonBacktest = await prisma.backtestComparisonBacktest.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends BacktestComparisonBacktestFindFirstOrThrowArgs>(args?: SelectSubset<T, BacktestComparisonBacktestFindFirstOrThrowArgs<ExtArgs>>): Prisma__BacktestComparisonBacktestClient<$Result.GetResult<Prisma.$BacktestComparisonBacktestPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more BacktestComparisonBacktests that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestComparisonBacktestFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all BacktestComparisonBacktests
+     * const backtestComparisonBacktests = await prisma.backtestComparisonBacktest.findMany()
+     * 
+     * // Get first 10 BacktestComparisonBacktests
+     * const backtestComparisonBacktests = await prisma.backtestComparisonBacktest.findMany({ take: 10 })
+     * 
+     * // Only select the `backtestId`
+     * const backtestComparisonBacktestWithBacktestIdOnly = await prisma.backtestComparisonBacktest.findMany({ select: { backtestId: true } })
+     * 
+     */
+    findMany<T extends BacktestComparisonBacktestFindManyArgs>(args?: SelectSubset<T, BacktestComparisonBacktestFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BacktestComparisonBacktestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a BacktestComparisonBacktest.
+     * @param {BacktestComparisonBacktestCreateArgs} args - Arguments to create a BacktestComparisonBacktest.
+     * @example
+     * // Create one BacktestComparisonBacktest
+     * const BacktestComparisonBacktest = await prisma.backtestComparisonBacktest.create({
+     *   data: {
+     *     // ... data to create a BacktestComparisonBacktest
+     *   }
+     * })
+     * 
+     */
+    create<T extends BacktestComparisonBacktestCreateArgs>(args: SelectSubset<T, BacktestComparisonBacktestCreateArgs<ExtArgs>>): Prisma__BacktestComparisonBacktestClient<$Result.GetResult<Prisma.$BacktestComparisonBacktestPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many BacktestComparisonBacktests.
+     * @param {BacktestComparisonBacktestCreateManyArgs} args - Arguments to create many BacktestComparisonBacktests.
+     * @example
+     * // Create many BacktestComparisonBacktests
+     * const backtestComparisonBacktest = await prisma.backtestComparisonBacktest.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends BacktestComparisonBacktestCreateManyArgs>(args?: SelectSubset<T, BacktestComparisonBacktestCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many BacktestComparisonBacktests and returns the data saved in the database.
+     * @param {BacktestComparisonBacktestCreateManyAndReturnArgs} args - Arguments to create many BacktestComparisonBacktests.
+     * @example
+     * // Create many BacktestComparisonBacktests
+     * const backtestComparisonBacktest = await prisma.backtestComparisonBacktest.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many BacktestComparisonBacktests and only return the `backtestId`
+     * const backtestComparisonBacktestWithBacktestIdOnly = await prisma.backtestComparisonBacktest.createManyAndReturn({
+     *   select: { backtestId: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends BacktestComparisonBacktestCreateManyAndReturnArgs>(args?: SelectSubset<T, BacktestComparisonBacktestCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BacktestComparisonBacktestPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a BacktestComparisonBacktest.
+     * @param {BacktestComparisonBacktestDeleteArgs} args - Arguments to delete one BacktestComparisonBacktest.
+     * @example
+     * // Delete one BacktestComparisonBacktest
+     * const BacktestComparisonBacktest = await prisma.backtestComparisonBacktest.delete({
+     *   where: {
+     *     // ... filter to delete one BacktestComparisonBacktest
+     *   }
+     * })
+     * 
+     */
+    delete<T extends BacktestComparisonBacktestDeleteArgs>(args: SelectSubset<T, BacktestComparisonBacktestDeleteArgs<ExtArgs>>): Prisma__BacktestComparisonBacktestClient<$Result.GetResult<Prisma.$BacktestComparisonBacktestPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one BacktestComparisonBacktest.
+     * @param {BacktestComparisonBacktestUpdateArgs} args - Arguments to update one BacktestComparisonBacktest.
+     * @example
+     * // Update one BacktestComparisonBacktest
+     * const backtestComparisonBacktest = await prisma.backtestComparisonBacktest.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends BacktestComparisonBacktestUpdateArgs>(args: SelectSubset<T, BacktestComparisonBacktestUpdateArgs<ExtArgs>>): Prisma__BacktestComparisonBacktestClient<$Result.GetResult<Prisma.$BacktestComparisonBacktestPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more BacktestComparisonBacktests.
+     * @param {BacktestComparisonBacktestDeleteManyArgs} args - Arguments to filter BacktestComparisonBacktests to delete.
+     * @example
+     * // Delete a few BacktestComparisonBacktests
+     * const { count } = await prisma.backtestComparisonBacktest.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends BacktestComparisonBacktestDeleteManyArgs>(args?: SelectSubset<T, BacktestComparisonBacktestDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BacktestComparisonBacktests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestComparisonBacktestUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many BacktestComparisonBacktests
+     * const backtestComparisonBacktest = await prisma.backtestComparisonBacktest.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends BacktestComparisonBacktestUpdateManyArgs>(args: SelectSubset<T, BacktestComparisonBacktestUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more BacktestComparisonBacktests and returns the data updated in the database.
+     * @param {BacktestComparisonBacktestUpdateManyAndReturnArgs} args - Arguments to update many BacktestComparisonBacktests.
+     * @example
+     * // Update many BacktestComparisonBacktests
+     * const backtestComparisonBacktest = await prisma.backtestComparisonBacktest.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more BacktestComparisonBacktests and only return the `backtestId`
+     * const backtestComparisonBacktestWithBacktestIdOnly = await prisma.backtestComparisonBacktest.updateManyAndReturn({
+     *   select: { backtestId: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends BacktestComparisonBacktestUpdateManyAndReturnArgs>(args: SelectSubset<T, BacktestComparisonBacktestUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$BacktestComparisonBacktestPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one BacktestComparisonBacktest.
+     * @param {BacktestComparisonBacktestUpsertArgs} args - Arguments to update or create a BacktestComparisonBacktest.
+     * @example
+     * // Update or create a BacktestComparisonBacktest
+     * const backtestComparisonBacktest = await prisma.backtestComparisonBacktest.upsert({
+     *   create: {
+     *     // ... data to create a BacktestComparisonBacktest
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the BacktestComparisonBacktest we want to update
+     *   }
+     * })
+     */
+    upsert<T extends BacktestComparisonBacktestUpsertArgs>(args: SelectSubset<T, BacktestComparisonBacktestUpsertArgs<ExtArgs>>): Prisma__BacktestComparisonBacktestClient<$Result.GetResult<Prisma.$BacktestComparisonBacktestPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of BacktestComparisonBacktests.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestComparisonBacktestCountArgs} args - Arguments to filter BacktestComparisonBacktests to count.
+     * @example
+     * // Count the number of BacktestComparisonBacktests
+     * const count = await prisma.backtestComparisonBacktest.count({
+     *   where: {
+     *     // ... the filter for the BacktestComparisonBacktests we want to count
+     *   }
+     * })
+    **/
+    count<T extends BacktestComparisonBacktestCountArgs>(
+      args?: Subset<T, BacktestComparisonBacktestCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], BacktestComparisonBacktestCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a BacktestComparisonBacktest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestComparisonBacktestAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends BacktestComparisonBacktestAggregateArgs>(args: Subset<T, BacktestComparisonBacktestAggregateArgs>): Prisma.PrismaPromise<GetBacktestComparisonBacktestAggregateType<T>>
+
+    /**
+     * Group by BacktestComparisonBacktest.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {BacktestComparisonBacktestGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends BacktestComparisonBacktestGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: BacktestComparisonBacktestGroupByArgs['orderBy'] }
+        : { orderBy?: BacktestComparisonBacktestGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, BacktestComparisonBacktestGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetBacktestComparisonBacktestGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the BacktestComparisonBacktest model
+   */
+  readonly fields: BacktestComparisonBacktestFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for BacktestComparisonBacktest.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__BacktestComparisonBacktestClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    backtest<T extends BacktestDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BacktestDefaultArgs<ExtArgs>>): Prisma__BacktestClient<$Result.GetResult<Prisma.$BacktestPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    backtestComparison<T extends BacktestComparisonDefaultArgs<ExtArgs> = {}>(args?: Subset<T, BacktestComparisonDefaultArgs<ExtArgs>>): Prisma__BacktestComparisonClient<$Result.GetResult<Prisma.$BacktestComparisonPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the BacktestComparisonBacktest model
+   */
+  interface BacktestComparisonBacktestFieldRefs {
+    readonly backtestId: FieldRef<"BacktestComparisonBacktest", 'String'>
+    readonly backtestComparisonId: FieldRef<"BacktestComparisonBacktest", 'String'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * BacktestComparisonBacktest findUnique
+   */
+  export type BacktestComparisonBacktestFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparisonBacktest
+     */
+    select?: BacktestComparisonBacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparisonBacktest
+     */
+    omit?: BacktestComparisonBacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonBacktestInclude<ExtArgs> | null
+    /**
+     * Filter, which BacktestComparisonBacktest to fetch.
+     */
+    where: BacktestComparisonBacktestWhereUniqueInput
+  }
+
+  /**
+   * BacktestComparisonBacktest findUniqueOrThrow
+   */
+  export type BacktestComparisonBacktestFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparisonBacktest
+     */
+    select?: BacktestComparisonBacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparisonBacktest
+     */
+    omit?: BacktestComparisonBacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonBacktestInclude<ExtArgs> | null
+    /**
+     * Filter, which BacktestComparisonBacktest to fetch.
+     */
+    where: BacktestComparisonBacktestWhereUniqueInput
+  }
+
+  /**
+   * BacktestComparisonBacktest findFirst
+   */
+  export type BacktestComparisonBacktestFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparisonBacktest
+     */
+    select?: BacktestComparisonBacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparisonBacktest
+     */
+    omit?: BacktestComparisonBacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonBacktestInclude<ExtArgs> | null
+    /**
+     * Filter, which BacktestComparisonBacktest to fetch.
+     */
+    where?: BacktestComparisonBacktestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BacktestComparisonBacktests to fetch.
+     */
+    orderBy?: BacktestComparisonBacktestOrderByWithRelationInput | BacktestComparisonBacktestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BacktestComparisonBacktests.
+     */
+    cursor?: BacktestComparisonBacktestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BacktestComparisonBacktests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BacktestComparisonBacktests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BacktestComparisonBacktests.
+     */
+    distinct?: BacktestComparisonBacktestScalarFieldEnum | BacktestComparisonBacktestScalarFieldEnum[]
+  }
+
+  /**
+   * BacktestComparisonBacktest findFirstOrThrow
+   */
+  export type BacktestComparisonBacktestFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparisonBacktest
+     */
+    select?: BacktestComparisonBacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparisonBacktest
+     */
+    omit?: BacktestComparisonBacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonBacktestInclude<ExtArgs> | null
+    /**
+     * Filter, which BacktestComparisonBacktest to fetch.
+     */
+    where?: BacktestComparisonBacktestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BacktestComparisonBacktests to fetch.
+     */
+    orderBy?: BacktestComparisonBacktestOrderByWithRelationInput | BacktestComparisonBacktestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for BacktestComparisonBacktests.
+     */
+    cursor?: BacktestComparisonBacktestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BacktestComparisonBacktests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BacktestComparisonBacktests.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of BacktestComparisonBacktests.
+     */
+    distinct?: BacktestComparisonBacktestScalarFieldEnum | BacktestComparisonBacktestScalarFieldEnum[]
+  }
+
+  /**
+   * BacktestComparisonBacktest findMany
+   */
+  export type BacktestComparisonBacktestFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparisonBacktest
+     */
+    select?: BacktestComparisonBacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparisonBacktest
+     */
+    omit?: BacktestComparisonBacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonBacktestInclude<ExtArgs> | null
+    /**
+     * Filter, which BacktestComparisonBacktests to fetch.
+     */
+    where?: BacktestComparisonBacktestWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of BacktestComparisonBacktests to fetch.
+     */
+    orderBy?: BacktestComparisonBacktestOrderByWithRelationInput | BacktestComparisonBacktestOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing BacktestComparisonBacktests.
+     */
+    cursor?: BacktestComparisonBacktestWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` BacktestComparisonBacktests from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` BacktestComparisonBacktests.
+     */
+    skip?: number
+    distinct?: BacktestComparisonBacktestScalarFieldEnum | BacktestComparisonBacktestScalarFieldEnum[]
+  }
+
+  /**
+   * BacktestComparisonBacktest create
+   */
+  export type BacktestComparisonBacktestCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparisonBacktest
+     */
+    select?: BacktestComparisonBacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparisonBacktest
+     */
+    omit?: BacktestComparisonBacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonBacktestInclude<ExtArgs> | null
+    /**
+     * The data needed to create a BacktestComparisonBacktest.
+     */
+    data: XOR<BacktestComparisonBacktestCreateInput, BacktestComparisonBacktestUncheckedCreateInput>
+  }
+
+  /**
+   * BacktestComparisonBacktest createMany
+   */
+  export type BacktestComparisonBacktestCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many BacktestComparisonBacktests.
+     */
+    data: BacktestComparisonBacktestCreateManyInput | BacktestComparisonBacktestCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * BacktestComparisonBacktest createManyAndReturn
+   */
+  export type BacktestComparisonBacktestCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparisonBacktest
+     */
+    select?: BacktestComparisonBacktestSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparisonBacktest
+     */
+    omit?: BacktestComparisonBacktestOmit<ExtArgs> | null
+    /**
+     * The data used to create many BacktestComparisonBacktests.
+     */
+    data: BacktestComparisonBacktestCreateManyInput | BacktestComparisonBacktestCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonBacktestIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BacktestComparisonBacktest update
+   */
+  export type BacktestComparisonBacktestUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparisonBacktest
+     */
+    select?: BacktestComparisonBacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparisonBacktest
+     */
+    omit?: BacktestComparisonBacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonBacktestInclude<ExtArgs> | null
+    /**
+     * The data needed to update a BacktestComparisonBacktest.
+     */
+    data: XOR<BacktestComparisonBacktestUpdateInput, BacktestComparisonBacktestUncheckedUpdateInput>
+    /**
+     * Choose, which BacktestComparisonBacktest to update.
+     */
+    where: BacktestComparisonBacktestWhereUniqueInput
+  }
+
+  /**
+   * BacktestComparisonBacktest updateMany
+   */
+  export type BacktestComparisonBacktestUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update BacktestComparisonBacktests.
+     */
+    data: XOR<BacktestComparisonBacktestUpdateManyMutationInput, BacktestComparisonBacktestUncheckedUpdateManyInput>
+    /**
+     * Filter which BacktestComparisonBacktests to update
+     */
+    where?: BacktestComparisonBacktestWhereInput
+    /**
+     * Limit how many BacktestComparisonBacktests to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * BacktestComparisonBacktest updateManyAndReturn
+   */
+  export type BacktestComparisonBacktestUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparisonBacktest
+     */
+    select?: BacktestComparisonBacktestSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparisonBacktest
+     */
+    omit?: BacktestComparisonBacktestOmit<ExtArgs> | null
+    /**
+     * The data used to update BacktestComparisonBacktests.
+     */
+    data: XOR<BacktestComparisonBacktestUpdateManyMutationInput, BacktestComparisonBacktestUncheckedUpdateManyInput>
+    /**
+     * Filter which BacktestComparisonBacktests to update
+     */
+    where?: BacktestComparisonBacktestWhereInput
+    /**
+     * Limit how many BacktestComparisonBacktests to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonBacktestIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * BacktestComparisonBacktest upsert
+   */
+  export type BacktestComparisonBacktestUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparisonBacktest
+     */
+    select?: BacktestComparisonBacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparisonBacktest
+     */
+    omit?: BacktestComparisonBacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonBacktestInclude<ExtArgs> | null
+    /**
+     * The filter to search for the BacktestComparisonBacktest to update in case it exists.
+     */
+    where: BacktestComparisonBacktestWhereUniqueInput
+    /**
+     * In case the BacktestComparisonBacktest found by the `where` argument doesn't exist, create a new BacktestComparisonBacktest with this data.
+     */
+    create: XOR<BacktestComparisonBacktestCreateInput, BacktestComparisonBacktestUncheckedCreateInput>
+    /**
+     * In case the BacktestComparisonBacktest was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<BacktestComparisonBacktestUpdateInput, BacktestComparisonBacktestUncheckedUpdateInput>
+  }
+
+  /**
+   * BacktestComparisonBacktest delete
+   */
+  export type BacktestComparisonBacktestDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparisonBacktest
+     */
+    select?: BacktestComparisonBacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparisonBacktest
+     */
+    omit?: BacktestComparisonBacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonBacktestInclude<ExtArgs> | null
+    /**
+     * Filter which BacktestComparisonBacktest to delete.
+     */
+    where: BacktestComparisonBacktestWhereUniqueInput
+  }
+
+  /**
+   * BacktestComparisonBacktest deleteMany
+   */
+  export type BacktestComparisonBacktestDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which BacktestComparisonBacktests to delete
+     */
+    where?: BacktestComparisonBacktestWhereInput
+    /**
+     * Limit how many BacktestComparisonBacktests to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * BacktestComparisonBacktest without action
+   */
+  export type BacktestComparisonBacktestDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the BacktestComparisonBacktest
+     */
+    select?: BacktestComparisonBacktestSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the BacktestComparisonBacktest
+     */
+    omit?: BacktestComparisonBacktestOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: BacktestComparisonBacktestInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -40196,6 +43957,50 @@ export namespace Prisma {
   export type AuditLogScalarFieldEnum = (typeof AuditLogScalarFieldEnum)[keyof typeof AuditLogScalarFieldEnum]
 
 
+  export const BacktestScalarFieldEnum: {
+    id: 'id',
+    botId: 'botId',
+    symbol: 'symbol',
+    timeframe: 'timeframe',
+    startDate: 'startDate',
+    endDate: 'endDate',
+    performance: 'performance',
+    config: 'config',
+    trades: 'trades',
+    status: 'status',
+    duration: 'duration',
+    modelName: 'modelName',
+    modelVersion: 'modelVersion',
+    optimizationMethod: 'optimizationMethod',
+    optimizationScore: 'optimizationScore',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type BacktestScalarFieldEnum = (typeof BacktestScalarFieldEnum)[keyof typeof BacktestScalarFieldEnum]
+
+
+  export const BacktestComparisonScalarFieldEnum: {
+    id: 'id',
+    name: 'name',
+    description: 'description',
+    results: 'results',
+    winner: 'winner',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type BacktestComparisonScalarFieldEnum = (typeof BacktestComparisonScalarFieldEnum)[keyof typeof BacktestComparisonScalarFieldEnum]
+
+
+  export const BacktestComparisonBacktestScalarFieldEnum: {
+    backtestId: 'backtestId',
+    backtestComparisonId: 'backtestComparisonId'
+  };
+
+  export type BacktestComparisonBacktestScalarFieldEnum = (typeof BacktestComparisonBacktestScalarFieldEnum)[keyof typeof BacktestComparisonBacktestScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -40789,6 +44594,7 @@ export namespace Prisma {
     riskSettings?: RiskSettingsListRelationFilter
     orders?: OrderListRelationFilter
     decisionLogs?: DecisionLogListRelationFilter
+    backtests?: BacktestListRelationFilter
   }
 
   export type BotOrderByWithRelationInput = {
@@ -40807,6 +44613,7 @@ export namespace Prisma {
     riskSettings?: RiskSettingsOrderByRelationAggregateInput
     orders?: OrderOrderByRelationAggregateInput
     decisionLogs?: DecisionLogOrderByRelationAggregateInput
+    backtests?: BacktestOrderByRelationAggregateInput
   }
 
   export type BotWhereUniqueInput = Prisma.AtLeast<{
@@ -40828,6 +44635,7 @@ export namespace Prisma {
     riskSettings?: RiskSettingsListRelationFilter
     orders?: OrderListRelationFilter
     decisionLogs?: DecisionLogListRelationFilter
+    backtests?: BacktestListRelationFilter
   }, "id">
 
   export type BotOrderByWithAggregationInput = {
@@ -43444,6 +47252,235 @@ export namespace Prisma {
     timestamp?: DateTimeWithAggregatesFilter<"AuditLog"> | Date | string
   }
 
+  export type BacktestWhereInput = {
+    AND?: BacktestWhereInput | BacktestWhereInput[]
+    OR?: BacktestWhereInput[]
+    NOT?: BacktestWhereInput | BacktestWhereInput[]
+    id?: StringFilter<"Backtest"> | string
+    botId?: StringFilter<"Backtest"> | string
+    symbol?: StringFilter<"Backtest"> | string
+    timeframe?: StringFilter<"Backtest"> | string
+    startDate?: DateTimeFilter<"Backtest"> | Date | string
+    endDate?: DateTimeFilter<"Backtest"> | Date | string
+    performance?: JsonFilter<"Backtest">
+    config?: JsonFilter<"Backtest">
+    trades?: JsonNullableFilter<"Backtest">
+    status?: StringFilter<"Backtest"> | string
+    duration?: IntNullableFilter<"Backtest"> | number | null
+    modelName?: StringNullableFilter<"Backtest"> | string | null
+    modelVersion?: StringNullableFilter<"Backtest"> | string | null
+    optimizationMethod?: StringNullableFilter<"Backtest"> | string | null
+    optimizationScore?: FloatNullableFilter<"Backtest"> | number | null
+    createdAt?: DateTimeFilter<"Backtest"> | Date | string
+    updatedAt?: DateTimeFilter<"Backtest"> | Date | string
+    bot?: XOR<BotScalarRelationFilter, BotWhereInput>
+    comparisons?: BacktestComparisonBacktestListRelationFilter
+  }
+
+  export type BacktestOrderByWithRelationInput = {
+    id?: SortOrder
+    botId?: SortOrder
+    symbol?: SortOrder
+    timeframe?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    performance?: SortOrder
+    config?: SortOrder
+    trades?: SortOrderInput | SortOrder
+    status?: SortOrder
+    duration?: SortOrderInput | SortOrder
+    modelName?: SortOrderInput | SortOrder
+    modelVersion?: SortOrderInput | SortOrder
+    optimizationMethod?: SortOrderInput | SortOrder
+    optimizationScore?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    bot?: BotOrderByWithRelationInput
+    comparisons?: BacktestComparisonBacktestOrderByRelationAggregateInput
+  }
+
+  export type BacktestWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: BacktestWhereInput | BacktestWhereInput[]
+    OR?: BacktestWhereInput[]
+    NOT?: BacktestWhereInput | BacktestWhereInput[]
+    botId?: StringFilter<"Backtest"> | string
+    symbol?: StringFilter<"Backtest"> | string
+    timeframe?: StringFilter<"Backtest"> | string
+    startDate?: DateTimeFilter<"Backtest"> | Date | string
+    endDate?: DateTimeFilter<"Backtest"> | Date | string
+    performance?: JsonFilter<"Backtest">
+    config?: JsonFilter<"Backtest">
+    trades?: JsonNullableFilter<"Backtest">
+    status?: StringFilter<"Backtest"> | string
+    duration?: IntNullableFilter<"Backtest"> | number | null
+    modelName?: StringNullableFilter<"Backtest"> | string | null
+    modelVersion?: StringNullableFilter<"Backtest"> | string | null
+    optimizationMethod?: StringNullableFilter<"Backtest"> | string | null
+    optimizationScore?: FloatNullableFilter<"Backtest"> | number | null
+    createdAt?: DateTimeFilter<"Backtest"> | Date | string
+    updatedAt?: DateTimeFilter<"Backtest"> | Date | string
+    bot?: XOR<BotScalarRelationFilter, BotWhereInput>
+    comparisons?: BacktestComparisonBacktestListRelationFilter
+  }, "id">
+
+  export type BacktestOrderByWithAggregationInput = {
+    id?: SortOrder
+    botId?: SortOrder
+    symbol?: SortOrder
+    timeframe?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    performance?: SortOrder
+    config?: SortOrder
+    trades?: SortOrderInput | SortOrder
+    status?: SortOrder
+    duration?: SortOrderInput | SortOrder
+    modelName?: SortOrderInput | SortOrder
+    modelVersion?: SortOrderInput | SortOrder
+    optimizationMethod?: SortOrderInput | SortOrder
+    optimizationScore?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: BacktestCountOrderByAggregateInput
+    _avg?: BacktestAvgOrderByAggregateInput
+    _max?: BacktestMaxOrderByAggregateInput
+    _min?: BacktestMinOrderByAggregateInput
+    _sum?: BacktestSumOrderByAggregateInput
+  }
+
+  export type BacktestScalarWhereWithAggregatesInput = {
+    AND?: BacktestScalarWhereWithAggregatesInput | BacktestScalarWhereWithAggregatesInput[]
+    OR?: BacktestScalarWhereWithAggregatesInput[]
+    NOT?: BacktestScalarWhereWithAggregatesInput | BacktestScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Backtest"> | string
+    botId?: StringWithAggregatesFilter<"Backtest"> | string
+    symbol?: StringWithAggregatesFilter<"Backtest"> | string
+    timeframe?: StringWithAggregatesFilter<"Backtest"> | string
+    startDate?: DateTimeWithAggregatesFilter<"Backtest"> | Date | string
+    endDate?: DateTimeWithAggregatesFilter<"Backtest"> | Date | string
+    performance?: JsonWithAggregatesFilter<"Backtest">
+    config?: JsonWithAggregatesFilter<"Backtest">
+    trades?: JsonNullableWithAggregatesFilter<"Backtest">
+    status?: StringWithAggregatesFilter<"Backtest"> | string
+    duration?: IntNullableWithAggregatesFilter<"Backtest"> | number | null
+    modelName?: StringNullableWithAggregatesFilter<"Backtest"> | string | null
+    modelVersion?: StringNullableWithAggregatesFilter<"Backtest"> | string | null
+    optimizationMethod?: StringNullableWithAggregatesFilter<"Backtest"> | string | null
+    optimizationScore?: FloatNullableWithAggregatesFilter<"Backtest"> | number | null
+    createdAt?: DateTimeWithAggregatesFilter<"Backtest"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Backtest"> | Date | string
+  }
+
+  export type BacktestComparisonWhereInput = {
+    AND?: BacktestComparisonWhereInput | BacktestComparisonWhereInput[]
+    OR?: BacktestComparisonWhereInput[]
+    NOT?: BacktestComparisonWhereInput | BacktestComparisonWhereInput[]
+    id?: StringFilter<"BacktestComparison"> | string
+    name?: StringFilter<"BacktestComparison"> | string
+    description?: StringNullableFilter<"BacktestComparison"> | string | null
+    results?: JsonNullableFilter<"BacktestComparison">
+    winner?: StringNullableFilter<"BacktestComparison"> | string | null
+    createdAt?: DateTimeFilter<"BacktestComparison"> | Date | string
+    updatedAt?: DateTimeFilter<"BacktestComparison"> | Date | string
+    backtests?: BacktestComparisonBacktestListRelationFilter
+  }
+
+  export type BacktestComparisonOrderByWithRelationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    results?: SortOrderInput | SortOrder
+    winner?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    backtests?: BacktestComparisonBacktestOrderByRelationAggregateInput
+  }
+
+  export type BacktestComparisonWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: BacktestComparisonWhereInput | BacktestComparisonWhereInput[]
+    OR?: BacktestComparisonWhereInput[]
+    NOT?: BacktestComparisonWhereInput | BacktestComparisonWhereInput[]
+    name?: StringFilter<"BacktestComparison"> | string
+    description?: StringNullableFilter<"BacktestComparison"> | string | null
+    results?: JsonNullableFilter<"BacktestComparison">
+    winner?: StringNullableFilter<"BacktestComparison"> | string | null
+    createdAt?: DateTimeFilter<"BacktestComparison"> | Date | string
+    updatedAt?: DateTimeFilter<"BacktestComparison"> | Date | string
+    backtests?: BacktestComparisonBacktestListRelationFilter
+  }, "id">
+
+  export type BacktestComparisonOrderByWithAggregationInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrderInput | SortOrder
+    results?: SortOrderInput | SortOrder
+    winner?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: BacktestComparisonCountOrderByAggregateInput
+    _max?: BacktestComparisonMaxOrderByAggregateInput
+    _min?: BacktestComparisonMinOrderByAggregateInput
+  }
+
+  export type BacktestComparisonScalarWhereWithAggregatesInput = {
+    AND?: BacktestComparisonScalarWhereWithAggregatesInput | BacktestComparisonScalarWhereWithAggregatesInput[]
+    OR?: BacktestComparisonScalarWhereWithAggregatesInput[]
+    NOT?: BacktestComparisonScalarWhereWithAggregatesInput | BacktestComparisonScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"BacktestComparison"> | string
+    name?: StringWithAggregatesFilter<"BacktestComparison"> | string
+    description?: StringNullableWithAggregatesFilter<"BacktestComparison"> | string | null
+    results?: JsonNullableWithAggregatesFilter<"BacktestComparison">
+    winner?: StringNullableWithAggregatesFilter<"BacktestComparison"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"BacktestComparison"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"BacktestComparison"> | Date | string
+  }
+
+  export type BacktestComparisonBacktestWhereInput = {
+    AND?: BacktestComparisonBacktestWhereInput | BacktestComparisonBacktestWhereInput[]
+    OR?: BacktestComparisonBacktestWhereInput[]
+    NOT?: BacktestComparisonBacktestWhereInput | BacktestComparisonBacktestWhereInput[]
+    backtestId?: StringFilter<"BacktestComparisonBacktest"> | string
+    backtestComparisonId?: StringFilter<"BacktestComparisonBacktest"> | string
+    backtest?: XOR<BacktestScalarRelationFilter, BacktestWhereInput>
+    backtestComparison?: XOR<BacktestComparisonScalarRelationFilter, BacktestComparisonWhereInput>
+  }
+
+  export type BacktestComparisonBacktestOrderByWithRelationInput = {
+    backtestId?: SortOrder
+    backtestComparisonId?: SortOrder
+    backtest?: BacktestOrderByWithRelationInput
+    backtestComparison?: BacktestComparisonOrderByWithRelationInput
+  }
+
+  export type BacktestComparisonBacktestWhereUniqueInput = Prisma.AtLeast<{
+    backtestId_backtestComparisonId?: BacktestComparisonBacktestBacktestIdBacktestComparisonIdCompoundUniqueInput
+    AND?: BacktestComparisonBacktestWhereInput | BacktestComparisonBacktestWhereInput[]
+    OR?: BacktestComparisonBacktestWhereInput[]
+    NOT?: BacktestComparisonBacktestWhereInput | BacktestComparisonBacktestWhereInput[]
+    backtestId?: StringFilter<"BacktestComparisonBacktest"> | string
+    backtestComparisonId?: StringFilter<"BacktestComparisonBacktest"> | string
+    backtest?: XOR<BacktestScalarRelationFilter, BacktestWhereInput>
+    backtestComparison?: XOR<BacktestComparisonScalarRelationFilter, BacktestComparisonWhereInput>
+  }, "backtestId_backtestComparisonId">
+
+  export type BacktestComparisonBacktestOrderByWithAggregationInput = {
+    backtestId?: SortOrder
+    backtestComparisonId?: SortOrder
+    _count?: BacktestComparisonBacktestCountOrderByAggregateInput
+    _max?: BacktestComparisonBacktestMaxOrderByAggregateInput
+    _min?: BacktestComparisonBacktestMinOrderByAggregateInput
+  }
+
+  export type BacktestComparisonBacktestScalarWhereWithAggregatesInput = {
+    AND?: BacktestComparisonBacktestScalarWhereWithAggregatesInput | BacktestComparisonBacktestScalarWhereWithAggregatesInput[]
+    OR?: BacktestComparisonBacktestScalarWhereWithAggregatesInput[]
+    NOT?: BacktestComparisonBacktestScalarWhereWithAggregatesInput | BacktestComparisonBacktestScalarWhereWithAggregatesInput[]
+    backtestId?: StringWithAggregatesFilter<"BacktestComparisonBacktest"> | string
+    backtestComparisonId?: StringWithAggregatesFilter<"BacktestComparisonBacktest"> | string
+  }
+
   export type UserCreateInput = {
     id?: string
     name: string
@@ -43986,6 +48023,7 @@ export namespace Prisma {
     riskSettings?: RiskSettingsCreateNestedManyWithoutBotInput
     orders?: OrderCreateNestedManyWithoutBotInput
     decisionLogs?: DecisionLogCreateNestedManyWithoutBotInput
+    backtests?: BacktestCreateNestedManyWithoutBotInput
   }
 
   export type BotUncheckedCreateInput = {
@@ -44003,6 +48041,7 @@ export namespace Prisma {
     riskSettings?: RiskSettingsUncheckedCreateNestedManyWithoutBotInput
     orders?: OrderUncheckedCreateNestedManyWithoutBotInput
     decisionLogs?: DecisionLogUncheckedCreateNestedManyWithoutBotInput
+    backtests?: BacktestUncheckedCreateNestedManyWithoutBotInput
   }
 
   export type BotUpdateInput = {
@@ -44020,6 +48059,7 @@ export namespace Prisma {
     riskSettings?: RiskSettingsUpdateManyWithoutBotNestedInput
     orders?: OrderUpdateManyWithoutBotNestedInput
     decisionLogs?: DecisionLogUpdateManyWithoutBotNestedInput
+    backtests?: BacktestUpdateManyWithoutBotNestedInput
   }
 
   export type BotUncheckedUpdateInput = {
@@ -44037,6 +48077,7 @@ export namespace Prisma {
     riskSettings?: RiskSettingsUncheckedUpdateManyWithoutBotNestedInput
     orders?: OrderUncheckedUpdateManyWithoutBotNestedInput
     decisionLogs?: DecisionLogUncheckedUpdateManyWithoutBotNestedInput
+    backtests?: BacktestUncheckedUpdateManyWithoutBotNestedInput
   }
 
   export type BotCreateManyInput = {
@@ -47116,6 +51157,257 @@ export namespace Prisma {
     timestamp?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type BacktestCreateInput = {
+    id?: string
+    symbol: string
+    timeframe: string
+    startDate: Date | string
+    endDate: Date | string
+    performance: JsonNullValueInput | InputJsonValue
+    config: JsonNullValueInput | InputJsonValue
+    trades?: NullableJsonNullValueInput | InputJsonValue
+    status?: string
+    duration?: number | null
+    modelName?: string | null
+    modelVersion?: string | null
+    optimizationMethod?: string | null
+    optimizationScore?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    bot: BotCreateNestedOneWithoutBacktestsInput
+    comparisons?: BacktestComparisonBacktestCreateNestedManyWithoutBacktestInput
+  }
+
+  export type BacktestUncheckedCreateInput = {
+    id?: string
+    botId: string
+    symbol: string
+    timeframe: string
+    startDate: Date | string
+    endDate: Date | string
+    performance: JsonNullValueInput | InputJsonValue
+    config: JsonNullValueInput | InputJsonValue
+    trades?: NullableJsonNullValueInput | InputJsonValue
+    status?: string
+    duration?: number | null
+    modelName?: string | null
+    modelVersion?: string | null
+    optimizationMethod?: string | null
+    optimizationScore?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    comparisons?: BacktestComparisonBacktestUncheckedCreateNestedManyWithoutBacktestInput
+  }
+
+  export type BacktestUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    performance?: JsonNullValueInput | InputJsonValue
+    config?: JsonNullValueInput | InputJsonValue
+    trades?: NullableJsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    modelName?: NullableStringFieldUpdateOperationsInput | string | null
+    modelVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    bot?: BotUpdateOneRequiredWithoutBacktestsNestedInput
+    comparisons?: BacktestComparisonBacktestUpdateManyWithoutBacktestNestedInput
+  }
+
+  export type BacktestUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    botId?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    performance?: JsonNullValueInput | InputJsonValue
+    config?: JsonNullValueInput | InputJsonValue
+    trades?: NullableJsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    modelName?: NullableStringFieldUpdateOperationsInput | string | null
+    modelVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    comparisons?: BacktestComparisonBacktestUncheckedUpdateManyWithoutBacktestNestedInput
+  }
+
+  export type BacktestCreateManyInput = {
+    id?: string
+    botId: string
+    symbol: string
+    timeframe: string
+    startDate: Date | string
+    endDate: Date | string
+    performance: JsonNullValueInput | InputJsonValue
+    config: JsonNullValueInput | InputJsonValue
+    trades?: NullableJsonNullValueInput | InputJsonValue
+    status?: string
+    duration?: number | null
+    modelName?: string | null
+    modelVersion?: string | null
+    optimizationMethod?: string | null
+    optimizationScore?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BacktestUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    performance?: JsonNullValueInput | InputJsonValue
+    config?: JsonNullValueInput | InputJsonValue
+    trades?: NullableJsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    modelName?: NullableStringFieldUpdateOperationsInput | string | null
+    modelVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BacktestUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    botId?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    performance?: JsonNullValueInput | InputJsonValue
+    config?: JsonNullValueInput | InputJsonValue
+    trades?: NullableJsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    modelName?: NullableStringFieldUpdateOperationsInput | string | null
+    modelVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BacktestComparisonCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    results?: NullableJsonNullValueInput | InputJsonValue
+    winner?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    backtests?: BacktestComparisonBacktestCreateNestedManyWithoutBacktestComparisonInput
+  }
+
+  export type BacktestComparisonUncheckedCreateInput = {
+    id?: string
+    name: string
+    description?: string | null
+    results?: NullableJsonNullValueInput | InputJsonValue
+    winner?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    backtests?: BacktestComparisonBacktestUncheckedCreateNestedManyWithoutBacktestComparisonInput
+  }
+
+  export type BacktestComparisonUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    results?: NullableJsonNullValueInput | InputJsonValue
+    winner?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    backtests?: BacktestComparisonBacktestUpdateManyWithoutBacktestComparisonNestedInput
+  }
+
+  export type BacktestComparisonUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    results?: NullableJsonNullValueInput | InputJsonValue
+    winner?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    backtests?: BacktestComparisonBacktestUncheckedUpdateManyWithoutBacktestComparisonNestedInput
+  }
+
+  export type BacktestComparisonCreateManyInput = {
+    id?: string
+    name: string
+    description?: string | null
+    results?: NullableJsonNullValueInput | InputJsonValue
+    winner?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BacktestComparisonUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    results?: NullableJsonNullValueInput | InputJsonValue
+    winner?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BacktestComparisonUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    results?: NullableJsonNullValueInput | InputJsonValue
+    winner?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BacktestComparisonBacktestCreateInput = {
+    backtest: BacktestCreateNestedOneWithoutComparisonsInput
+    backtestComparison: BacktestComparisonCreateNestedOneWithoutBacktestsInput
+  }
+
+  export type BacktestComparisonBacktestUncheckedCreateInput = {
+    backtestId: string
+    backtestComparisonId: string
+  }
+
+  export type BacktestComparisonBacktestUpdateInput = {
+    backtest?: BacktestUpdateOneRequiredWithoutComparisonsNestedInput
+    backtestComparison?: BacktestComparisonUpdateOneRequiredWithoutBacktestsNestedInput
+  }
+
+  export type BacktestComparisonBacktestUncheckedUpdateInput = {
+    backtestId?: StringFieldUpdateOperationsInput | string
+    backtestComparisonId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type BacktestComparisonBacktestCreateManyInput = {
+    backtestId: string
+    backtestComparisonId: string
+  }
+
+  export type BacktestComparisonBacktestUpdateManyMutationInput = {
+
+  }
+
+  export type BacktestComparisonBacktestUncheckedUpdateManyInput = {
+    backtestId?: StringFieldUpdateOperationsInput | string
+    backtestComparisonId?: StringFieldUpdateOperationsInput | string
+  }
+
   export type StringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -47701,6 +51993,16 @@ export namespace Prisma {
     gt?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     gte?: InputJsonValue | JsonFieldRefInput<$PrismaModel>
     not?: InputJsonValue | JsonFieldRefInput<$PrismaModel> | JsonNullValueFilter
+  }
+
+  export type BacktestListRelationFilter = {
+    every?: BacktestWhereInput
+    some?: BacktestWhereInput
+    none?: BacktestWhereInput
+  }
+
+  export type BacktestOrderByRelationAggregateInput = {
+    _count?: SortOrder
   }
 
   export type BotCountOrderByAggregateInput = {
@@ -49448,6 +53750,143 @@ export namespace Prisma {
     timestamp?: SortOrder
   }
 
+  export type BotScalarRelationFilter = {
+    is?: BotWhereInput
+    isNot?: BotWhereInput
+  }
+
+  export type BacktestComparisonBacktestListRelationFilter = {
+    every?: BacktestComparisonBacktestWhereInput
+    some?: BacktestComparisonBacktestWhereInput
+    none?: BacktestComparisonBacktestWhereInput
+  }
+
+  export type BacktestComparisonBacktestOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type BacktestCountOrderByAggregateInput = {
+    id?: SortOrder
+    botId?: SortOrder
+    symbol?: SortOrder
+    timeframe?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    performance?: SortOrder
+    config?: SortOrder
+    trades?: SortOrder
+    status?: SortOrder
+    duration?: SortOrder
+    modelName?: SortOrder
+    modelVersion?: SortOrder
+    optimizationMethod?: SortOrder
+    optimizationScore?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BacktestAvgOrderByAggregateInput = {
+    duration?: SortOrder
+    optimizationScore?: SortOrder
+  }
+
+  export type BacktestMaxOrderByAggregateInput = {
+    id?: SortOrder
+    botId?: SortOrder
+    symbol?: SortOrder
+    timeframe?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    status?: SortOrder
+    duration?: SortOrder
+    modelName?: SortOrder
+    modelVersion?: SortOrder
+    optimizationMethod?: SortOrder
+    optimizationScore?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BacktestMinOrderByAggregateInput = {
+    id?: SortOrder
+    botId?: SortOrder
+    symbol?: SortOrder
+    timeframe?: SortOrder
+    startDate?: SortOrder
+    endDate?: SortOrder
+    status?: SortOrder
+    duration?: SortOrder
+    modelName?: SortOrder
+    modelVersion?: SortOrder
+    optimizationMethod?: SortOrder
+    optimizationScore?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BacktestSumOrderByAggregateInput = {
+    duration?: SortOrder
+    optimizationScore?: SortOrder
+  }
+
+  export type BacktestComparisonCountOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    results?: SortOrder
+    winner?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BacktestComparisonMaxOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    winner?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BacktestComparisonMinOrderByAggregateInput = {
+    id?: SortOrder
+    name?: SortOrder
+    description?: SortOrder
+    winner?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type BacktestScalarRelationFilter = {
+    is?: BacktestWhereInput
+    isNot?: BacktestWhereInput
+  }
+
+  export type BacktestComparisonScalarRelationFilter = {
+    is?: BacktestComparisonWhereInput
+    isNot?: BacktestComparisonWhereInput
+  }
+
+  export type BacktestComparisonBacktestBacktestIdBacktestComparisonIdCompoundUniqueInput = {
+    backtestId: string
+    backtestComparisonId: string
+  }
+
+  export type BacktestComparisonBacktestCountOrderByAggregateInput = {
+    backtestId?: SortOrder
+    backtestComparisonId?: SortOrder
+  }
+
+  export type BacktestComparisonBacktestMaxOrderByAggregateInput = {
+    backtestId?: SortOrder
+    backtestComparisonId?: SortOrder
+  }
+
+  export type BacktestComparisonBacktestMinOrderByAggregateInput = {
+    backtestId?: SortOrder
+    backtestComparisonId?: SortOrder
+  }
+
   export type ApiKeyCreateNestedManyWithoutUserInput = {
     create?: XOR<ApiKeyCreateWithoutUserInput, ApiKeyUncheckedCreateWithoutUserInput> | ApiKeyCreateWithoutUserInput[] | ApiKeyUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ApiKeyCreateOrConnectWithoutUserInput | ApiKeyCreateOrConnectWithoutUserInput[]
@@ -49980,6 +54419,13 @@ export namespace Prisma {
     connect?: DecisionLogWhereUniqueInput | DecisionLogWhereUniqueInput[]
   }
 
+  export type BacktestCreateNestedManyWithoutBotInput = {
+    create?: XOR<BacktestCreateWithoutBotInput, BacktestUncheckedCreateWithoutBotInput> | BacktestCreateWithoutBotInput[] | BacktestUncheckedCreateWithoutBotInput[]
+    connectOrCreate?: BacktestCreateOrConnectWithoutBotInput | BacktestCreateOrConnectWithoutBotInput[]
+    createMany?: BacktestCreateManyBotInputEnvelope
+    connect?: BacktestWhereUniqueInput | BacktestWhereUniqueInput[]
+  }
+
   export type PositionUncheckedCreateNestedManyWithoutBotInput = {
     create?: XOR<PositionCreateWithoutBotInput, PositionUncheckedCreateWithoutBotInput> | PositionCreateWithoutBotInput[] | PositionUncheckedCreateWithoutBotInput[]
     connectOrCreate?: PositionCreateOrConnectWithoutBotInput | PositionCreateOrConnectWithoutBotInput[]
@@ -50006,6 +54452,13 @@ export namespace Prisma {
     connectOrCreate?: DecisionLogCreateOrConnectWithoutBotInput | DecisionLogCreateOrConnectWithoutBotInput[]
     createMany?: DecisionLogCreateManyBotInputEnvelope
     connect?: DecisionLogWhereUniqueInput | DecisionLogWhereUniqueInput[]
+  }
+
+  export type BacktestUncheckedCreateNestedManyWithoutBotInput = {
+    create?: XOR<BacktestCreateWithoutBotInput, BacktestUncheckedCreateWithoutBotInput> | BacktestCreateWithoutBotInput[] | BacktestUncheckedCreateWithoutBotInput[]
+    connectOrCreate?: BacktestCreateOrConnectWithoutBotInput | BacktestCreateOrConnectWithoutBotInput[]
+    createMany?: BacktestCreateManyBotInputEnvelope
+    connect?: BacktestWhereUniqueInput | BacktestWhereUniqueInput[]
   }
 
   export type UserUpdateOneRequiredWithoutBotsNestedInput = {
@@ -50072,6 +54525,20 @@ export namespace Prisma {
     deleteMany?: DecisionLogScalarWhereInput | DecisionLogScalarWhereInput[]
   }
 
+  export type BacktestUpdateManyWithoutBotNestedInput = {
+    create?: XOR<BacktestCreateWithoutBotInput, BacktestUncheckedCreateWithoutBotInput> | BacktestCreateWithoutBotInput[] | BacktestUncheckedCreateWithoutBotInput[]
+    connectOrCreate?: BacktestCreateOrConnectWithoutBotInput | BacktestCreateOrConnectWithoutBotInput[]
+    upsert?: BacktestUpsertWithWhereUniqueWithoutBotInput | BacktestUpsertWithWhereUniqueWithoutBotInput[]
+    createMany?: BacktestCreateManyBotInputEnvelope
+    set?: BacktestWhereUniqueInput | BacktestWhereUniqueInput[]
+    disconnect?: BacktestWhereUniqueInput | BacktestWhereUniqueInput[]
+    delete?: BacktestWhereUniqueInput | BacktestWhereUniqueInput[]
+    connect?: BacktestWhereUniqueInput | BacktestWhereUniqueInput[]
+    update?: BacktestUpdateWithWhereUniqueWithoutBotInput | BacktestUpdateWithWhereUniqueWithoutBotInput[]
+    updateMany?: BacktestUpdateManyWithWhereWithoutBotInput | BacktestUpdateManyWithWhereWithoutBotInput[]
+    deleteMany?: BacktestScalarWhereInput | BacktestScalarWhereInput[]
+  }
+
   export type PositionUncheckedUpdateManyWithoutBotNestedInput = {
     create?: XOR<PositionCreateWithoutBotInput, PositionUncheckedCreateWithoutBotInput> | PositionCreateWithoutBotInput[] | PositionUncheckedCreateWithoutBotInput[]
     connectOrCreate?: PositionCreateOrConnectWithoutBotInput | PositionCreateOrConnectWithoutBotInput[]
@@ -50126,6 +54593,20 @@ export namespace Prisma {
     update?: DecisionLogUpdateWithWhereUniqueWithoutBotInput | DecisionLogUpdateWithWhereUniqueWithoutBotInput[]
     updateMany?: DecisionLogUpdateManyWithWhereWithoutBotInput | DecisionLogUpdateManyWithWhereWithoutBotInput[]
     deleteMany?: DecisionLogScalarWhereInput | DecisionLogScalarWhereInput[]
+  }
+
+  export type BacktestUncheckedUpdateManyWithoutBotNestedInput = {
+    create?: XOR<BacktestCreateWithoutBotInput, BacktestUncheckedCreateWithoutBotInput> | BacktestCreateWithoutBotInput[] | BacktestUncheckedCreateWithoutBotInput[]
+    connectOrCreate?: BacktestCreateOrConnectWithoutBotInput | BacktestCreateOrConnectWithoutBotInput[]
+    upsert?: BacktestUpsertWithWhereUniqueWithoutBotInput | BacktestUpsertWithWhereUniqueWithoutBotInput[]
+    createMany?: BacktestCreateManyBotInputEnvelope
+    set?: BacktestWhereUniqueInput | BacktestWhereUniqueInput[]
+    disconnect?: BacktestWhereUniqueInput | BacktestWhereUniqueInput[]
+    delete?: BacktestWhereUniqueInput | BacktestWhereUniqueInput[]
+    connect?: BacktestWhereUniqueInput | BacktestWhereUniqueInput[]
+    update?: BacktestUpdateWithWhereUniqueWithoutBotInput | BacktestUpdateWithWhereUniqueWithoutBotInput[]
+    updateMany?: BacktestUpdateManyWithWhereWithoutBotInput | BacktestUpdateManyWithWhereWithoutBotInput[]
+    deleteMany?: BacktestScalarWhereInput | BacktestScalarWhereInput[]
   }
 
   export type UserCreateNestedOneWithoutPositionsInput = {
@@ -51106,6 +55587,132 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAuditLogsInput, UserUpdateWithoutAuditLogsInput>, UserUncheckedUpdateWithoutAuditLogsInput>
   }
 
+  export type BotCreateNestedOneWithoutBacktestsInput = {
+    create?: XOR<BotCreateWithoutBacktestsInput, BotUncheckedCreateWithoutBacktestsInput>
+    connectOrCreate?: BotCreateOrConnectWithoutBacktestsInput
+    connect?: BotWhereUniqueInput
+  }
+
+  export type BacktestComparisonBacktestCreateNestedManyWithoutBacktestInput = {
+    create?: XOR<BacktestComparisonBacktestCreateWithoutBacktestInput, BacktestComparisonBacktestUncheckedCreateWithoutBacktestInput> | BacktestComparisonBacktestCreateWithoutBacktestInput[] | BacktestComparisonBacktestUncheckedCreateWithoutBacktestInput[]
+    connectOrCreate?: BacktestComparisonBacktestCreateOrConnectWithoutBacktestInput | BacktestComparisonBacktestCreateOrConnectWithoutBacktestInput[]
+    createMany?: BacktestComparisonBacktestCreateManyBacktestInputEnvelope
+    connect?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+  }
+
+  export type BacktestComparisonBacktestUncheckedCreateNestedManyWithoutBacktestInput = {
+    create?: XOR<BacktestComparisonBacktestCreateWithoutBacktestInput, BacktestComparisonBacktestUncheckedCreateWithoutBacktestInput> | BacktestComparisonBacktestCreateWithoutBacktestInput[] | BacktestComparisonBacktestUncheckedCreateWithoutBacktestInput[]
+    connectOrCreate?: BacktestComparisonBacktestCreateOrConnectWithoutBacktestInput | BacktestComparisonBacktestCreateOrConnectWithoutBacktestInput[]
+    createMany?: BacktestComparisonBacktestCreateManyBacktestInputEnvelope
+    connect?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+  }
+
+  export type BotUpdateOneRequiredWithoutBacktestsNestedInput = {
+    create?: XOR<BotCreateWithoutBacktestsInput, BotUncheckedCreateWithoutBacktestsInput>
+    connectOrCreate?: BotCreateOrConnectWithoutBacktestsInput
+    upsert?: BotUpsertWithoutBacktestsInput
+    connect?: BotWhereUniqueInput
+    update?: XOR<XOR<BotUpdateToOneWithWhereWithoutBacktestsInput, BotUpdateWithoutBacktestsInput>, BotUncheckedUpdateWithoutBacktestsInput>
+  }
+
+  export type BacktestComparisonBacktestUpdateManyWithoutBacktestNestedInput = {
+    create?: XOR<BacktestComparisonBacktestCreateWithoutBacktestInput, BacktestComparisonBacktestUncheckedCreateWithoutBacktestInput> | BacktestComparisonBacktestCreateWithoutBacktestInput[] | BacktestComparisonBacktestUncheckedCreateWithoutBacktestInput[]
+    connectOrCreate?: BacktestComparisonBacktestCreateOrConnectWithoutBacktestInput | BacktestComparisonBacktestCreateOrConnectWithoutBacktestInput[]
+    upsert?: BacktestComparisonBacktestUpsertWithWhereUniqueWithoutBacktestInput | BacktestComparisonBacktestUpsertWithWhereUniqueWithoutBacktestInput[]
+    createMany?: BacktestComparisonBacktestCreateManyBacktestInputEnvelope
+    set?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+    disconnect?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+    delete?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+    connect?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+    update?: BacktestComparisonBacktestUpdateWithWhereUniqueWithoutBacktestInput | BacktestComparisonBacktestUpdateWithWhereUniqueWithoutBacktestInput[]
+    updateMany?: BacktestComparisonBacktestUpdateManyWithWhereWithoutBacktestInput | BacktestComparisonBacktestUpdateManyWithWhereWithoutBacktestInput[]
+    deleteMany?: BacktestComparisonBacktestScalarWhereInput | BacktestComparisonBacktestScalarWhereInput[]
+  }
+
+  export type BacktestComparisonBacktestUncheckedUpdateManyWithoutBacktestNestedInput = {
+    create?: XOR<BacktestComparisonBacktestCreateWithoutBacktestInput, BacktestComparisonBacktestUncheckedCreateWithoutBacktestInput> | BacktestComparisonBacktestCreateWithoutBacktestInput[] | BacktestComparisonBacktestUncheckedCreateWithoutBacktestInput[]
+    connectOrCreate?: BacktestComparisonBacktestCreateOrConnectWithoutBacktestInput | BacktestComparisonBacktestCreateOrConnectWithoutBacktestInput[]
+    upsert?: BacktestComparisonBacktestUpsertWithWhereUniqueWithoutBacktestInput | BacktestComparisonBacktestUpsertWithWhereUniqueWithoutBacktestInput[]
+    createMany?: BacktestComparisonBacktestCreateManyBacktestInputEnvelope
+    set?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+    disconnect?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+    delete?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+    connect?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+    update?: BacktestComparisonBacktestUpdateWithWhereUniqueWithoutBacktestInput | BacktestComparisonBacktestUpdateWithWhereUniqueWithoutBacktestInput[]
+    updateMany?: BacktestComparisonBacktestUpdateManyWithWhereWithoutBacktestInput | BacktestComparisonBacktestUpdateManyWithWhereWithoutBacktestInput[]
+    deleteMany?: BacktestComparisonBacktestScalarWhereInput | BacktestComparisonBacktestScalarWhereInput[]
+  }
+
+  export type BacktestComparisonBacktestCreateNestedManyWithoutBacktestComparisonInput = {
+    create?: XOR<BacktestComparisonBacktestCreateWithoutBacktestComparisonInput, BacktestComparisonBacktestUncheckedCreateWithoutBacktestComparisonInput> | BacktestComparisonBacktestCreateWithoutBacktestComparisonInput[] | BacktestComparisonBacktestUncheckedCreateWithoutBacktestComparisonInput[]
+    connectOrCreate?: BacktestComparisonBacktestCreateOrConnectWithoutBacktestComparisonInput | BacktestComparisonBacktestCreateOrConnectWithoutBacktestComparisonInput[]
+    createMany?: BacktestComparisonBacktestCreateManyBacktestComparisonInputEnvelope
+    connect?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+  }
+
+  export type BacktestComparisonBacktestUncheckedCreateNestedManyWithoutBacktestComparisonInput = {
+    create?: XOR<BacktestComparisonBacktestCreateWithoutBacktestComparisonInput, BacktestComparisonBacktestUncheckedCreateWithoutBacktestComparisonInput> | BacktestComparisonBacktestCreateWithoutBacktestComparisonInput[] | BacktestComparisonBacktestUncheckedCreateWithoutBacktestComparisonInput[]
+    connectOrCreate?: BacktestComparisonBacktestCreateOrConnectWithoutBacktestComparisonInput | BacktestComparisonBacktestCreateOrConnectWithoutBacktestComparisonInput[]
+    createMany?: BacktestComparisonBacktestCreateManyBacktestComparisonInputEnvelope
+    connect?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+  }
+
+  export type BacktestComparisonBacktestUpdateManyWithoutBacktestComparisonNestedInput = {
+    create?: XOR<BacktestComparisonBacktestCreateWithoutBacktestComparisonInput, BacktestComparisonBacktestUncheckedCreateWithoutBacktestComparisonInput> | BacktestComparisonBacktestCreateWithoutBacktestComparisonInput[] | BacktestComparisonBacktestUncheckedCreateWithoutBacktestComparisonInput[]
+    connectOrCreate?: BacktestComparisonBacktestCreateOrConnectWithoutBacktestComparisonInput | BacktestComparisonBacktestCreateOrConnectWithoutBacktestComparisonInput[]
+    upsert?: BacktestComparisonBacktestUpsertWithWhereUniqueWithoutBacktestComparisonInput | BacktestComparisonBacktestUpsertWithWhereUniqueWithoutBacktestComparisonInput[]
+    createMany?: BacktestComparisonBacktestCreateManyBacktestComparisonInputEnvelope
+    set?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+    disconnect?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+    delete?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+    connect?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+    update?: BacktestComparisonBacktestUpdateWithWhereUniqueWithoutBacktestComparisonInput | BacktestComparisonBacktestUpdateWithWhereUniqueWithoutBacktestComparisonInput[]
+    updateMany?: BacktestComparisonBacktestUpdateManyWithWhereWithoutBacktestComparisonInput | BacktestComparisonBacktestUpdateManyWithWhereWithoutBacktestComparisonInput[]
+    deleteMany?: BacktestComparisonBacktestScalarWhereInput | BacktestComparisonBacktestScalarWhereInput[]
+  }
+
+  export type BacktestComparisonBacktestUncheckedUpdateManyWithoutBacktestComparisonNestedInput = {
+    create?: XOR<BacktestComparisonBacktestCreateWithoutBacktestComparisonInput, BacktestComparisonBacktestUncheckedCreateWithoutBacktestComparisonInput> | BacktestComparisonBacktestCreateWithoutBacktestComparisonInput[] | BacktestComparisonBacktestUncheckedCreateWithoutBacktestComparisonInput[]
+    connectOrCreate?: BacktestComparisonBacktestCreateOrConnectWithoutBacktestComparisonInput | BacktestComparisonBacktestCreateOrConnectWithoutBacktestComparisonInput[]
+    upsert?: BacktestComparisonBacktestUpsertWithWhereUniqueWithoutBacktestComparisonInput | BacktestComparisonBacktestUpsertWithWhereUniqueWithoutBacktestComparisonInput[]
+    createMany?: BacktestComparisonBacktestCreateManyBacktestComparisonInputEnvelope
+    set?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+    disconnect?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+    delete?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+    connect?: BacktestComparisonBacktestWhereUniqueInput | BacktestComparisonBacktestWhereUniqueInput[]
+    update?: BacktestComparisonBacktestUpdateWithWhereUniqueWithoutBacktestComparisonInput | BacktestComparisonBacktestUpdateWithWhereUniqueWithoutBacktestComparisonInput[]
+    updateMany?: BacktestComparisonBacktestUpdateManyWithWhereWithoutBacktestComparisonInput | BacktestComparisonBacktestUpdateManyWithWhereWithoutBacktestComparisonInput[]
+    deleteMany?: BacktestComparisonBacktestScalarWhereInput | BacktestComparisonBacktestScalarWhereInput[]
+  }
+
+  export type BacktestCreateNestedOneWithoutComparisonsInput = {
+    create?: XOR<BacktestCreateWithoutComparisonsInput, BacktestUncheckedCreateWithoutComparisonsInput>
+    connectOrCreate?: BacktestCreateOrConnectWithoutComparisonsInput
+    connect?: BacktestWhereUniqueInput
+  }
+
+  export type BacktestComparisonCreateNestedOneWithoutBacktestsInput = {
+    create?: XOR<BacktestComparisonCreateWithoutBacktestsInput, BacktestComparisonUncheckedCreateWithoutBacktestsInput>
+    connectOrCreate?: BacktestComparisonCreateOrConnectWithoutBacktestsInput
+    connect?: BacktestComparisonWhereUniqueInput
+  }
+
+  export type BacktestUpdateOneRequiredWithoutComparisonsNestedInput = {
+    create?: XOR<BacktestCreateWithoutComparisonsInput, BacktestUncheckedCreateWithoutComparisonsInput>
+    connectOrCreate?: BacktestCreateOrConnectWithoutComparisonsInput
+    upsert?: BacktestUpsertWithoutComparisonsInput
+    connect?: BacktestWhereUniqueInput
+    update?: XOR<XOR<BacktestUpdateToOneWithWhereWithoutComparisonsInput, BacktestUpdateWithoutComparisonsInput>, BacktestUncheckedUpdateWithoutComparisonsInput>
+  }
+
+  export type BacktestComparisonUpdateOneRequiredWithoutBacktestsNestedInput = {
+    create?: XOR<BacktestComparisonCreateWithoutBacktestsInput, BacktestComparisonUncheckedCreateWithoutBacktestsInput>
+    connectOrCreate?: BacktestComparisonCreateOrConnectWithoutBacktestsInput
+    upsert?: BacktestComparisonUpsertWithoutBacktestsInput
+    connect?: BacktestComparisonWhereUniqueInput
+    update?: XOR<XOR<BacktestComparisonUpdateToOneWithWhereWithoutBacktestsInput, BacktestComparisonUpdateWithoutBacktestsInput>, BacktestComparisonUncheckedUpdateWithoutBacktestsInput>
+  }
+
   export type NestedStringFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -51485,6 +56092,7 @@ export namespace Prisma {
     riskSettings?: RiskSettingsCreateNestedManyWithoutBotInput
     orders?: OrderCreateNestedManyWithoutBotInput
     decisionLogs?: DecisionLogCreateNestedManyWithoutBotInput
+    backtests?: BacktestCreateNestedManyWithoutBotInput
   }
 
   export type BotUncheckedCreateWithoutUserInput = {
@@ -51501,6 +56109,7 @@ export namespace Prisma {
     riskSettings?: RiskSettingsUncheckedCreateNestedManyWithoutBotInput
     orders?: OrderUncheckedCreateNestedManyWithoutBotInput
     decisionLogs?: DecisionLogUncheckedCreateNestedManyWithoutBotInput
+    backtests?: BacktestUncheckedCreateNestedManyWithoutBotInput
   }
 
   export type BotCreateOrConnectWithoutUserInput = {
@@ -52965,6 +57574,56 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type BacktestCreateWithoutBotInput = {
+    id?: string
+    symbol: string
+    timeframe: string
+    startDate: Date | string
+    endDate: Date | string
+    performance: JsonNullValueInput | InputJsonValue
+    config: JsonNullValueInput | InputJsonValue
+    trades?: NullableJsonNullValueInput | InputJsonValue
+    status?: string
+    duration?: number | null
+    modelName?: string | null
+    modelVersion?: string | null
+    optimizationMethod?: string | null
+    optimizationScore?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    comparisons?: BacktestComparisonBacktestCreateNestedManyWithoutBacktestInput
+  }
+
+  export type BacktestUncheckedCreateWithoutBotInput = {
+    id?: string
+    symbol: string
+    timeframe: string
+    startDate: Date | string
+    endDate: Date | string
+    performance: JsonNullValueInput | InputJsonValue
+    config: JsonNullValueInput | InputJsonValue
+    trades?: NullableJsonNullValueInput | InputJsonValue
+    status?: string
+    duration?: number | null
+    modelName?: string | null
+    modelVersion?: string | null
+    optimizationMethod?: string | null
+    optimizationScore?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    comparisons?: BacktestComparisonBacktestUncheckedCreateNestedManyWithoutBacktestInput
+  }
+
+  export type BacktestCreateOrConnectWithoutBotInput = {
+    where: BacktestWhereUniqueInput
+    create: XOR<BacktestCreateWithoutBotInput, BacktestUncheckedCreateWithoutBotInput>
+  }
+
+  export type BacktestCreateManyBotInputEnvelope = {
+    data: BacktestCreateManyBotInput | BacktestCreateManyBotInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithoutBotsInput = {
     update: XOR<UserUpdateWithoutBotsInput, UserUncheckedUpdateWithoutBotsInput>
     create: XOR<UserCreateWithoutBotsInput, UserUncheckedCreateWithoutBotsInput>
@@ -53094,6 +57753,45 @@ export namespace Prisma {
     data: XOR<DecisionLogUpdateManyMutationInput, DecisionLogUncheckedUpdateManyWithoutBotInput>
   }
 
+  export type BacktestUpsertWithWhereUniqueWithoutBotInput = {
+    where: BacktestWhereUniqueInput
+    update: XOR<BacktestUpdateWithoutBotInput, BacktestUncheckedUpdateWithoutBotInput>
+    create: XOR<BacktestCreateWithoutBotInput, BacktestUncheckedCreateWithoutBotInput>
+  }
+
+  export type BacktestUpdateWithWhereUniqueWithoutBotInput = {
+    where: BacktestWhereUniqueInput
+    data: XOR<BacktestUpdateWithoutBotInput, BacktestUncheckedUpdateWithoutBotInput>
+  }
+
+  export type BacktestUpdateManyWithWhereWithoutBotInput = {
+    where: BacktestScalarWhereInput
+    data: XOR<BacktestUpdateManyMutationInput, BacktestUncheckedUpdateManyWithoutBotInput>
+  }
+
+  export type BacktestScalarWhereInput = {
+    AND?: BacktestScalarWhereInput | BacktestScalarWhereInput[]
+    OR?: BacktestScalarWhereInput[]
+    NOT?: BacktestScalarWhereInput | BacktestScalarWhereInput[]
+    id?: StringFilter<"Backtest"> | string
+    botId?: StringFilter<"Backtest"> | string
+    symbol?: StringFilter<"Backtest"> | string
+    timeframe?: StringFilter<"Backtest"> | string
+    startDate?: DateTimeFilter<"Backtest"> | Date | string
+    endDate?: DateTimeFilter<"Backtest"> | Date | string
+    performance?: JsonFilter<"Backtest">
+    config?: JsonFilter<"Backtest">
+    trades?: JsonNullableFilter<"Backtest">
+    status?: StringFilter<"Backtest"> | string
+    duration?: IntNullableFilter<"Backtest"> | number | null
+    modelName?: StringNullableFilter<"Backtest"> | string | null
+    modelVersion?: StringNullableFilter<"Backtest"> | string | null
+    optimizationMethod?: StringNullableFilter<"Backtest"> | string | null
+    optimizationScore?: FloatNullableFilter<"Backtest"> | number | null
+    createdAt?: DateTimeFilter<"Backtest"> | Date | string
+    updatedAt?: DateTimeFilter<"Backtest"> | Date | string
+  }
+
   export type UserCreateWithoutPositionsInput = {
     id?: string
     name: string
@@ -53167,6 +57865,7 @@ export namespace Prisma {
     riskSettings?: RiskSettingsCreateNestedManyWithoutBotInput
     orders?: OrderCreateNestedManyWithoutBotInput
     decisionLogs?: DecisionLogCreateNestedManyWithoutBotInput
+    backtests?: BacktestCreateNestedManyWithoutBotInput
   }
 
   export type BotUncheckedCreateWithoutPositionsInput = {
@@ -53183,6 +57882,7 @@ export namespace Prisma {
     riskSettings?: RiskSettingsUncheckedCreateNestedManyWithoutBotInput
     orders?: OrderUncheckedCreateNestedManyWithoutBotInput
     decisionLogs?: DecisionLogUncheckedCreateNestedManyWithoutBotInput
+    backtests?: BacktestUncheckedCreateNestedManyWithoutBotInput
   }
 
   export type BotCreateOrConnectWithoutPositionsInput = {
@@ -53354,6 +58054,7 @@ export namespace Prisma {
     riskSettings?: RiskSettingsUpdateManyWithoutBotNestedInput
     orders?: OrderUpdateManyWithoutBotNestedInput
     decisionLogs?: DecisionLogUpdateManyWithoutBotNestedInput
+    backtests?: BacktestUpdateManyWithoutBotNestedInput
   }
 
   export type BotUncheckedUpdateWithoutPositionsInput = {
@@ -53370,6 +58071,7 @@ export namespace Prisma {
     riskSettings?: RiskSettingsUncheckedUpdateManyWithoutBotNestedInput
     orders?: OrderUncheckedUpdateManyWithoutBotNestedInput
     decisionLogs?: DecisionLogUncheckedUpdateManyWithoutBotNestedInput
+    backtests?: BacktestUncheckedUpdateManyWithoutBotNestedInput
   }
 
   export type OrderUpsertWithWhereUniqueWithoutPositionInput = {
@@ -53551,6 +58253,7 @@ export namespace Prisma {
     positions?: PositionCreateNestedManyWithoutBotInput
     orders?: OrderCreateNestedManyWithoutBotInput
     decisionLogs?: DecisionLogCreateNestedManyWithoutBotInput
+    backtests?: BacktestCreateNestedManyWithoutBotInput
   }
 
   export type BotUncheckedCreateWithoutRiskSettingsInput = {
@@ -53567,6 +58270,7 @@ export namespace Prisma {
     positions?: PositionUncheckedCreateNestedManyWithoutBotInput
     orders?: OrderUncheckedCreateNestedManyWithoutBotInput
     decisionLogs?: DecisionLogUncheckedCreateNestedManyWithoutBotInput
+    backtests?: BacktestUncheckedCreateNestedManyWithoutBotInput
   }
 
   export type BotCreateOrConnectWithoutRiskSettingsInput = {
@@ -53664,6 +58368,7 @@ export namespace Prisma {
     positions?: PositionUpdateManyWithoutBotNestedInput
     orders?: OrderUpdateManyWithoutBotNestedInput
     decisionLogs?: DecisionLogUpdateManyWithoutBotNestedInput
+    backtests?: BacktestUpdateManyWithoutBotNestedInput
   }
 
   export type BotUncheckedUpdateWithoutRiskSettingsInput = {
@@ -53680,6 +58385,7 @@ export namespace Prisma {
     positions?: PositionUncheckedUpdateManyWithoutBotNestedInput
     orders?: OrderUncheckedUpdateManyWithoutBotNestedInput
     decisionLogs?: DecisionLogUncheckedUpdateManyWithoutBotNestedInput
+    backtests?: BacktestUncheckedUpdateManyWithoutBotNestedInput
   }
 
   export type UserCreateWithoutRiskAlertsInput = {
@@ -55062,6 +59768,7 @@ export namespace Prisma {
     positions?: PositionCreateNestedManyWithoutBotInput
     riskSettings?: RiskSettingsCreateNestedManyWithoutBotInput
     decisionLogs?: DecisionLogCreateNestedManyWithoutBotInput
+    backtests?: BacktestCreateNestedManyWithoutBotInput
   }
 
   export type BotUncheckedCreateWithoutOrdersInput = {
@@ -55078,6 +59785,7 @@ export namespace Prisma {
     positions?: PositionUncheckedCreateNestedManyWithoutBotInput
     riskSettings?: RiskSettingsUncheckedCreateNestedManyWithoutBotInput
     decisionLogs?: DecisionLogUncheckedCreateNestedManyWithoutBotInput
+    backtests?: BacktestUncheckedCreateNestedManyWithoutBotInput
   }
 
   export type BotCreateOrConnectWithoutOrdersInput = {
@@ -55376,6 +60084,7 @@ export namespace Prisma {
     positions?: PositionUpdateManyWithoutBotNestedInput
     riskSettings?: RiskSettingsUpdateManyWithoutBotNestedInput
     decisionLogs?: DecisionLogUpdateManyWithoutBotNestedInput
+    backtests?: BacktestUpdateManyWithoutBotNestedInput
   }
 
   export type BotUncheckedUpdateWithoutOrdersInput = {
@@ -55392,6 +60101,7 @@ export namespace Prisma {
     positions?: PositionUncheckedUpdateManyWithoutBotNestedInput
     riskSettings?: RiskSettingsUncheckedUpdateManyWithoutBotNestedInput
     decisionLogs?: DecisionLogUncheckedUpdateManyWithoutBotNestedInput
+    backtests?: BacktestUncheckedUpdateManyWithoutBotNestedInput
   }
 
   export type TradingSignalUpsertWithoutOrdersInput = {
@@ -55564,6 +60274,7 @@ export namespace Prisma {
     positions?: PositionCreateNestedManyWithoutBotInput
     riskSettings?: RiskSettingsCreateNestedManyWithoutBotInput
     orders?: OrderCreateNestedManyWithoutBotInput
+    backtests?: BacktestCreateNestedManyWithoutBotInput
   }
 
   export type BotUncheckedCreateWithoutDecisionLogsInput = {
@@ -55580,6 +60291,7 @@ export namespace Prisma {
     positions?: PositionUncheckedCreateNestedManyWithoutBotInput
     riskSettings?: RiskSettingsUncheckedCreateNestedManyWithoutBotInput
     orders?: OrderUncheckedCreateNestedManyWithoutBotInput
+    backtests?: BacktestUncheckedCreateNestedManyWithoutBotInput
   }
 
   export type BotCreateOrConnectWithoutDecisionLogsInput = {
@@ -55761,6 +60473,7 @@ export namespace Prisma {
     positions?: PositionUpdateManyWithoutBotNestedInput
     riskSettings?: RiskSettingsUpdateManyWithoutBotNestedInput
     orders?: OrderUpdateManyWithoutBotNestedInput
+    backtests?: BacktestUpdateManyWithoutBotNestedInput
   }
 
   export type BotUncheckedUpdateWithoutDecisionLogsInput = {
@@ -55777,6 +60490,7 @@ export namespace Prisma {
     positions?: PositionUncheckedUpdateManyWithoutBotNestedInput
     riskSettings?: RiskSettingsUncheckedUpdateManyWithoutBotNestedInput
     orders?: OrderUncheckedUpdateManyWithoutBotNestedInput
+    backtests?: BacktestUncheckedUpdateManyWithoutBotNestedInput
   }
 
   export type TradingStrategyUpsertWithoutDecisionLogsInput = {
@@ -56354,6 +61068,318 @@ export namespace Prisma {
     decisionLogs?: DecisionLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
+  export type BotCreateWithoutBacktestsInput = {
+    id?: string
+    name: string
+    symbol: string
+    strategy: string
+    timeframe: string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutBotsInput
+    positions?: PositionCreateNestedManyWithoutBotInput
+    riskSettings?: RiskSettingsCreateNestedManyWithoutBotInput
+    orders?: OrderCreateNestedManyWithoutBotInput
+    decisionLogs?: DecisionLogCreateNestedManyWithoutBotInput
+  }
+
+  export type BotUncheckedCreateWithoutBacktestsInput = {
+    id?: string
+    userId: string
+    name: string
+    symbol: string
+    strategy: string
+    timeframe: string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    positions?: PositionUncheckedCreateNestedManyWithoutBotInput
+    riskSettings?: RiskSettingsUncheckedCreateNestedManyWithoutBotInput
+    orders?: OrderUncheckedCreateNestedManyWithoutBotInput
+    decisionLogs?: DecisionLogUncheckedCreateNestedManyWithoutBotInput
+  }
+
+  export type BotCreateOrConnectWithoutBacktestsInput = {
+    where: BotWhereUniqueInput
+    create: XOR<BotCreateWithoutBacktestsInput, BotUncheckedCreateWithoutBacktestsInput>
+  }
+
+  export type BacktestComparisonBacktestCreateWithoutBacktestInput = {
+    backtestComparison: BacktestComparisonCreateNestedOneWithoutBacktestsInput
+  }
+
+  export type BacktestComparisonBacktestUncheckedCreateWithoutBacktestInput = {
+    backtestComparisonId: string
+  }
+
+  export type BacktestComparisonBacktestCreateOrConnectWithoutBacktestInput = {
+    where: BacktestComparisonBacktestWhereUniqueInput
+    create: XOR<BacktestComparisonBacktestCreateWithoutBacktestInput, BacktestComparisonBacktestUncheckedCreateWithoutBacktestInput>
+  }
+
+  export type BacktestComparisonBacktestCreateManyBacktestInputEnvelope = {
+    data: BacktestComparisonBacktestCreateManyBacktestInput | BacktestComparisonBacktestCreateManyBacktestInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BotUpsertWithoutBacktestsInput = {
+    update: XOR<BotUpdateWithoutBacktestsInput, BotUncheckedUpdateWithoutBacktestsInput>
+    create: XOR<BotCreateWithoutBacktestsInput, BotUncheckedCreateWithoutBacktestsInput>
+    where?: BotWhereInput
+  }
+
+  export type BotUpdateToOneWithWhereWithoutBacktestsInput = {
+    where?: BotWhereInput
+    data: XOR<BotUpdateWithoutBacktestsInput, BotUncheckedUpdateWithoutBacktestsInput>
+  }
+
+  export type BotUpdateWithoutBacktestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    strategy?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutBotsNestedInput
+    positions?: PositionUpdateManyWithoutBotNestedInput
+    riskSettings?: RiskSettingsUpdateManyWithoutBotNestedInput
+    orders?: OrderUpdateManyWithoutBotNestedInput
+    decisionLogs?: DecisionLogUpdateManyWithoutBotNestedInput
+  }
+
+  export type BotUncheckedUpdateWithoutBacktestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    strategy?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    parameters?: JsonNullValueInput | InputJsonValue
+    isActive?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    positions?: PositionUncheckedUpdateManyWithoutBotNestedInput
+    riskSettings?: RiskSettingsUncheckedUpdateManyWithoutBotNestedInput
+    orders?: OrderUncheckedUpdateManyWithoutBotNestedInput
+    decisionLogs?: DecisionLogUncheckedUpdateManyWithoutBotNestedInput
+  }
+
+  export type BacktestComparisonBacktestUpsertWithWhereUniqueWithoutBacktestInput = {
+    where: BacktestComparisonBacktestWhereUniqueInput
+    update: XOR<BacktestComparisonBacktestUpdateWithoutBacktestInput, BacktestComparisonBacktestUncheckedUpdateWithoutBacktestInput>
+    create: XOR<BacktestComparisonBacktestCreateWithoutBacktestInput, BacktestComparisonBacktestUncheckedCreateWithoutBacktestInput>
+  }
+
+  export type BacktestComparisonBacktestUpdateWithWhereUniqueWithoutBacktestInput = {
+    where: BacktestComparisonBacktestWhereUniqueInput
+    data: XOR<BacktestComparisonBacktestUpdateWithoutBacktestInput, BacktestComparisonBacktestUncheckedUpdateWithoutBacktestInput>
+  }
+
+  export type BacktestComparisonBacktestUpdateManyWithWhereWithoutBacktestInput = {
+    where: BacktestComparisonBacktestScalarWhereInput
+    data: XOR<BacktestComparisonBacktestUpdateManyMutationInput, BacktestComparisonBacktestUncheckedUpdateManyWithoutBacktestInput>
+  }
+
+  export type BacktestComparisonBacktestScalarWhereInput = {
+    AND?: BacktestComparisonBacktestScalarWhereInput | BacktestComparisonBacktestScalarWhereInput[]
+    OR?: BacktestComparisonBacktestScalarWhereInput[]
+    NOT?: BacktestComparisonBacktestScalarWhereInput | BacktestComparisonBacktestScalarWhereInput[]
+    backtestId?: StringFilter<"BacktestComparisonBacktest"> | string
+    backtestComparisonId?: StringFilter<"BacktestComparisonBacktest"> | string
+  }
+
+  export type BacktestComparisonBacktestCreateWithoutBacktestComparisonInput = {
+    backtest: BacktestCreateNestedOneWithoutComparisonsInput
+  }
+
+  export type BacktestComparisonBacktestUncheckedCreateWithoutBacktestComparisonInput = {
+    backtestId: string
+  }
+
+  export type BacktestComparisonBacktestCreateOrConnectWithoutBacktestComparisonInput = {
+    where: BacktestComparisonBacktestWhereUniqueInput
+    create: XOR<BacktestComparisonBacktestCreateWithoutBacktestComparisonInput, BacktestComparisonBacktestUncheckedCreateWithoutBacktestComparisonInput>
+  }
+
+  export type BacktestComparisonBacktestCreateManyBacktestComparisonInputEnvelope = {
+    data: BacktestComparisonBacktestCreateManyBacktestComparisonInput | BacktestComparisonBacktestCreateManyBacktestComparisonInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type BacktestComparisonBacktestUpsertWithWhereUniqueWithoutBacktestComparisonInput = {
+    where: BacktestComparisonBacktestWhereUniqueInput
+    update: XOR<BacktestComparisonBacktestUpdateWithoutBacktestComparisonInput, BacktestComparisonBacktestUncheckedUpdateWithoutBacktestComparisonInput>
+    create: XOR<BacktestComparisonBacktestCreateWithoutBacktestComparisonInput, BacktestComparisonBacktestUncheckedCreateWithoutBacktestComparisonInput>
+  }
+
+  export type BacktestComparisonBacktestUpdateWithWhereUniqueWithoutBacktestComparisonInput = {
+    where: BacktestComparisonBacktestWhereUniqueInput
+    data: XOR<BacktestComparisonBacktestUpdateWithoutBacktestComparisonInput, BacktestComparisonBacktestUncheckedUpdateWithoutBacktestComparisonInput>
+  }
+
+  export type BacktestComparisonBacktestUpdateManyWithWhereWithoutBacktestComparisonInput = {
+    where: BacktestComparisonBacktestScalarWhereInput
+    data: XOR<BacktestComparisonBacktestUpdateManyMutationInput, BacktestComparisonBacktestUncheckedUpdateManyWithoutBacktestComparisonInput>
+  }
+
+  export type BacktestCreateWithoutComparisonsInput = {
+    id?: string
+    symbol: string
+    timeframe: string
+    startDate: Date | string
+    endDate: Date | string
+    performance: JsonNullValueInput | InputJsonValue
+    config: JsonNullValueInput | InputJsonValue
+    trades?: NullableJsonNullValueInput | InputJsonValue
+    status?: string
+    duration?: number | null
+    modelName?: string | null
+    modelVersion?: string | null
+    optimizationMethod?: string | null
+    optimizationScore?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    bot: BotCreateNestedOneWithoutBacktestsInput
+  }
+
+  export type BacktestUncheckedCreateWithoutComparisonsInput = {
+    id?: string
+    botId: string
+    symbol: string
+    timeframe: string
+    startDate: Date | string
+    endDate: Date | string
+    performance: JsonNullValueInput | InputJsonValue
+    config: JsonNullValueInput | InputJsonValue
+    trades?: NullableJsonNullValueInput | InputJsonValue
+    status?: string
+    duration?: number | null
+    modelName?: string | null
+    modelVersion?: string | null
+    optimizationMethod?: string | null
+    optimizationScore?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BacktestCreateOrConnectWithoutComparisonsInput = {
+    where: BacktestWhereUniqueInput
+    create: XOR<BacktestCreateWithoutComparisonsInput, BacktestUncheckedCreateWithoutComparisonsInput>
+  }
+
+  export type BacktestComparisonCreateWithoutBacktestsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    results?: NullableJsonNullValueInput | InputJsonValue
+    winner?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BacktestComparisonUncheckedCreateWithoutBacktestsInput = {
+    id?: string
+    name: string
+    description?: string | null
+    results?: NullableJsonNullValueInput | InputJsonValue
+    winner?: string | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type BacktestComparisonCreateOrConnectWithoutBacktestsInput = {
+    where: BacktestComparisonWhereUniqueInput
+    create: XOR<BacktestComparisonCreateWithoutBacktestsInput, BacktestComparisonUncheckedCreateWithoutBacktestsInput>
+  }
+
+  export type BacktestUpsertWithoutComparisonsInput = {
+    update: XOR<BacktestUpdateWithoutComparisonsInput, BacktestUncheckedUpdateWithoutComparisonsInput>
+    create: XOR<BacktestCreateWithoutComparisonsInput, BacktestUncheckedCreateWithoutComparisonsInput>
+    where?: BacktestWhereInput
+  }
+
+  export type BacktestUpdateToOneWithWhereWithoutComparisonsInput = {
+    where?: BacktestWhereInput
+    data: XOR<BacktestUpdateWithoutComparisonsInput, BacktestUncheckedUpdateWithoutComparisonsInput>
+  }
+
+  export type BacktestUpdateWithoutComparisonsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    performance?: JsonNullValueInput | InputJsonValue
+    config?: JsonNullValueInput | InputJsonValue
+    trades?: NullableJsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    modelName?: NullableStringFieldUpdateOperationsInput | string | null
+    modelVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    bot?: BotUpdateOneRequiredWithoutBacktestsNestedInput
+  }
+
+  export type BacktestUncheckedUpdateWithoutComparisonsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    botId?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    performance?: JsonNullValueInput | InputJsonValue
+    config?: JsonNullValueInput | InputJsonValue
+    trades?: NullableJsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    modelName?: NullableStringFieldUpdateOperationsInput | string | null
+    modelVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BacktestComparisonUpsertWithoutBacktestsInput = {
+    update: XOR<BacktestComparisonUpdateWithoutBacktestsInput, BacktestComparisonUncheckedUpdateWithoutBacktestsInput>
+    create: XOR<BacktestComparisonCreateWithoutBacktestsInput, BacktestComparisonUncheckedCreateWithoutBacktestsInput>
+    where?: BacktestComparisonWhereInput
+  }
+
+  export type BacktestComparisonUpdateToOneWithWhereWithoutBacktestsInput = {
+    where?: BacktestComparisonWhereInput
+    data: XOR<BacktestComparisonUpdateWithoutBacktestsInput, BacktestComparisonUncheckedUpdateWithoutBacktestsInput>
+  }
+
+  export type BacktestComparisonUpdateWithoutBacktestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    results?: NullableJsonNullValueInput | InputJsonValue
+    winner?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type BacktestComparisonUncheckedUpdateWithoutBacktestsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
+    results?: NullableJsonNullValueInput | InputJsonValue
+    winner?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type ApiKeyCreateManyUserInput = {
     id?: string
     key: string
@@ -56658,6 +61684,7 @@ export namespace Prisma {
     riskSettings?: RiskSettingsUpdateManyWithoutBotNestedInput
     orders?: OrderUpdateManyWithoutBotNestedInput
     decisionLogs?: DecisionLogUpdateManyWithoutBotNestedInput
+    backtests?: BacktestUpdateManyWithoutBotNestedInput
   }
 
   export type BotUncheckedUpdateWithoutUserInput = {
@@ -56674,6 +61701,7 @@ export namespace Prisma {
     riskSettings?: RiskSettingsUncheckedUpdateManyWithoutBotNestedInput
     orders?: OrderUncheckedUpdateManyWithoutBotNestedInput
     decisionLogs?: DecisionLogUncheckedUpdateManyWithoutBotNestedInput
+    backtests?: BacktestUncheckedUpdateManyWithoutBotNestedInput
   }
 
   export type BotUncheckedUpdateManyWithoutUserInput = {
@@ -57240,6 +62268,25 @@ export namespace Prisma {
     auditTrailId?: string | null
   }
 
+  export type BacktestCreateManyBotInput = {
+    id?: string
+    symbol: string
+    timeframe: string
+    startDate: Date | string
+    endDate: Date | string
+    performance: JsonNullValueInput | InputJsonValue
+    config: JsonNullValueInput | InputJsonValue
+    trades?: NullableJsonNullValueInput | InputJsonValue
+    status?: string
+    duration?: number | null
+    modelName?: string | null
+    modelVersion?: string | null
+    optimizationMethod?: string | null
+    optimizationScore?: number | null
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
   export type PositionUpdateWithoutBotInput = {
     id?: StringFieldUpdateOperationsInput | string
     symbol?: StringFieldUpdateOperationsInput | string
@@ -57572,6 +62619,65 @@ export namespace Prisma {
     metadata?: JsonNullValueInput | InputJsonValue
     tags?: DecisionLogUpdatetagsInput | string[]
     auditTrailId?: NullableStringFieldUpdateOperationsInput | string | null
+  }
+
+  export type BacktestUpdateWithoutBotInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    performance?: JsonNullValueInput | InputJsonValue
+    config?: JsonNullValueInput | InputJsonValue
+    trades?: NullableJsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    modelName?: NullableStringFieldUpdateOperationsInput | string | null
+    modelVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    comparisons?: BacktestComparisonBacktestUpdateManyWithoutBacktestNestedInput
+  }
+
+  export type BacktestUncheckedUpdateWithoutBotInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    performance?: JsonNullValueInput | InputJsonValue
+    config?: JsonNullValueInput | InputJsonValue
+    trades?: NullableJsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    modelName?: NullableStringFieldUpdateOperationsInput | string | null
+    modelVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    comparisons?: BacktestComparisonBacktestUncheckedUpdateManyWithoutBacktestNestedInput
+  }
+
+  export type BacktestUncheckedUpdateManyWithoutBotInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    symbol?: StringFieldUpdateOperationsInput | string
+    timeframe?: StringFieldUpdateOperationsInput | string
+    startDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    endDate?: DateTimeFieldUpdateOperationsInput | Date | string
+    performance?: JsonNullValueInput | InputJsonValue
+    config?: JsonNullValueInput | InputJsonValue
+    trades?: NullableJsonNullValueInput | InputJsonValue
+    status?: StringFieldUpdateOperationsInput | string
+    duration?: NullableIntFieldUpdateOperationsInput | number | null
+    modelName?: NullableStringFieldUpdateOperationsInput | string | null
+    modelVersion?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationMethod?: NullableStringFieldUpdateOperationsInput | string | null
+    optimizationScore?: NullableFloatFieldUpdateOperationsInput | number | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type OrderCreateManyPositionInput = {
@@ -58542,6 +63648,38 @@ export namespace Prisma {
     importance?: StringFieldUpdateOperationsInput | string
     metadata?: JsonNullValueInput | InputJsonValue
     tags?: DecisionLogUpdatetagsInput | string[]
+  }
+
+  export type BacktestComparisonBacktestCreateManyBacktestInput = {
+    backtestComparisonId: string
+  }
+
+  export type BacktestComparisonBacktestUpdateWithoutBacktestInput = {
+    backtestComparison?: BacktestComparisonUpdateOneRequiredWithoutBacktestsNestedInput
+  }
+
+  export type BacktestComparisonBacktestUncheckedUpdateWithoutBacktestInput = {
+    backtestComparisonId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type BacktestComparisonBacktestUncheckedUpdateManyWithoutBacktestInput = {
+    backtestComparisonId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type BacktestComparisonBacktestCreateManyBacktestComparisonInput = {
+    backtestId: string
+  }
+
+  export type BacktestComparisonBacktestUpdateWithoutBacktestComparisonInput = {
+    backtest?: BacktestUpdateOneRequiredWithoutComparisonsNestedInput
+  }
+
+  export type BacktestComparisonBacktestUncheckedUpdateWithoutBacktestComparisonInput = {
+    backtestId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type BacktestComparisonBacktestUncheckedUpdateManyWithoutBacktestComparisonInput = {
+    backtestId?: StringFieldUpdateOperationsInput | string
   }
 
 

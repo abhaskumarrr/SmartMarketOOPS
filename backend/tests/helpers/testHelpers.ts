@@ -286,3 +286,122 @@ export const resetTestDatabase = async (): Promise<void> => {
     // Ignore if not using PostgreSQL or sequences don't exist
   }
 };
+
+/**
+ * Generate test market data for ML models
+ */
+export const generateTestMarketData = (symbol: string, periods: number = 100): number[][][] => {
+  const data: number[][][] = [];
+  let basePrice = 50000; // Starting price
+  
+  // Generate OHLCV data
+  for (let i = 0; i < periods; i++) {
+    const volatility = 0.02; // 2% volatility
+    const change = (Math.random() - 0.5) * volatility;
+    
+    const open = basePrice;
+    const close = basePrice * (1 + change);
+    const high = Math.max(open, close) * (1 + Math.random() * 0.01);
+    const low = Math.min(open, close) * (1 - Math.random() * 0.01);
+    const volume = 1000 + Math.random() * 5000;
+    
+    // Create feature vector [open, high, low, close, volume, ...]
+    const features = [
+      open,
+      high,
+      low,
+      close,
+      volume,
+      // Add some technical indicators
+      close / open - 1, // Price change
+      (high - low) / open, // Range
+      volume / 1000, // Normalized volume
+      Math.sin(i * 0.1), // Cyclical feature
+      Math.cos(i * 0.1), // Cyclical feature
+      // Pad to 20 features
+      ...Array(10).fill(0).map(() => Math.random() * 0.1 - 0.05)
+    ];
+    
+    data.push([features]);
+    basePrice = close;
+  }
+  
+  // Return as batch with shape [1, periods, features]
+  return [data.map(d => d[0])];
+};
+
+/**
+ * Generate test performance metrics
+ */
+export const generateTestPerformance = () => {
+  const totalReturn = (Math.random() - 0.3) * 0.5; // -30% to +20%
+  const winRate = Math.random() * 0.4 + 0.4; // 40% to 80%
+  const totalTrades = Math.floor(Math.random() * 100) + 10; // 10 to 110 trades
+  
+  return {
+    totalReturn,
+    totalReturnPercent: totalReturn * 100,
+    annualizedReturn: totalReturn * 12, // Assuming monthly data
+    sharpeRatio: Math.random() * 3 - 0.5, // -0.5 to 2.5
+    maxDrawdown: -Math.random() * 0.3, // 0% to -30%
+    maxDrawdownPercent: -Math.random() * 30,
+    winRate: winRate * 100,
+    profitFactor: winRate / (1 - winRate) * (1 + Math.random()),
+    totalTrades,
+    winningTrades: Math.floor(totalTrades * winRate),
+    losingTrades: Math.floor(totalTrades * (1 - winRate)),
+    averageWin: Math.random() * 200 + 50, // $50 to $250
+    averageLoss: -(Math.random() * 150 + 25), // -$25 to -$175
+    largestWin: Math.random() * 1000 + 100, // $100 to $1100
+    largestLoss: -(Math.random() * 800 + 50) // -$50 to -$850
+  };
+};
+
+/**
+ * Wait for async operation with timeout
+ */
+export const waitForCondition = async (
+  condition: () => Promise<boolean>,
+  timeout: number = 10000,
+  interval: number = 100
+): Promise<boolean> => {
+  const startTime = Date.now();
+  
+  while (Date.now() - startTime < timeout) {
+    if (await condition()) {
+      return true;
+    }
+    await new Promise(resolve => setTimeout(resolve, interval));
+  }
+  
+  return false;
+};
+
+/**
+ * Generate load test data
+ */
+export const generateLoadTestData = (userCount: number = 10, botsPerUser: number = 2) => {
+  const users = [];
+  
+  for (let i = 0; i < userCount; i++) {
+    const user = {
+      email: `loadtest-user-${i}@example.com`,
+      username: `loadtestuser${i}`,
+      password: 'loadtest123',
+      bots: []
+    };
+    
+    for (let j = 0; j < botsPerUser; j++) {
+      user.bots.push({
+        name: `Load Test Bot ${i}-${j}`,
+        symbol: ['BTCUSD', 'ETHUSD', 'ADAUSD'][j % 3],
+        strategy: ['enhanced_ml', 'fibonacci_ml'][j % 2],
+        timeframe: ['1h', '4h', '1d'][j % 3]
+      });
+    }
+    
+    users.push(user);
+  }
+  
+  return users;
+};

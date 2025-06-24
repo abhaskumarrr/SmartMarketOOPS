@@ -4,18 +4,9 @@
  */
 
 import { Request, Response, NextFunction } from 'express';
+import { AuthenticatedRequest, AuthUser } from '../types/auth';
 import prisma from '../utils/prismaClient';
 import jwt from 'jsonwebtoken';
-
-// Interface for authenticated request
-export interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    email?: string;
-    role?: string;
-    [key: string]: any;
-  };
-}
 
 /**
  * Authenticate JWT token and attach user to request
@@ -52,13 +43,15 @@ export const authenticateJWT = async (req: AuthenticatedRequest, res: Response, 
       });
       return;
     }
-    
-    // Attach user to request
+
+    // Attach user to request with proper AuthUser interface
     req.user = {
       id: user.id,
+      name: user.name || user.email.split('@')[0], // Fallback if name not provided
       email: user.email,
-      role: user.role
-    };
+      role: user.role,
+      isVerified: user.isVerified || false
+    } as AuthUser;
     
     next();
   } catch (error) {

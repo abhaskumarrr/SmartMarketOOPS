@@ -134,6 +134,7 @@ model Bot {
   riskSettings RiskSettings[] // Relation to risk settings specific to this bot
   orders       Order[]
   decisionLogs DecisionLog[] // Relation to decision logs
+  backtests    Backtest[] // Relation to backtests
 
   @@index([userId]) // Add index for faster lookups by user
   @@index([symbol]) // Add index for faster lookups by trading symbol
@@ -755,4 +756,80 @@ model AuditLog {
   timestamp DateTime @default(now())
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+// Backtest model for storing backtest results
+model Backtest {
+  id          String   @id @default(uuid())
+  botId       String
+  bot         Bot      @relation(fields: [botId], references: [id], onDelete: Cascade)
+  symbol      String
+  timeframe   String
+  startDate   DateTime
+  endDate     DateTime
+  
+  // Performance metrics stored as JSON
+  performance Json
+  
+  // Trading configuration used for the backtest
+  config      Json
+  
+  // Individual trades from the backtest (optional, can be large)
+  trades      Json?
+  
+  // Backtest metadata
+  status      String   @default("completed") // completed, failed, running
+  duration    Int?     // Duration in milliseconds
+  
+  // ML model information if used
+  modelName   String?
+  modelVersion String?
+  
+  // Optimization information
+  optimizationMethod String? // genetic, grid_search, walk_forward, manual
+  optimizationScore  Float?
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  // Relation to backtest comparisons
+  comparisons BacktestComparisonBacktest[]
+
+  @@index([botId])
+  @@index([symbol])
+  @@index([timeframe])
+  @@index([startDate])
+  @@index([endDate])
+  @@index([status])
+  @@index([createdAt])
+  @@index([optimizationScore])
+}
+
+// Backtest comparison for A/B testing strategies
+model BacktestComparison {
+  id            String   @id @default(uuid())
+  name          String
+  description   String?
+  
+  // Comparison results
+  results       Json?
+  winner        String?  // ID of the winning backtest
+  
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  
+  // Relation to backtests
+  backtests     BacktestComparisonBacktest[]
+
+  @@index([createdAt])
+}
+
+// Junction table for backtest comparisons
+model BacktestComparisonBacktest {
+  backtestId           String
+  backtestComparisonId String
+  backtest             Backtest           @relation(fields: [backtestId], references: [id], onDelete: Cascade)
+  backtestComparison   BacktestComparison @relation(fields: [backtestComparisonId], references: [id], onDelete: Cascade)
+
+  @@id([backtestId, backtestComparisonId])
 }

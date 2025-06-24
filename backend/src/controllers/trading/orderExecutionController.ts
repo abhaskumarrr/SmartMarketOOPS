@@ -17,6 +17,7 @@ import {
   TimeInForce,
   ExecutionSource
 } from '../../types/orderExecution';
+import { AuthenticatedRequest } from '../../types/auth';
 
 // Create logger
 const logger = createLogger('OrderExecutionController');
@@ -24,11 +25,22 @@ const logger = createLogger('OrderExecutionController');
 // Create order execution service instance
 const orderExecutionService = new OrderExecutionService();
 
-// Extended Request type with user property
-interface AuthenticatedRequest extends Request {
-  user?: {
-    id: string;
-    [key: string]: any;
+// Already imported AuthenticatedRequest from types/auth
+
+// Interface for order creation
+interface CreateOrderRequest extends AuthenticatedRequest {
+  body: {
+    symbol: string;
+    side: 'buy' | 'sell';
+    type: 'market' | 'limit' | 'stop' | 'stop_limit';
+    quantity: number;
+    price?: number;
+    stopPrice?: number;
+    timeInForce?: 'gtc' | 'ioc' | 'fok';
+    clientOrderId?: string;
+    strategy?: string;
+    botId?: string;
+    positionId?: string;
   };
 }
 

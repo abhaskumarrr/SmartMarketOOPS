@@ -20,12 +20,12 @@ exports.Prisma = Prisma
 exports.$Enums = {}
 
 /**
- * Prisma Client JS version: 6.8.2
- * Query Engine version: 2060c79ba17c6bb9f5823312b6f6b7f4a845738e
+ * Prisma Client JS version: 6.9.0
+ * Query Engine version: 81e4af48011447c3cc503a190e86995b66d2a28e
  */
 Prisma.prismaVersion = {
-  client: "6.8.2",
-  engine: "2060c79ba17c6bb9f5823312b6f6b7f4a845738e"
+  client: "6.9.0",
+  engine: "81e4af48011447c3cc503a190e86995b66d2a28e"
 }
 
 Prisma.PrismaClientKnownRequestError = () => {
@@ -633,6 +633,41 @@ exports.Prisma.AuditLogScalarFieldEnum = {
   timestamp: 'timestamp'
 };
 
+exports.Prisma.BacktestScalarFieldEnum = {
+  id: 'id',
+  botId: 'botId',
+  symbol: 'symbol',
+  timeframe: 'timeframe',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  performance: 'performance',
+  config: 'config',
+  trades: 'trades',
+  status: 'status',
+  duration: 'duration',
+  modelName: 'modelName',
+  modelVersion: 'modelVersion',
+  optimizationMethod: 'optimizationMethod',
+  optimizationScore: 'optimizationScore',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BacktestComparisonScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  results: 'results',
+  winner: 'winner',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.BacktestComparisonBacktestScalarFieldEnum = {
+  backtestId: 'backtestId',
+  backtestComparisonId: 'backtestComparisonId'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -693,7 +728,10 @@ exports.Prisma.ModelName = {
   DecisionLog: 'DecisionLog',
   AuditTrail: 'AuditTrail',
   AuditEvent: 'AuditEvent',
-  AuditLog: 'AuditLog'
+  AuditLog: 'AuditLog',
+  Backtest: 'Backtest',
+  BacktestComparison: 'BacktestComparison',
+  BacktestComparisonBacktest: 'BacktestComparisonBacktest'
 };
 
 /**

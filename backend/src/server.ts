@@ -7,7 +7,6 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import path from 'path';
-import dotenv from 'dotenv';
 import http from 'http';
 import { createWriteStream } from 'fs';
 import compression from 'compression';
@@ -21,10 +20,8 @@ import { createDatabaseOptimizationService } from './services/databaseOptimizati
 import { logger } from './utils/logger';
 import { setupSwagger } from './swagger';
 
-// Load environment variables
-dotenv.config({
-  path: path.resolve(__dirname, '../../.env')
-});
+// Import centralized environment configuration
+import env from './config/environment';
 
 // Import routes - gradually re-enabling fixed routes
 import healthRoutes from './routes/healthRoutes';
@@ -44,13 +41,10 @@ import tradingApiKeyRoutes from './routes/trading/apiKeyRoutes';
 import botRoutes from './routes/botRoutes';
 import auditRoutes from './routes/auditRoutes';
 import tradesRoutes from './routes/trading/trades';
-// import mlRoutes from './routes/mlRoutes';
-// import marketDataRoutes from './routes/marketDataRoutes';
-import tradingRoutes from './routes/tradingRoutes';
-import tradingRoutesWorking from './routes/tradingRoutesWorking';
-import deltaTradingRoutes from './routes/deltaTradingRoutes';
 import mlRoutes from './routes/mlRoutes';
 import marketDataRoutes from './routes/marketDataRoutes';
+import tradingRoutes from './routes/tradingRoutes';
+import deltaTradingRoutes from './routes/deltaTradingRoutes';
 import paperTradingRoutes from './routes/paperTradingRoutes';
 import realMarketDataRoutes from './routes/realMarketDataRoutes';
 // Import other routes as needed
@@ -60,14 +54,14 @@ const initializeWebsocketServer = require('./sockets/websocketServer').initializ
 
 // Create Express app
 const app = express();
-const PORT = process.env.PORT || 3006;
-const NODE_ENV = process.env.NODE_ENV || 'development';
+const PORT = env.PORT;
+const NODE_ENV = env.NODE_ENV;
 
 // Initialize optimization services
 const cacheService = createCacheService({
-  host: process.env.REDIS_HOST || 'localhost',
-  port: parseInt(process.env.REDIS_PORT || '6379'),
-  password: process.env.REDIS_PASSWORD,
+  host: env.REDIS_HOST,
+  port: env.REDIS_PORT,
+  password: env.REDIS_PASSWORD,
   keyPrefix: 'smartmarket:',
 });
 
@@ -147,7 +141,7 @@ app.use('/api/auth/', optimizationMiddleware.createRateLimiter({
 // CORS middleware
 app.use(cors({
   origin: [
-    process.env.CLIENT_URL || 'http://localhost:3000',
+    env.CLIENT_URL,
     'http://localhost:3001', // Frontend running on port 3001
     'http://localhost:3002',
     'http://localhost:3333',
@@ -204,249 +198,6 @@ app.get('/', (req: Request, res: Response) => {
 // Enhanced health check at root path
 app.get('/health', optimizationMiddleware.healthCheck());
 
-// Portfolio endpoint - Real Market Data with Delta Exchange Testnet Integration
-app.get('/api/portfolio', async (req: Request, res: Response) => {
-  try {
-    // Try to get portfolio data with real Delta Exchange testnet balance first
-    try {
-      const realPortfolioResponse = await fetch('http://localhost:3006/api/real-market-data/portfolio');
-      if (realPortfolioResponse.ok) {
-        const realData = await realPortfolioResponse.json();
-        if (realData.success && realData.data) {
-          logger.info('✅ Serving real portfolio data with Delta Exchange testnet integration');
-          return res.json(realData);
-        }
-      }
-    } catch (fetchError) {
-      logger.warn('⚠️ Failed to fetch from real market data service, falling back to legacy endpoint');
-    }
-
-    // Fallback to paper trading if real data fails
-    const paperTradingResponse = await fetch('http://localhost:3006/api/paper-trading/portfolio');
-    let totalValue = 1000; // Default $1000 starting balance
-    let dailyPnL = 0;
-    let winRate = 0;
-    let activePositions = 0;
-    let positions = [];
-    let trades = [];
-    let balanceSource = 'simulated_trading_real_data';
-
-    if (paperTradingResponse.ok) {
-      const paperTradingData = await paperTradingResponse.json();
-      const portfolioData = paperTradingData.data;
-
-      // Use simulated trading data as primary source
-      totalValue = portfolioData.currentBalance || portfolioData.balance || 1000;
-
-      // Calculate win rate from completed trades
-      const completedTrades = portfolioData.trades || [];
-      const winningTrades = completedTrades.filter((trade: any) => trade.pnl > 0);
-      winRate = completedTrades.length > 0 ? (winningTrades.length / completedTrades.length) * 100 : 0;
-
-      // Calculate daily P&L (using total unrealized P&L)
-      dailyPnL = portfolioData.totalUnrealizedPnL || 0;
-
-      // Get active positions count
-      activePositions = portfolioData.positions ? portfolioData.positions.filter((pos: any) => pos.status === 'open').length : 0;
-
-      positions = portfolioData.positions || [];
-      trades = portfolioData.trades || [];
-
-      balanceSource = 'simulated_trading_real_data';
-    }
-
-    res.json({
-      success: true,
-      data: {
-        totalValue: totalValue,
-        simulatedBalance: totalValue,
-        dailyPnL: dailyPnL,
-        winRate: winRate,
-        activePositions: activePositions,
-        lastUpdate: new Date().toISOString(),
-        source: balanceSource,
-        positions: positions,
-        trades: trades,
-        tradingEnabled: true,
-        tradingMode: 'simulated_with_real_data',
-        dataSource: 'ccxt_binance_coinbase_kraken',
-        note: 'Using real market data with simulated execution (Delta Exchange servers having issues)',
-        initialBalance: 1000
-      }
-    });
-  } catch (error) {
-    console.error('Error fetching portfolio data:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to fetch portfolio data'
-    });
-  }
-});
-
-// Simulated Trading with Real Market Data (Delta Exchange servers having issues)
-app.post('/api/trades/place', async (req: Request, res: Response) => {
-  try {
-    const { symbol, side, size, orderType = 'market_order', price } = req.body;
-
-    // Validate required fields
-    if (!symbol || !side || !size) {
-      return res.status(400).json({
-        success: false,
-        error: 'Missing required fields: symbol, side, size'
-      });
-    }
-
-    // Map symbols for compatibility
-    const symbolMapping: { [key: string]: string } = {
-      'BTCUSD': 'BTC/USDT',
-      'BTC/USD': 'BTC/USDT',
-      'ETHUSD': 'ETH/USDT',
-      'ETH/USD': 'ETH/USDT',
-      'BTC/USDT': 'BTC/USDT',
-      'ETH/USDT': 'ETH/USDT'
-    };
-
-    const mappedSymbol = symbolMapping[symbol.toUpperCase()] || symbol;
-
-    console.log(`🎯 Placing SIMULATED trade with REAL market data: ${side.toUpperCase()} ${size} ${mappedSymbol}`);
-
-    // Use paper trading with real market data from CCXT
-    const response = await fetch('http://localhost:3006/api/paper-trading/trade', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        symbol: mappedSymbol,
-        side: side.toLowerCase(),
-        size: parseFloat(size),
-        orderType
-      })
-    });
-
-    if (!response.ok) {
-      const errorData = await response.text();
-      throw new Error(`Failed to place simulated trade: ${errorData}`);
-    }
-
-    const result = await response.json();
-
-    console.log(`✅ SIMULATED trade executed with REAL data: ${side.toUpperCase()} ${size} ${mappedSymbol} @ $${result.data.executedPrice}`);
-
-    res.json({
-      success: true,
-      data: {
-        orderId: result.data.trade.id,
-        symbol: symbol,
-        side: side,
-        size: size,
-        orderType: orderType,
-        status: 'filled',
-        executedPrice: result.data.executedPrice,
-        executedSize: result.data.executedSize,
-        commission: result.data.commission,
-        exchange: 'simulated_with_real_data',
-        dataSource: 'ccxt_binance_coinbase_kraken'
-      },
-      message: `🎯 SIMULATED ${side.toUpperCase()} order for ${size} ${symbol} executed with REAL market data @ $${result.data.executedPrice}`,
-      note: 'Using real market data with simulated execution (Delta Exchange servers having issues)',
-      timestamp: new Date().toISOString()
-    });
-  } catch (error) {
-    console.error('❌ Error placing simulated trade:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Failed to place simulated trade',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
-
-// Trading System Status Endpoint
-app.get('/api/trading/status', async (req: Request, res: Response) => {
-  try {
-    // Test Delta Exchange connection
-    const deltaTestResponse = await fetch('http://localhost:3006/api/delta-trading/test-connection');
-    const deltaConnected = deltaTestResponse.ok;
-
-    // Test balance endpoint
-    const balanceTestResponse = await fetch('http://localhost:3006/api/delta-trading/balance');
-    const balanceData = balanceTestResponse.ok ? await balanceTestResponse.json() : null;
-    const balanceWorking = balanceData?.success || false;
-    const ipWhitelistingRequired = balanceData?.message?.includes('IP_NOT_WHITELISTED') || false;
-
-    // Test paper trading
-    const paperTradingResponse = await fetch('http://localhost:3006/api/paper-trading/portfolio');
-    const paperTradingWorking = paperTradingResponse.ok;
-
-    res.json({
-      success: true,
-      timestamp: new Date().toISOString(),
-      status: {
-        deltaExchange: {
-          connected: deltaConnected,
-          balanceWorking: balanceWorking,
-          ipWhitelistingRequired: ipWhitelistingRequired,
-          ipToWhitelist: ipWhitelistingRequired ? '171.76.117.131' : null,
-          whitelistUrl: 'https://testnet.delta.exchange/app/account/manageapikeys'
-        },
-        paperTrading: {
-          working: paperTradingWorking
-        },
-        trading: {
-          enabled: true,
-          orderPlacementWorking: true,
-          realOrdersPlaced: 3 // BTC buy, ETH buy, BTC sell
-        },
-        services: {
-          backend: true,
-          frontend: true,
-          questdb: true,
-          redis: true,
-          postgresql: true,
-          mlService: true
-        }
-      }
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      error: 'Failed to get trading system status',
-      message: error instanceof Error ? error.message : 'Unknown error'
-    });
-  }
-});
-
-// Performance metrics endpoint
-app.get('/metrics', (req: Request, res: Response) => {
-  const metrics = optimizationMiddleware.getMetrics();
-  const cacheStats = cacheService ? cacheService.getStats() : null;
-  const dbStats = dbOptimizationService ? dbOptimizationService.getQueryStats() : null;
-
-  res.json({
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-    memory: process.memoryUsage(),
-    requests: metrics,
-    cache: cacheStats,
-    database: dbStats,
-  });
-});
-
-// Cache management endpoints
-app.post('/admin/cache/flush', async (req: Request, res: Response) => {
-  try {
-    if (cacheService) {
-      await cacheService.flush();
-      res.json({ success: true, message: 'Cache flushed successfully' });
-    } else {
-      res.status(503).json({ error: 'Cache service not available' });
-    }
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to flush cache' });
-  }
-});
-
 // Use routes - gradually re-enabling fixed routes
 app.use('/api/health', healthRoutes);
 app.use('/api/auth', authRoutes);
@@ -469,7 +220,6 @@ app.use('/api/ml', mlRoutes);
 app.use('/api/market-data', marketDataRoutes);
 app.use('/api/real-market-data', realMarketDataRoutes);
 app.use('/api/trading', tradingRoutes);
-app.use('/api/trading-working', tradingRoutesWorking);
 app.use('/api/delta-trading', deltaTradingRoutes);
 app.use('/api/paper-trading', paperTradingRoutes);
 // Use other routes as needed

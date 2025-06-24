@@ -1,35 +1,48 @@
-# syntax=docker/dockerfile:1
-FROM python:3.10-slim AS base
+# Multi-stage Dockerfile for SmartMarketOOPS ML Service
 
+FROM python:3.10-slim AS base
 WORKDIR /app
 
-# Install dependencies only when needed
-FROM base AS deps
-
-# Install required packages for build dependencies
+# Install system dependencies
 RUN apt-get update && apt-get install -y \
     build-essential \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python packages
+# Development stage
+FROM base AS development
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
-
-# Development stage
-FROM base AS dev
-
-# Copy dependencies from deps stage
-COPY --from=deps /usr/local/lib/python3.10/site-packages /usr/local/lib/python3.10/site-packages
-COPY --from=deps /usr/local/bin /usr/local/bin
-
-# Set Python to run in unbuffered mode
+COPY . .
 ENV PYTHONUNBUFFERED=1
+EXPOSE 8000
+CMD ["python", "src/api/app.py"]
+
+# Production stage
+FROM base AS production
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .
 
+# Create non-root user
+RUN adduser --disabled-password --gecos '' mluser
+RUN chown -R mluser:mluser /app
+USER mluser
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
+
 # Expose port
-EXPOSE 3002
+EXPOSE 8000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -f http://localhost:8000/health || exit 1
 
 # Start the ML service
-CMD ["python", "-m", "ml.backend.src.scripts.server"]
+CMD ["python", "src/api/app.py"]
