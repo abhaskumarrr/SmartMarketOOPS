@@ -1,67 +1,22 @@
-# SMOOPs Backend Service
+# Backend Service
 
-This directory contains the Node.js/Express backend API for the SMOOPs trading bot.
+This directory contains the Node.js/Express backend for the SmartMarketOOPS project.
 
-## Structure
+## Overview
 
-- `src/` - Source code for the backend API
-  - `controllers/` - API endpoint controllers
-  - `middleware/` - Express middleware
-  - `routes/` - API route definitions
-  - `services/` - Business logic and data access
-  - `utils/` - Utility functions
-  - `scripts/` - Utility scripts
-
-- `prisma/` - Prisma ORM schema and migrations
-  - `migrations/` - Database migration files
-  - `schema.prisma` - Database schema definition
-
-- `.keys/` - Storage for encrypted API keys (not in git)
-
-## Key Features
-
-- **RESTful API** for trading operations and data access
-- **WebSocket support** for real-time market data and trading signals
-- **Secure API key management** with encryption
-- **Database access** via Prisma ORM
+The backend service is the central orchestrator of the system. It is responsible for:
+- Providing the API for the frontend.
+- Managing user authentication and API keys.
+- Connecting to cryptocurrency exchanges.
+- Communicating with the ML service to get trading signals.
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js 20+
-- PostgreSQL database
-
-### Installation
+This service is started as part of the unified startup script in the root directory. To run it independently:
 
 ```bash
-# Install dependencies
-npm install
-
-# Generate Prisma client
-npx prisma generate
-
-# Set up the database
-npx prisma migrate dev --name init
-```
-
-### Running the Service
-
-```bash
-# Start in development mode
+# From the backend/ directory
 npm run dev
-
-# Start in production mode
-npm start
 ```
 
-## API Endpoints
-
-Key API endpoints include:
-
-- `/api/auth` - Authentication endpoints
-- `/api/keys` - API key management
-- `/api/delta` - Delta Exchange integration
-- `/api/signals` - Trading signals
-
-See the API documentation in `/docs/api-documentation.md` for details. 
+For more detailed information on the architecture and project structure, please see the main documentation in the `docs/` directory at the root of the project.

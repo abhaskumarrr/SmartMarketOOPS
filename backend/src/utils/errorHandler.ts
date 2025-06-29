@@ -42,7 +42,7 @@ export const errorMiddleware = (err: any, req: Request, res: Response, next: Nex
   let statusCode = err.statusCode || 500;
   let message = err.message || 'Internal Server Error';
   let errorCode = err.errorCode || 'INTERNAL_ERROR';
-  let isOperational = err.isOperational !== undefined ? err.isOperational : true;
+  const isOperational = err.isOperational !== undefined ? err.isOperational : true;
   let details = err.details || null;
   
   // Handle specific error types

@@ -71,12 +71,31 @@ export default function PositionManagementPanel({ className, compact = false }: 
     const fetchPositions = async () => {
       try {
         setLoading(true);
-        const response = await axios.get('/api/positions');
         
-        if (response.data && response.data.success) {
-          setPositions(response.data.data);
+        // Use the enhanced API service
+        const { apiService } = await import('@/services/api');
+        const response = await apiService.getDeltaPositions();
+        
+        if (response.success && response.data) {
+          // Transform Delta Exchange position format to our frontend format
+          const transformedPositions = response.data.map((pos: any) => ({
+            id: pos.id || Math.random(),
+            symbol: pos.symbol || pos.product?.symbol || 'UNKNOWN',
+            side: pos.side === 'buy' ? 'long' : 'short',
+            size: parseFloat(pos.size || '0'),
+            entryPrice: parseFloat(pos.entry_price || pos.average_price || '0'),
+            currentPrice: parseFloat(pos.mark_price || pos.current_price || '0'),
+            liquidationPrice: parseFloat(pos.liquidation_price || '0'),
+            leverage: parseFloat(pos.leverage || '1'),
+            pnl: parseFloat(pos.unrealized_pnl || '0'),
+            pnlPercentage: parseFloat(pos.unrealized_pnl_percentage || '0'),
+            stopLoss: pos.stop_loss ? parseFloat(pos.stop_loss) : null,
+            takeProfit: pos.take_profit ? parseFloat(pos.take_profit) : null,
+          }));
+          
+          setPositions(transformedPositions);
         } else {
-          console.error('Failed to fetch positions:', response.data?.message || 'Unknown error');
+          console.error('Failed to fetch positions:', response.message || 'Unknown error');
           // If API fails, use mock data during development
           setPositions(getMockPositions());
         }

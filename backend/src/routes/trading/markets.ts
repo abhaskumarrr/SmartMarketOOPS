@@ -1,7 +1,8 @@
 import express from 'express';
 import { DeltaExchangeUnified } from '../../services/DeltaExchangeUnified';
-import { validateMarketLookupParams } from '../../schemas/orderValidation';
-import logger from '../../utils/logger';
+import { createLogger } from '../../utils/logger';
+
+const logger = createLogger('MarketsRoutes');
 import { protect as auth } from '../../middleware/auth';
 
 const router = express.Router();
@@ -33,7 +34,7 @@ const deltaExchange = new DeltaExchangeUnified({
  * @description Get all available markets
  * @access Public
  */
-router.get('/', async (req, res) => {
+router.get('/', async (req, res): Promise<Response> => {
   try {
     // Ensure Delta Exchange client is initialized
     if (!deltaExchange.isInitialized()) {
@@ -48,12 +49,12 @@ router.get('/', async (req, res) => {
       message: 'Markets retrieved successfully'
     });
   } catch (error) {
-    logger.error('Error fetching markets:', error);
+    logger.error('Error fetching markets:', { error: error instanceof Error ? error.message : String(error) });
     
     return res.status(500).json({
       success: false,
       error: 'Failed to Fetch Markets',
-      message: error.message || 'An unexpected error occurred'
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     });
   }
 });
@@ -63,7 +64,7 @@ router.get('/', async (req, res) => {
  * @description Look up a specific market by symbol
  * @access Public
  */
-router.get('/lookup', async (req, res) => {
+router.get('/lookup', async (req, res): Promise<Response> => {
   try {
     const { symbol } = req.query;
     
@@ -96,12 +97,12 @@ router.get('/lookup', async (req, res) => {
       message: 'Market retrieved successfully'
     });
   } catch (error) {
-    logger.error(`Error looking up market for symbol ${req.query.symbol}:`, error);
+    logger.error(`Error looking up market for symbol ${req.query.symbol}:`, { error: error instanceof Error ? error.message : String(error) });
     
     return res.status(500).json({
       success: false,
       error: 'Failed to Lookup Market',
-      message: error.message || 'An unexpected error occurred'
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     });
   }
 });
@@ -111,20 +112,17 @@ router.get('/lookup', async (req, res) => {
  * @description Look up a specific market by symbol (using POST)
  * @access Public
  */
-router.post('/lookup', async (req, res) => {
+router.post('/lookup', async (req, res): Promise<Response> => {
   try {
-    const { error, value } = validateMarketLookupParams(req.body);
+    const { symbol } = req.body;
     
-    if (error) {
-      logger.warn('Invalid market lookup parameters:', error.message);
+    if (!symbol || typeof symbol !== 'string') {
       return res.status(400).json({
         success: false,
-        error: 'Validation Error',
-        message: error.message
+        error: 'Missing Symbol',
+        message: 'Symbol in request body is required'
       });
     }
-    
-    const { symbol } = value;
     
     // Ensure Delta Exchange client is initialized
     if (!deltaExchange.isInitialized()) {
@@ -147,12 +145,12 @@ router.post('/lookup', async (req, res) => {
       message: 'Market retrieved successfully'
     });
   } catch (error) {
-    logger.error('Error looking up market:', error);
+    logger.error('Error looking up market:', { error: error instanceof Error ? error.message : String(error) });
     
     return res.status(500).json({
       success: false,
       error: 'Failed to Lookup Market',
-      message: error.message || 'An unexpected error occurred'
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     });
   }
 });

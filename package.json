@@ -36,7 +36,7 @@
     "test:backend": "cd backend && npm test",
     "test:frontend": "cd frontend && npm test",
     "test:ml": "python3 -m pytest ml/tests/",
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "lint": "eslint .",
     "lint:fix": "cd backend && npm run lint:fix && cd ../frontend && npm run lint:fix",
     "clean": "rm -rf node_modules backend/node_modules frontend/node_modules ml/__pycache__ __pycache__",
     "ml-trading": "cd backend && npx ts-node src/scripts/start-ml-trading.ts",
@@ -47,37 +47,31 @@
     "security-audit": "npm audit"
   },
   "devDependencies": {
+    "@eslint/js": "^8.56.0",
     "@types/dotenv": "^8.2.0",
     "@types/node": "^22.15.21",
     "@types/uuid": "^10.0.0",
+    "@typescript-eslint/eslint-plugin": "^6.21.0",
+    "@typescript-eslint/parser": "^6.21.0",
     "chalk": "^4.1.2",
     "concurrently": "^8.2.2",
     "dotenv": "^16.5.0",
     "eslint": "^8.56.0",
-    "@eslint/js": "^8.56.0",
-    "@typescript-eslint/eslint-plugin": "^6.21.0",
-    "@typescript-eslint/parser": "^6.21.0",
     "typescript": "^5.3.3"
   },
   "engines": {
     "node": ">=20.11.0"
   },
   "dependencies": {
-    "ccxt": "^4.4.88",
-    "next": "^14.2.30",
-    "task-master-ai": "^0.15.0",
-    "taskmaster": "^0.0.3",
-    "ua-parser-js": "^2.0.3",
-    "undici": "^5.28.4",
-    "uuid": "^11.1.0",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "@eslint/config-array": "^0.20.1",
+    "@eslint/object-schema": "^2.1.6",
+    "@humanwhocodes/config-array": "^0.13.0",
+    "@humanwhocodes/object-schema": "^2.0.3",
+    "undici": "^5.28.4"
   },
   "overrides": {
     "rimraf": "^5.0.0",
     "glob": "^11.0.0",
-    "@humanwhocodes/config-array": "@eslint/config-array",
-    "@humanwhocodes/object-schema": "@eslint/object-schema",
     "undici": "^5.28.4"
   }
 }

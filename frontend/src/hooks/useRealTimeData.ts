@@ -1,96 +1,21 @@
 /**
  * Hook for real-time market data through Socket.IO WebSockets
+ * Connects to SmartMarketOOPS backend WebSocket server
  */
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { wsService } from '../services/websocket';
 import { create } from 'zustand';
-import { io, Socket } from 'socket.io-client';
+import { createMockMarketTick, createMockTrade, createMockPortfolioUpdate } from '../lib/mockDataGenerator';
 
-// Constants for Socket.IO connection
-const SOCKET_URL = process.env.NEXT_PUBLIC_WS_URL || 'http://localhost:3001';
 
-// Constants for mock data
-const BASE_PRICES = {
-  'BTCUSD': 48250,
-  'ETHUSD': 2870,
-  'SOLUSD': 106,
-  'BNBUSD': 570,
-  'DOTUSD': 7.8,
-  'ADAUSD': 0.45,
-  'LINKUSD': 14.20,
-  'XRPUSD': 0.52,
-};
-
-export interface MarketTick {
-  symbol: string;
-  price: number;
-  changePercentage24h: number;
-  volume: number;
-  timestamp: number;
-}
-
-export interface TradeSignal {
-  id: string;
-  symbol: string;
-  side: 'buy' | 'sell';
-  price: number;
-  size: number;
-  timestamp: number;
-  source: 'algorithm' | 'manual' | 'bot';
-  strategy?: string;
-  confidence?: number;
-}
-
-export interface PortfolioUpdate {
-  totalBalance: number;
-  availableBalance: number;
-  totalPnL: number;
-  totalPnLPercentage: number;
-  positions: {
-    symbol: string;
-    side: 'long' | 'short';
-    size: number;
-    entryPrice: number;
-    currentPrice: number;
-    pnl: number;
-    pnlPercentage: number;
-  }[];
-  timestamp: number;
-}
-
-// Helper functions for mock data generation
-function createMockMarketTick(symbol: string): MarketTick {
-  const basePrice = BASE_PRICES[symbol as keyof typeof BASE_PRICES] || 100;
-  return {
-    symbol,
-    price: basePrice * (1 + (Math.random() - 0.5) * 0.02),
-    changePercentage24h: Math.random() * 5 - 2.5,
-    volume: 1000000 + Math.random() * 500000,
-    timestamp: Date.now()
-  };
-}
-
-function createMockTrade(symbol: string): TradeSignal {
-  const basePrice = BASE_PRICES[symbol as keyof typeof BASE_PRICES] || 100;
-  return {
-    id: `trade-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
-    symbol,
-    side: Math.random() > 0.5 ? 'buy' : 'sell',
-    price: basePrice * (1 + (Math.random() - 0.5) * 0.01),
-    size: Math.random() * (symbol === 'BTCUSD' ? 2 : 20),
-    timestamp: Date.now(),
-    source: ['algorithm', 'manual', 'bot'][Math.floor(Math.random() * 3)] as 'algorithm' | 'manual' | 'bot',
-    strategy: ['momentum', 'trend_following', 'mean_reversion', 'breakout'][Math.floor(Math.random() * 4)],
-    confidence: Math.random() * 100
-  };
-}
 
 // Zustand store for real-time data
 interface RealTimeStore {
   isConnected: boolean;
   setIsConnected: (connected: boolean) => void;
-  lastMarketData: MarketTick | null;
-  setLastMarketData: (data: MarketTick) => void;
+  lastMarketData: Record<string, MarketTick>;
+  setLastMarketData: (symbol: string, data: MarketTick) => void;
   lastTrade: TradeSignal | null;
   setLastTrade: (trade: TradeSignal) => void;
   lastPortfolioUpdate: PortfolioUpdate | null;
@@ -107,8 +32,10 @@ interface RealTimeStore {
 const useRealTimeStore = create<RealTimeStore>((set) => ({
   isConnected: false,
   setIsConnected: (connected) => set({ isConnected: connected }),
-  lastMarketData: null,
-  setLastMarketData: (data) => set({ lastMarketData: data }),
+  lastMarketData: {},
+  setLastMarketData: (symbol, data) => set((state) => ({ 
+    lastMarketData: { ...state.lastMarketData, [symbol]: data } 
+  })),
   lastTrade: null,
   setLastTrade: (trade) => set({ lastTrade: trade }),
   lastPortfolioUpdate: null,
@@ -129,15 +56,14 @@ const useRealTimeStore = create<RealTimeStore>((set) => ({
     marketTicks: [],
     tradeSignals: [],
     portfolioHistory: [],
-    lastMarketData: null,
+    lastMarketData: {},
     lastTrade: null,
     lastPortfolioUpdate: null
   })
 }));
 
 export function useRealTimeData() {
-  const socketRef = useRef<Socket | null>(null);
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const mockIntervalRef = useRef<NodeJS.Timeout | null>(null);
   
   const {
     isConnected,
@@ -157,169 +83,148 @@ export function useRealTimeData() {
     clearData
   } = useRealTimeStore();
 
-  // Connect to Socket.IO server
+  // Start mock data generation for development
+  const startMockData = useCallback(() => {
+    if (mockIntervalRef.current) {
+      clearInterval(mockIntervalRef.current);
+    }
+
+    console.log('Starting mock data generation for development');
+    
+    mockIntervalRef.current = setInterval(() => {
+      // Generate mock market data for multiple symbols
+      const symbols = ['BTCUSD', 'ETHUSD', 'SOLUSD', 'BNBUSD'];
+      
+      symbols.forEach(symbol => {
+        const tick = createMockMarketTick(symbol);
+        addMarketTick(tick);
+        setLastMarketData(symbol, tick);
+      });
+
+      // Occasionally generate trade signals
+      if (Math.random() > 0.7) {
+        const randomSymbol = symbols[Math.floor(Math.random() * symbols.length)];
+        const trade = createMockTrade(randomSymbol);
+        addTradeSignal(trade);
+        setLastTrade(trade);
+      }
+
+      // Occasionally generate portfolio updates
+      if (Math.random() > 0.8) {
+        const portfolioUpdate = createMockPortfolioUpdate(symbols);
+        
+        addPortfolioUpdate(portfolioUpdate);
+        setLastPortfolioUpdate(portfolioUpdate);
+      }
+    }, 2000); // Update every 2 seconds
+  }, [addMarketTick, setLastMarketData, addTradeSignal, setLastTrade, addPortfolioUpdate, setLastPortfolioUpdate]);
+
+  // Connect to WebSocket service
   const connect = useCallback(() => {
-    // Don't connect if WebSockets are disabled
-    if (process.env.NEXT_PUBLIC_ENABLE_WEBSOCKETS !== 'true') {
-      console.log('WebSockets disabled in environment');
+    const enableWebSockets = process.env.NEXT_PUBLIC_ENABLE_WEBSOCKETS === 'true';
+
+    if (!enableWebSockets) {
+      console.log('WebSockets disabled, using mock data for development');
+      setIsConnected(true); // Simulate connection for UI
+      startMockData();
       return;
     }
-    
-    // Close existing connection
-    if (socketRef.current) {
-      socketRef.current.disconnect();
-      socketRef.current = null;
-    }
-    
-    // Clear any pending reconnection
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-      reconnectTimeoutRef.current = null;
-    }
-    
-    try {
-      console.log(`🔌 Connecting to Socket.IO server at ${SOCKET_URL}`);
-      
-      // Create Socket.IO connection with configuration
-      socketRef.current = io(SOCKET_URL, {
-        transports: ['websocket', 'polling'],
-        reconnectionAttempts: 5,
-        reconnectionDelay: 3000,
-        timeout: 10000,
-        autoConnect: true
-      });
-      
-      const socket = socketRef.current;
-      
-      socket.on('connect', () => {
-        console.log('✅ Socket.IO connected successfully');
-        setIsConnected(true);
-        
-        // Subscribe to market data channels
-        socket.emit('subscribe', {
-          channels: ['market_data', 'trade_signals', 'portfolio_updates']
-        });
-        
-        console.log('📡 Subscribed to real-time data channels');
-      });
-      
-      socket.on('disconnect', (reason) => {
-        console.log(`❌ Socket.IO disconnected: ${reason}`);
-        setIsConnected(false);
-        
-        // Attempt to reconnect after a delay for certain disconnect reasons
-        if (reason === 'io server disconnect') {
-          // Server initiated disconnect, don't reconnect automatically
-          console.log('Server disconnected, not reconnecting automatically');
-        } else {
-          // Client initiated or network issues, attempt to reconnect
-          reconnectTimeoutRef.current = setTimeout(() => {
-            console.log('🔄 Attempting to reconnect Socket.IO...');
-            connect();
-          }, 5000);
-        }
-      });
-      
-      socket.on('connect_error', (error) => {
-        console.error('❌ Socket.IO connection error:', error);
-        setIsConnected(false);
-      });
-      
-      // Market data updates
-      socket.on('marketTick', (data: MarketTick) => {
-        console.log('📊 Received market tick:', data.symbol, data.price);
-        addMarketTick(data);
-        setLastMarketData(data);
-      });
-      
-      socket.on('market_data', (data: MarketTick | MarketTick[]) => {
-        if (Array.isArray(data)) {
-          data.forEach(tick => {
-            addMarketTick(tick);
-            setLastMarketData(tick);
-          });
-          console.log('📊 Received market data batch:', data.length, 'items');
-        } else {
-          addMarketTick(data);
-          setLastMarketData(data);
-          console.log('📊 Received market data:', data.symbol, data.price);
-        }
-      });
-      
-      // Trade signals
-      socket.on('tradeSignal', (signal: TradeSignal) => {
-        console.log('📈 Received trade signal:', signal.symbol, signal.side);
-        addTradeSignal(signal);
-        setLastTrade(signal);
-      });
-      
-      socket.on('trade_signal', (signal: TradeSignal) => {
-        console.log('📈 Received trade signal:', signal.symbol, signal.side);
-        addTradeSignal(signal);
-        setLastTrade(signal);
-      });
-      
-      // Portfolio updates
-      socket.on('portfolioUpdate', (data: PortfolioUpdate) => {
-        console.log('💼 Received portfolio update:', data.totalBalance);
-        addPortfolioUpdate(data);
-        setLastPortfolioUpdate(data);
-      });
-      
-      socket.on('portfolio_update', (data: PortfolioUpdate) => {
-        console.log('💼 Received portfolio update:', data.totalBalance);
-        addPortfolioUpdate(data);
-        setLastPortfolioUpdate(data);
-      });
-      
-      // Generic market update handler
-      socket.on('market:update', (data: any) => {
-        console.log('📡 Received market update:', data);
-        if (data.success && data.data) {
-          // Handle multiple market data items
-          if (Array.isArray(data.data)) {
-            data.data.forEach((item: any) => {
-              const marketTick: MarketTick = {
-                symbol: item.symbol,
-                price: item.price,
-                changePercentage24h: item.changePercentage24h || item.change || 0,
-                volume: item.volume24h || item.volume || 0,
-                timestamp: new Date(item.timestamp || Date.now()).getTime()
-              };
-              addMarketTick(marketTick);
-              setLastMarketData(marketTick);
-            });
-          }
-        }
-      });
-      
-    } catch (error) {
-      console.error('❌ Failed to create Socket.IO connection:', error);
-      setIsConnected(false);
-    }
-  }, [setIsConnected, addMarketTick, addTradeSignal, addPortfolioUpdate, setLastMarketData, setLastTrade, setLastPortfolioUpdate]);
 
-  // Disconnect from Socket.IO server
+    wsService.connect();
+
+    wsService.on('connect', () => {
+      console.log('WebSocket connected successfully');
+      setIsConnected(true);
+      wsService.emit('subscribe', { channels: ['market_data', 'trade_signals', 'portfolio_updates'] });
+      console.log('Subscribed to real-time data channels');
+    });
+
+    wsService.on('disconnect', (reason) => {
+      console.log(`WebSocket disconnected: ${reason}`);
+      setIsConnected(false);
+    });
+
+    wsService.on('connect_error', (error) => {
+      console.error('WebSocket connection error:', error);
+      setIsConnected(false);
+      console.log('Falling back to mock data due to connection error');
+      startMockData();
+    });
+
+    wsService.on('marketTick', (data: MarketTick) => {
+      addMarketTick(data);
+      setLastMarketData(data.symbol, data);
+    });
+
+    wsService.on('market_data', (data: MarketTick | MarketTick[]) => {
+      if (Array.isArray(data)) {
+        data.forEach(tick => {
+          addMarketTick(tick);
+          setLastMarketData(tick.symbol, tick);
+        });
+      } else {
+        addMarketTick(data);
+        setLastMarketData(data.symbol, data);
+      }
+    });
+
+    wsService.on('tradeSignal', (signal: TradeSignal) => {
+      addTradeSignal(signal);
+      setLastTrade(signal);
+    });
+
+    wsService.on('trade_signal', (signal: TradeSignal) => {
+      addTradeSignal(signal);
+      setLastTrade(signal);
+    });
+
+    wsService.on('portfolioUpdate', (data: PortfolioUpdate) => {
+      addPortfolioUpdate(data);
+      setLastPortfolioUpdate(data);
+    });
+
+    wsService.on('portfolio_update', (data: PortfolioUpdate) => {
+      addPortfolioUpdate(data);
+      setLastPortfolioUpdate(data);
+    });
+
+    wsService.on('market:update', (data: any) => {
+      if (data.success && data.data) {
+        if (Array.isArray(data.data)) {
+          data.data.forEach((item: any) => {
+            const marketTick: MarketTick = {
+              symbol: item.symbol,
+              price: item.price,
+              changePercentage24h: item.changePercentage24h || item.change || 0,
+              volume: item.volume24h || item.volume || 0,
+              timestamp: new Date(item.timestamp || Date.now()).getTime()
+            };
+            addMarketTick(marketTick);
+            setLastMarketData(marketTick.symbol, marketTick);
+          });
+        }
+      }
+    });
+  }, [setIsConnected, addMarketTick, addTradeSignal, addPortfolioUpdate, setLastMarketData, setLastTrade, setLastPortfolioUpdate, startMockData]);
+
+  // Disconnect from WebSocket service
   const disconnect = useCallback(() => {
-    if (socketRef.current) {
-      socketRef.current.disconnect();
-      socketRef.current = null;
-    }
-    
-    if (reconnectTimeoutRef.current) {
-      clearTimeout(reconnectTimeoutRef.current);
-      reconnectTimeoutRef.current = null;
+    wsService.disconnect();
+
+    if (mockIntervalRef.current) {
+      clearInterval(mockIntervalRef.current);
+      mockIntervalRef.current = null;
     }
     
     setIsConnected(false);
-    console.log('🔌 Disconnected from Socket.IO server');
+    console.log('Disconnected from WebSocket server');
   }, [setIsConnected]);
 
   // Subscribe to specific market symbols
   const subscribeToSymbol = useCallback((symbol: string) => {
     if (socketRef.current && isConnected) {
       socketRef.current.emit('subscribe_symbol', { symbol });
-      console.log(`📡 Subscribed to symbol: ${symbol}`);
+      console.log(`Subscribed to symbol: ${symbol}`);
     }
   }, [isConnected]);
 
@@ -327,11 +232,11 @@ export function useRealTimeData() {
   const unsubscribeFromSymbol = useCallback((symbol: string) => {
     if (socketRef.current && isConnected) {
       socketRef.current.emit('unsubscribe_symbol', { symbol });
-      console.log(`📡 Unsubscribed from symbol: ${symbol}`);
+      console.log(`Unsubscribed from symbol: ${symbol}`);
     }
   }, [isConnected]);
 
-  // Initialize Socket.IO connection
+  // Initialize connection
   useEffect(() => {
     connect();
     
@@ -343,7 +248,7 @@ export function useRealTimeData() {
 
   return {
     isConnected,
-    isMockMode: false, // No mock mode with real Socket.IO
+    isMockMode: process.env.NEXT_PUBLIC_ENABLE_WEBSOCKETS !== 'true',
     lastMarketData,
     lastTrade,
     lastPortfolioUpdate,
@@ -356,4 +261,4 @@ export function useRealTimeData() {
     subscribeToSymbol,
     unsubscribeFromSymbol
   };
-} 
+}

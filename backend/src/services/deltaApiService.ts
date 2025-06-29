@@ -626,7 +626,7 @@ class DeltaExchangeAPI {
           if (retryCount < (this.rateLimit.maxRetries || 5)) {
             // Check for X-RATE-LIMIT-RESET header
             const resetTime = error.response.headers['x-rate-limit-reset'];
-            let delay = resetTime ? parseInt(resetTime) :
+            const delay = resetTime ? parseInt(resetTime) :
               Math.min(
                 (this.rateLimit.initialDelay || 2000) * Math.pow((this.rateLimit.factor || 2.5), retryCount),
                 (this.rateLimit.maxDelay || 30000)

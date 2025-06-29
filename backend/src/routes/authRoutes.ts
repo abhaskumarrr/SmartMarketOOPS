@@ -20,6 +20,8 @@ import {
   authRateLimiter
 } from '../middleware/auth';
 
+import { userValidationRules, validate } from '../middleware/validationMiddleware';
+
 const router = express.Router();
 
 // Health check for auth routes
@@ -33,7 +35,7 @@ router.get('/csrf-token', (req, res) => {
 });
 
 // Register new user - apply rate limiting to prevent spam
-router.post('/register', authRateLimiter, register);
+router.post('/register', authRateLimiter, userValidationRules(), validate, register);
 
 // Login user - apply rate limiting to prevent brute force attacks
 router.post('/login', authRateLimiter, login);

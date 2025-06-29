@@ -8,6 +8,7 @@ import prisma from './prismaClient';
 import { v4 as uuidv4 } from 'uuid';
 import { Request } from 'express';
 import crypto from 'crypto';
+import { generateToken, generateRefreshToken, verifyToken } from './jwt';
 
 // Environment variables
 const {
@@ -275,6 +276,39 @@ export const generateDeviceFingerprint = (req: Request): string => {
   
   // Simple fingerprint generation - in production, use a more sophisticated approach
   return Buffer.from(components.join('|')).toString('base64');
+};
+
+/**
+ * Get session metadata
+ * @param token - JWT token
+ * @returns Session metadata or null
+ */
+export const getSessionMetadata = async (token: string): Promise<any | null> => {
+  const session = await prisma.session.findUnique({
+    where: { token },
+    select: { metadata: true },
+  });
+  
+  return session?.metadata || null;
+};
+
+/**
+ * Update session metadata
+ * @param token - JWT token
+ * @param metadata - New metadata to set
+ * @returns Success indicator
+ */
+export const updateSessionMetadata = async (token: string, metadata: any): Promise<boolean> => {
+  try {
+    await prisma.session.update({
+      where: { token },
+      data: { metadata },
+    });
+    return true;
+  } catch (error) {
+    console.error('Error updating session metadata:', error);
+    return false;
+  }
 };
 
 export default {

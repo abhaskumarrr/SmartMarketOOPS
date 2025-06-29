@@ -141,7 +141,7 @@ export class AIModelTrainer {
     const weights = this.initializeWeights(featureNames, config.hiddenLayers);
     const biases = this.initializeBiases(config.hiddenLayers);
 
-    let parameters: ModelParameters = {
+    const parameters: ModelParameters = {
       weights,
       biases,
       learningRate: config.learningRate,
@@ -236,7 +236,7 @@ export class AIModelTrainer {
     const weights = this.initializeLSTMWeights(featureNames.length, config.hiddenUnits);
     const biases = this.initializeBiases(config.hiddenUnits);
 
-    let parameters: ModelParameters = {
+    const parameters: ModelParameters = {
       weights,
       biases,
       learningRate: config.learningRate,
@@ -325,7 +325,7 @@ export class AIModelTrainer {
     const weights = this.initializeWeights(featureNames, [64, 32, 16]);
     const biases = this.initializeBiases([64, 32, 16]);
 
-    let parameters: ModelParameters = {
+    const parameters: ModelParameters = {
       weights,
       biases,
       learningRate: config.learningRate,

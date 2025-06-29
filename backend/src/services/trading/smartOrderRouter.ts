@@ -13,7 +13,7 @@ import {
 } from '../../types/orderExecution';
 
 // Import deltaExchangeService properly with require
-const { createDefaultService } = require('../../services/deltaExchangeService');
+import DeltaExchangeService from '../../services/deltaExchangeService';
 
 // Create logger
 const logger = createLogger('SmartOrderRouter');
@@ -36,7 +36,7 @@ export class SmartOrderRouter implements ISmartOrderRouter {
     logger.info('Smart Order Router initialized');
     
     // Register exchange connectors
-    this.registerExchangeConnector('delta', createDefaultService());
+    this.registerExchangeConnector('delta', new DeltaExchangeService({ apiKey: process.env.DELTA_EXCHANGE_API_KEY || '', apiSecret: process.env.DELTA_EXCHANGE_API_SECRET || '', testnet: process.env.NODE_ENV !== 'production' }));
     
     // Refresh exchange data periodically
     setInterval(() => this.refreshExchangeData(), 60000); // Every minute

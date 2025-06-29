@@ -31,13 +31,13 @@ const deltaExchange = new DeltaExchangeUnified({
  * @description Place a new order on Delta Exchange
  * @access Private
  */
-router.post('/', async (req, res) => {
+router.post('/', async (req, res): Promise<Response> => {
   try {
     // Validate the order parameters
     const { error, value } = validateOrderParams(req.body);
     
     if (error) {
-      logger.warn('Invalid order parameters:', error.message);
+      logger.warn('Invalid order parameters:', { message: error.message });
       return res.status(400).json({
         success: false,
         error: 'Validation Error',
@@ -84,7 +84,7 @@ router.post('/', async (req, res) => {
       message: 'Order placed successfully'
     });
   } catch (error) {
-    logger.error('Error placing order:', error);
+    logger.error('Error placing order:', { error: error instanceof Error ? error.message : String(error) });
     
     // Handle different error types
     if (error.response && error.response.data) {
@@ -99,7 +99,7 @@ router.post('/', async (req, res) => {
     return res.status(500).json({
       success: false,
       error: 'Order Placement Failed',
-      message: error.message || 'An unexpected error occurred'
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     });
   }
 });
@@ -109,7 +109,7 @@ router.post('/', async (req, res) => {
  * @description Get all open orders
  * @access Private
  */
-router.get('/', async (req, res) => {
+router.get('/', async (req, res): Promise<Response> => {
   try {
     // Ensure Delta Exchange client is initialized
     if (!deltaExchange.isInitialized()) {
@@ -124,12 +124,12 @@ router.get('/', async (req, res) => {
       message: 'Open orders retrieved successfully'
     });
   } catch (error) {
-    logger.error('Error fetching open orders:', error);
+    logger.error('Error fetching open orders:', { error: error instanceof Error ? error.message : String(error) });
     
     return res.status(500).json({
       success: false,
       error: 'Failed to Fetch Orders',
-      message: error.message || 'An unexpected error occurred'
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     });
   }
 });
@@ -139,7 +139,7 @@ router.get('/', async (req, res) => {
  * @description Cancel an order by ID
  * @access Private
  */
-router.delete('/:orderId', async (req, res) => {
+router.delete('/:orderId', async (req, res): Promise<Response> => {
   try {
     const { orderId } = req.params;
     
@@ -164,12 +164,12 @@ router.delete('/:orderId', async (req, res) => {
       message: 'Order cancelled successfully'
     });
   } catch (error) {
-    logger.error(`Error cancelling order ${req.params.orderId}:`, error);
+    logger.error(`Error cancelling order ${req.params.orderId}:`, { error: error instanceof Error ? error.message : String(error) });
     
     return res.status(500).json({
       success: false,
       error: 'Failed to Cancel Order',
-      message: error.message || 'An unexpected error occurred'
+      message: error instanceof Error ? error.message : 'An unexpected error occurred'
     });
   }
 });

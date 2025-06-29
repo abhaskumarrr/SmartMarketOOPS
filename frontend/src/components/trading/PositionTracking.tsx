@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { usePortfolioData, useRealtimeStatus } from '@/lib/realtime-data'
+import { Feedback } from './Feedback'
 
 export function PositionTracking() {
   const portfolioData = usePortfolioData()
@@ -79,6 +80,9 @@ export function PositionTracking() {
                     <div className="flex gap-2 mt-4">
                       <Button size="sm" variant="destructive" className="w-full">Close Position</Button>
                       <Button size="sm" variant="outline" className="w-full">Edit TP/SL</Button>
+                    </div>
+                    <div className="mt-2">
+                      <Feedback tradeId={position.symbol} />
                     </div>
                   </div>
                 )}

@@ -3,6 +3,44 @@ import axios from 'axios';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3006';
 
+// Additional types for Delta Exchange integration
+export interface DeltaMarketData {
+  symbol: string;
+  price: number;
+  change_24h: number;
+  volume: number;
+  high_24h: number;
+  low_24h: number;
+  timestamp: number;
+}
+
+export interface DeltaOrder {
+  id: string;
+  product_id: number;
+  symbol: string;
+  side: 'buy' | 'sell';
+  size: string;
+  order_type: string;
+  limit_price?: string;
+  state: string;
+  created_at: string;
+}
+
+export interface DeltaBalance {
+  asset: string;
+  balance: string;
+  available_balance: string;
+  reserved_balance: string;
+}
+
+export interface ApiResponse<T = any> {
+  success: boolean;
+  data?: T;
+  message?: string;
+  error?: string;
+  timestamp?: number;
+}
+
 class ApiService {
   private async request<T>(endpoint: string, options?: RequestInit): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
@@ -247,6 +285,168 @@ class ApiService {
     return this.request<Position>(`/api/positions/${positionId}/close`, {
       method: 'POST',
     });
+  }
+
+  // Delta Exchange Trading Methods
+  async getTradingStatus(): Promise<ApiResponse> {
+    try {
+      return await this.request<ApiResponse>('/api/trading/status');
+    } catch (error) {
+      console.error('Failed to get trading status:', error);
+      return {
+        success: false,
+        error: 'Failed to get trading status',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  async getDeltaMarketData(symbol: string): Promise<ApiResponse<DeltaMarketData>> {
+    try {
+      return await this.request<ApiResponse<DeltaMarketData>>(`/api/trading/market-data/${symbol}`);
+    } catch (error) {
+      console.error(`Failed to get market data for ${symbol}:`, error);
+      return {
+        success: false,
+        error: 'Failed to get market data',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  async getDeltaPositions(): Promise<ApiResponse<Position[]>> {
+    try {
+      return await this.request<ApiResponse<Position[]>>('/api/trading/positions');
+    } catch (error) {
+      console.error('Failed to get positions:', error);
+      return {
+        success: false,
+        data: [],
+        error: 'Failed to get positions',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  async getDeltaOrders(): Promise<ApiResponse<DeltaOrder[]>> {
+    try {
+      return await this.request<ApiResponse<DeltaOrder[]>>('/api/trading/orders');
+    } catch (error) {
+      console.error('Failed to get orders:', error);
+      return {
+        success: false,
+        data: [],
+        error: 'Failed to get orders',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  async getDeltaBalances(): Promise<ApiResponse<DeltaBalance[]>> {
+    try {
+      return await this.request<ApiResponse<DeltaBalance[]>>('/api/trading/balances');
+    } catch (error) {
+      console.error('Failed to get balances:', error);
+      return {
+        success: false,
+        data: [],
+        error: 'Failed to get balances',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  async placeDeltaOrder(orderData: {
+    product_id: number;
+    side: 'buy' | 'sell';
+    size: number;
+    order_type: 'market_order' | 'limit_order';
+    limit_price?: number;
+    leverage?: number;
+    reduce_only?: boolean;
+    post_only?: boolean;
+  }): Promise<ApiResponse> {
+    try {
+      return await this.request<ApiResponse>('/api/trading/orders', {
+        method: 'POST',
+        body: JSON.stringify(orderData),
+      });
+    } catch (error) {
+      console.error('Failed to place order:', error);
+      return {
+        success: false,
+        error: 'Failed to place order',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  async placeTradeWithTPSL(tradeData: {
+    symbol?: string;
+    side?: 'buy' | 'sell';
+    size?: string;
+    order_type?: 'market_order' | 'limit_order';
+    take_profit_percentage?: number;
+    stop_loss_percentage?: number;
+  }): Promise<ApiResponse> {
+    try {
+      return await this.request<ApiResponse>('/api/trading/place-trade-with-tpsl', {
+        method: 'POST',
+        body: JSON.stringify(tradeData),
+      });
+    } catch (error) {
+      console.error('Failed to place trade with TP/SL:', error);
+      return {
+        success: false,
+        error: 'Failed to place trade with TP/SL',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  async activateTradingBot(botConfig: {
+    name?: string;
+    strategy?: string;
+    symbols?: string[];
+    risk_per_trade?: number;
+    take_profit?: number;
+    stop_loss?: number;
+    max_positions?: number;
+    enabled?: boolean;
+  }): Promise<ApiResponse> {
+    try {
+      return await this.request<ApiResponse>('/api/trading/activate-bot', {
+        method: 'POST',
+        body: JSON.stringify(botConfig),
+      });
+    } catch (error) {
+      console.error('Failed to activate trading bot:', error);
+      return {
+        success: false,
+        error: 'Failed to activate trading bot',
+        message: error instanceof Error ? error.message : 'Unknown error'
+      };
+    }
+  }
+
+  async getAvailableMarkets(): Promise<ApiResponse> {
+    try {
+      return await this.request<ApiResponse>('/api/markets');
+    } catch (error) {
+      console.error('Failed to get available markets:', error);
+      // Return mock data for development
+      return {
+        success: true,
+        data: [
+          { id: 27, symbol: 'BTCUSD', name: 'Bitcoin', minSize: 0.001, tickSize: 0.5, status: 'active' },
+          { id: 3136, symbol: 'ETHUSD', name: 'Ethereum', minSize: 0.01, tickSize: 0.05, status: 'active' },
+          { id: 139, symbol: 'SOLUSD', name: 'Solana', minSize: 0.1, tickSize: 0.01, status: 'active' },
+          { id: 4444, symbol: 'ADAUSD', name: 'Cardano', minSize: 1, tickSize: 0.001, status: 'active' },
+          { id: 5555, symbol: 'BNBUSD', name: 'Binance Coin', minSize: 0.01, tickSize: 0.1, status: 'active' }
+        ],
+        message: 'Using mock market data for development'
+      };
+    }
   }
 }
 

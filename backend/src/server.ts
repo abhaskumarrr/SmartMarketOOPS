@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 /**
  * Main Server Entry Point
  * Sets up and starts the Express server with API routes
@@ -47,6 +49,8 @@ import tradingRoutes from './routes/tradingRoutes';
 import deltaTradingRoutes from './routes/deltaTradingRoutes';
 import paperTradingRoutes from './routes/paperTradingRoutes';
 import realMarketDataRoutes from './routes/realMarketDataRoutes';
+import dashboardRoutes from './routes/dashboardRoutes';
+import feedbackRoutes from './routes/feedbackRoutes';
 // Import other routes as needed
 
 // Load socket initialization
@@ -74,19 +78,18 @@ const server = http.createServer(app);
 const io = initializeWebsocketServer(server);
 
 // Logging middleware
-const logStream = createWriteStream(path.join(__dirname, '../logs/server.log'), { flags: 'a' });
 app.use((req: Request, res: Response, next: NextFunction) => {
   const start = Date.now();
 
   res.on('finish', () => {
     const duration = Date.now() - start;
-    const log = `${new Date().toISOString()} | ${req.method} ${req.url} ${res.statusCode} ${duration}ms\n`;
-
-    logStream.write(log);
-
-    if (NODE_ENV === 'development') {
-      console.log(log);
-    }
+    const message = `${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`;
+    logger.info(message, {
+      method: req.method,
+      url: req.originalUrl,
+      statusCode: res.statusCode,
+      duration,
+    });
   });
 
   next();
@@ -138,16 +141,23 @@ app.use('/api/auth/', optimizationMiddleware.createRateLimiter({
   max: 50, // limit each IP to 50 auth requests per windowMs
 }));
 
+const allowedOrigins = [
+  env.CLIENT_URL,
+  'http://localhost:3001', // Frontend running on port 3001
+  'http://localhost:3002',
+  'http://localhost:3333',
+  'http://192.168.1.20:3000', // Network access
+];
+
 // CORS middleware
 app.use(cors({
-  origin: [
-    env.CLIENT_URL,
-    'http://localhost:3001', // Frontend running on port 3001
-    'http://localhost:3002',
-    'http://localhost:3333',
-    'http://192.168.1.20:3000', // Network access
-    /^http:\/\/192\.168\.\d+\.\d+:3000$/ // Allow any 192.168.x.x:3000
-  ],
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
   credentials: true,
   optionsSuccessStatus: 200,
 }));
@@ -222,6 +232,8 @@ app.use('/api/real-market-data', realMarketDataRoutes);
 app.use('/api/trading', tradingRoutes);
 app.use('/api/delta-trading', deltaTradingRoutes);
 app.use('/api/paper-trading', paperTradingRoutes);
+app.use('/api/dashboard', dashboardRoutes);
+app.use('/api/feedback', feedbackRoutes);
 // Use other routes as needed
 
 // Not found middleware for undefined routes

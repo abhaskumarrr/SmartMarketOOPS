@@ -82,17 +82,3 @@ export const validateCancelOrderParams = (cancelData: any) => {
   
   return cancelSchema.validate(cancelData, { abortEarly: false });
 };
-
-/**
- * Validation schema for market lookup parameters
- */
-export const validateMarketLookupParams = (lookupData: any) => {
-  const lookupSchema = Joi.object({
-    symbol: Joi.string().required().messages({
-      'string.base': 'Symbol must be a string',
-      'any.required': 'Symbol is required'
-    })
-  });
-  
-  return lookupSchema.validate(lookupData, { abortEarly: false });
-}; 

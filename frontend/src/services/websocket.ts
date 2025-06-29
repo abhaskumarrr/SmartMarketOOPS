@@ -25,7 +25,6 @@ class WebSocketService {
         transports: ['websocket', 'polling'],
         autoConnect: true,
         timeout: 5000,
-        forceNew: true,
       });
 
       this.socket.on('connect', () => {

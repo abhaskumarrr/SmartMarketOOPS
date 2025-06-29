@@ -38,7 +38,7 @@ try:
 
     from ml.src.training.train_model import train_model
     from ml.src.training.trainer import ModelTrainer
-    from ml.src.data.data_loader import MarketDataLoader
+    from ml.src.data.unified_data_processor import UnifiedDataProcessor
     from ml.src.api.delta_client import DeltaExchangeClient
 
     from ml.backend.src.api.enhanced_trading_predictions import (
@@ -377,10 +377,10 @@ class EnhancedRealDataBacktester:
                 logger.info("Delta Exchange client initialized")
 
             if self.config.data_source in ["binance", "auto"]:
-                self.data_loader = MarketDataLoader(
-                    timeframe=self.config.timeframe,
-                    symbols=[self.config.symbol.replace('USD', '/USDT')]
-                )
+                self.data_loader = UnifiedDataProcessor(
+            timeframe=self.config.timeframe,
+            symbols=[self.config.symbol]
+        )
                 logger.info("Market data loader initialized")
 
             # Initialize enhanced predictor

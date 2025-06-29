@@ -12,4 +12,4 @@ const prismaReadOnly = new PrismaClient({
   },
 });
 
-export default prismaReadOnly; 
+export default prismaReadOnly;

@@ -242,7 +242,7 @@ export class MultiTimeframeBacktester {
 
     const signals: TradingSignal[] = [];
     const processingTimes: { [key in Timeframe]?: number[] } = {};
-    let hierarchicalStats = {
+    const hierarchicalStats = {
       totalDecisions: 0,
       higherTimeframeOverrides: 0,
       consensusDecisions: 0,
@@ -407,7 +407,7 @@ export class MultiTimeframeBacktester {
   ): any {
     
     const timeframeProcessingTime: { [key in Timeframe]?: number } = {};
-    let totalProcessingTime = Date.now() - startTime;
+    const totalProcessingTime = Date.now() - startTime;
     let avgExecutionDelay = 0;
 
     timeframes.forEach(timeframe => {

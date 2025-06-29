@@ -8,6 +8,8 @@ import { DeltaExchangeUnified } from '../services/DeltaExchangeUnified';
 import env from '../config/environment';
 import { protect as auth } from '../middleware/auth';
 
+import { logger } from '../utils/logger';
+
 const router = express.Router();
 
 // Apply authentication middleware to all routes
@@ -20,26 +22,26 @@ const deltaExchange = new DeltaExchangeUnified({
   testnet: env.DELTA_EXCHANGE_TESTNET
 });
 
-console.log('🔑 Delta Exchange API Configuration:');
-console.log(`- Base URL: ${deltaExchange.getBaseUrl()}`);
-console.log(`- API Key: ${env.DELTA_EXCHANGE_API_KEY ? env.DELTA_EXCHANGE_API_KEY.substring(0, 8) + '...' : 'NOT SET'}`);
-console.log(`- Testnet: ${env.DELTA_EXCHANGE_TESTNET}`);
+logger.info('🔑 Delta Exchange API Configuration:');
+logger.info(`- Status: ${deltaExchange.isInitialized() ? 'Connected' : 'Not Connected'}`);
+logger.info(`- API Key: ${env.DELTA_EXCHANGE_API_KEY ? env.DELTA_EXCHANGE_API_KEY.substring(0, 8) + '...' : 'NOT SET'}`);
+logger.info(`- Testnet: ${env.DELTA_EXCHANGE_TESTNET}`);
 
 if (!env.DELTA_EXCHANGE_API_KEY || !env.DELTA_EXCHANGE_API_SECRET) {
-  console.error('❌ Delta Exchange API credentials not found in environment variables!');
-  console.error('Please check your .env file for DELTA_EXCHANGE_API_KEY and DELTA_EXCHANGE_API_SECRET');
+  logger.error('❌ Delta Exchange API credentials not found in environment variables!');
+  logger.error('Please check your .env file for DELTA_EXCHANGE_API_KEY and DELTA_EXCHANGE_API_SECRET');
 } else {
-  console.log('✅ Delta Exchange API credentials loaded successfully!');
-  console.log('🔄 Environment variables refreshed');
+  logger.info('✅ Delta Exchange API credentials loaded successfully!');
+  logger.info('🔄 Environment variables refreshed');
 }
 
 /**
  * GET /api/trading/status
  * Get trading service status
  */
-router.get('/status', async (req, res) => {
+router.get('/status', async (req, res): Promise<Response> => {
   try {
-    res.json({
+    return res.json({
       success: true,
       data: {
         status: 'connected',
@@ -51,8 +53,8 @@ router.get('/status', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Error getting trading status:', error);
-    res.status(500).json({
+    logger.error('Error getting trading status:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to get trading status',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -64,51 +66,26 @@ router.get('/status', async (req, res) => {
  * GET /api/trading/products
  * Get all available trading products
  */
-router.get('/products', async (req, res) => {
+router.get('/products', async (req, res): Promise<Response> => {
   try {
-    const mockProducts = [
-      {
-        id: 27,
-        symbol: 'BTCUSD',
-        description: 'Bitcoin Perpetual',
-        contract_type: 'perpetual_futures',
-        state: 'live',
-        tick_size: '0.5',
-        contract_value: '0.001',
-        maker_commission_rate: '0.0005',
-        taker_commission_rate: '0.0015',
-        underlying_asset: 'BTC',
-        quoting_asset: 'USD',
-        settling_asset: 'INR'
-      },
-      {
-        id: 3136,
-        symbol: 'ETHUSD',
-        description: 'Ethereum Perpetual',
-        contract_type: 'perpetual_futures',
-        state: 'live',
-        tick_size: '0.05',
-        contract_value: '0.01',
-        maker_commission_rate: '0.0005',
-        taker_commission_rate: '0.0015',
-        underlying_asset: 'ETH',
-        quoting_asset: 'USD',
-        settling_asset: 'INR'
-      }
-    ];
+    // Ensure Delta Exchange client is initialized
+    if (!deltaExchange.isInitialized()) {
+      await deltaExchange.initialize();
+    }
+    const products = await deltaExchange.getAllProducts();
 
-    res.json({
+    return res.json({
       success: true,
-      data: mockProducts,
+      data: products,
       meta: {
-        total: mockProducts.length,
+        total: products.length,
         exchange: 'delta_exchange_india',
         timestamp: Date.now()
       }
     });
   } catch (error) {
-    console.error('Error getting products:', error);
-    res.status(500).json({
+    logger.error('Error getting products:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to get products',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -120,29 +97,34 @@ router.get('/products', async (req, res) => {
  * GET /api/trading/market-data/:symbol
  * Get real-time market data
  */
-router.get('/market-data/:symbol', async (req, res) => {
+router.get('/market-data/:symbol', async (req, res): Promise<Response> => {
   try {
     const { symbol } = req.params;
     
-    const mockMarketData = {
-      symbol: symbol.toUpperCase(),
-      price: Math.random() * 50000 + 30000, // Random price between 30k-80k
-      volume: Math.random() * 1000000,
-      change_24h: (Math.random() - 0.5) * 10,
-      high_24h: Math.random() * 55000 + 35000,
-      low_24h: Math.random() * 45000 + 25000,
-      timestamp: Date.now()
-    };
+    // Ensure Delta Exchange client is initialized
+    if (!deltaExchange.isInitialized()) {
+      await deltaExchange.initialize();
+    }
 
-    res.json({
+    const marketData = await deltaExchange.getMarketData(symbol.toUpperCase());
+
+    if (!marketData) {
+      return res.status(404).json({
+        success: false,
+        error: 'Symbol not found',
+        message: `Market data not available for symbol: ${symbol}`
+      });
+    }
+
+    return res.json({
       success: true,
-      data: mockMarketData,
+      data: marketData,
       timestamp: Date.now(),
       source: 'delta_exchange_india'
     });
   } catch (error) {
-    console.error(`Error getting market data for ${req.params.symbol}:`, error);
-    res.status(500).json({
+    logger.error(`Error getting market data for ${req.params.symbol}:`, { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to get market data',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -154,7 +136,7 @@ router.get('/market-data/:symbol', async (req, res) => {
  * POST /api/trading/orders
  * Place a new order on Delta Exchange
  */
-router.post('/orders', async (req, res) => {
+router.post('/orders', async (req, res): Promise<Response> => {
   try {
     const orderRequest = req.body;
 
@@ -167,27 +149,27 @@ router.post('/orders', async (req, res) => {
       });
     }
 
-    console.log('🔍 Placing real order on Delta Exchange:', orderRequest);
+    logger.info('🚀 Placing real order on Delta Exchange:', { orderRequest });
 
     // Place real order using Delta Exchange API
     const response = await deltaExchange.placeOrder(orderRequest);
 
-    console.log('✅ Real order placed:', response);
+    logger.info('✅ Real order placed:', { response });
 
-    res.json({
+    return res.json({
       success: true,
       data: response.result || response,
       message: `Real order placed successfully on Delta Exchange (testnet)`,
       timestamp: Date.now(),
       api_response: response
     });
-  } catch (error: any) {
-    console.error('❌ Error placing real order:', error.response?.data || error.message);
-    res.status(500).json({
+  } catch (error) {
+    logger.error('❌ Error placing real order:', { error: error instanceof Error ? error.message : String(error), response_data: (error as any).response?.data });
+    return res.status(500).json({
       success: false,
       error: 'Failed to place order',
-      message: error.response?.data?.error?.message || error.message || 'Unknown error',
-      error_details: error.response?.data || error.message
+      message: (error as any).response?.data?.error?.message || (error as any).message || 'Unknown error',
+      error_details: (error as any).response?.data || (error as any).message
     });
   }
 });
@@ -196,30 +178,24 @@ router.post('/orders', async (req, res) => {
  * GET /api/trading/orders
  * Get open orders
  */
-router.get('/orders', async (req, res) => {
+router.get('/orders', async (req, res): Promise<Response> => {
   try {
-    const mockOrders = [
-      {
-        id: 123456,
-        product_id: 27,
-        size: '0.1',
-        side: 'buy',
-        order_type: 'limit_order',
-        limit_price: '45000',
-        state: 'open',
-        created_at: new Date().toISOString()
-      }
-    ];
+    // Ensure Delta Exchange client is initialized
+    if (!deltaExchange.isInitialized()) {
+      await deltaExchange.initialize();
+    }
 
-    res.json({
+    const openOrders = await deltaExchange.getOpenOrders();
+
+    return res.json({
       success: true,
-      data: mockOrders,
+      data: openOrders,
       message: `Orders from Delta Exchange ${env.DELTA_EXCHANGE_TESTNET ? '(testnet)' : '(production)'}`,
       timestamp: Date.now()
     });
   } catch (error) {
-    console.error('Error getting orders:', error);
-    res.status(500).json({
+    logger.error('Error getting orders:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to get orders',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -231,33 +207,33 @@ router.get('/orders', async (req, res) => {
  * GET /api/trading/positions
  * Get current positions from Delta Exchange
  */
-router.get('/positions', async (req, res) => {
+router.get('/positions', async (req, res): Promise<Response> => {
   try {
-    console.log('🔍 Fetching real positions from Delta Exchange API...');
+    logger.info('🔍 Fetching real positions from Delta Exchange API...');
 
     // Get real positions from Delta Exchange API
     const response = await deltaExchange.getPositions();
 
-    console.log('✅ Real positions received:', response);
+    logger.info('✅ Real positions received:', { response });
 
-    res.json({
+    return res.json({
       success: true,
       data: response.result || response,
       message: `Real positions from Delta Exchange (testnet)`,
       timestamp: Date.now(),
       api_response: response
     });
-  } catch (error: any) {
-    console.error('❌ Error getting real positions:', error.response?.data || error.message);
+  } catch (error) {
+    logger.error('❌ Error getting real positions:', { error: error instanceof Error ? error.message : String(error), response_data: (error as any).response?.data });
 
     // Fallback to empty positions if API fails
-    res.json({
+    return res.json({
       success: true,
       data: [],
-      message: `No positions found (API error: ${error.response?.data?.error?.message || error.message || 'Unknown error'})`,
+      message: `No positions found (API error: ${(error as any).response?.data?.error?.message || (error as any).message || 'Unknown error'})`,
       timestamp: Date.now(),
       warning: 'API call failed, showing empty positions',
-      error_details: error.response?.data || error.message
+      error_details: (error as any).response?.data || (error as any).message
     });
   }
 });
@@ -266,24 +242,24 @@ router.get('/positions', async (req, res) => {
  * GET /api/trading/balances
  * Get wallet balances from Delta Exchange API
  */
-router.get('/balances', async (req, res) => {
+router.get('/balances', async (req, res): Promise<Response> => {
   try {
-    console.log('🔍 Fetching real balances from Delta Exchange API...');
+    logger.info('🔍 Fetching real balances from Delta Exchange API...');
 
     // Get real balances from Delta Exchange API
-    const response = await deltaExchange.getBalances();
+    const response = await deltaExchange.getBalance();
 
-    console.log('✅ Real balances received:', response);
+    logger.info('✅ Real balances received:', { response });
 
-    res.json({
+    return res.json({
       success: true,
       data: response.result || response,
       message: `Real balances from Delta Exchange (testnet)`,
       timestamp: Date.now(),
       api_response: response
     });
-  } catch (error: any) {
-    console.error('❌ Error getting real balances:', error.response?.data || error.message);
+  } catch (error) {
+    logger.error('❌ Error getting real balances:', { error: error instanceof Error ? error.message : String(error), response_data: (error as any).response?.data });
 
     // Fallback to mock data if API fails
     const fallbackBalances = [
@@ -296,13 +272,13 @@ router.get('/balances', async (req, res) => {
       }
     ];
 
-    res.json({
+    return res.json({
       success: true,
       data: fallbackBalances,
-      message: `Fallback balances (API error: ${error.response?.data?.error?.message || error.message || 'Unknown error'})`,
+      message: `Fallback balances (API error: ${(error as any).response?.data?.error?.message || (error as any).message || 'Unknown error'})`,
       timestamp: Date.now(),
       warning: 'Using fallback data due to API error',
-      error_details: error.response?.data || error.message
+      error_details: (error as any).response?.data || (error as any).message
     });
   }
 });
@@ -311,7 +287,7 @@ router.get('/balances', async (req, res) => {
  * POST /api/trading/place-trade-with-tpsl
  * Place a trade with take profit and stop loss orders
  */
-router.post('/place-trade-with-tpsl', async (req, res) => {
+router.post('/place-trade-with-tpsl', async (req, res): Promise<Response> => {
   try {
     const {
       symbol = 'BTCUSD',
@@ -322,13 +298,13 @@ router.post('/place-trade-with-tpsl', async (req, res) => {
       stop_loss_percentage = 1.0
     } = req.body;
 
-    console.log('🎯 Placing trade with TP/SL:', { symbol, side, size, order_type, take_profit_percentage, stop_loss_percentage });
+    logger.info('🎯 Placing trade with TP/SL:', { symbol, side, size, order_type, take_profit_percentage, stop_loss_percentage });
 
     // Step 1: Get REAL current market price from Delta Exchange
-    console.log('🔍 Getting REAL market data from Delta Exchange...');
+    logger.info('🔍 Getting REAL market data from Delta Exchange...');
 
     // Get products to find the product ID
-    const products = await deltaExchange.getProducts();
+    const products = deltaExchange.getAllProducts();
     const product = products.find((p: any) => p.symbol === symbol);
 
     if (!product) {
@@ -340,16 +316,16 @@ router.post('/place-trade-with-tpsl', async (req, res) => {
     }
 
     // Get REAL ticker data for current market price
-    const ticker = await deltaExchange.getTicker(product.symbol);
+    const ticker = await deltaExchange.getMarketData(product.symbol);
 
     // Use REAL market price from ticker (mark_price is the most accurate)
     const currentPrice = parseFloat(ticker.mark_price || ticker.close || ticker.last_price);
 
-    console.log(`📊 REAL ${symbol} market data:`);
-    console.log(`- Mark Price: $${ticker.mark_price}`);
-    console.log(`- Last Price: $${ticker.last_price}`);
-    console.log(`- Close Price: $${ticker.close}`);
-    console.log(`- Using Price: $${currentPrice}`);
+    logger.info(`📊 REAL ${symbol} market data:`);
+    logger.info(`- Mark Price: ${ticker.mark_price}`);
+    logger.info(`- Last Price: ${ticker.last_price}`);
+    logger.info(`- Close Price: ${ticker.close}`);
+    logger.info(`- Using Price: ${currentPrice}`);
 
     if (!currentPrice || currentPrice <= 0) {
       throw new Error(`Invalid market price received: ${currentPrice}`);
@@ -370,9 +346,9 @@ router.post('/place-trade-with-tpsl', async (req, res) => {
       ...(order_type === 'limit_order' && { post_only: true })
     };
 
-    console.log('🔍 Placing main order:', mainOrder);
+    logger.info('🔍 Placing main order:', { mainOrder });
     const mainOrderResponse = await deltaExchange.placeOrder(mainOrder);
-    console.log('✅ Main order placed:', mainOrderResponse);
+    logger.info('✅ Main order placed:', { mainOrderResponse });
 
     // Step 3: Calculate TP/SL prices
     const isLong = side === 'buy';
@@ -384,7 +360,7 @@ router.post('/place-trade-with-tpsl', async (req, res) => {
       ? currentPrice * (1 - stop_loss_percentage / 100)
       : currentPrice * (1 + stop_loss_percentage / 100);
 
-    console.log(`🎯 TP Price: $${takeProfitPrice.toFixed(2)}, SL Price: $${stopLossPrice.toFixed(2)}`);
+    logger.info(`🎯 TP Price: ${takeProfitPrice.toFixed(2)}, SL Price: ${stopLossPrice.toFixed(2)}`);
 
     // Step 4: Place Take Profit order (correct Delta Exchange format)
     const takeProfitOrder = {
@@ -398,9 +374,9 @@ router.post('/place-trade-with-tpsl', async (req, res) => {
       reduce_only: true // Ensure this order only reduces position
     };
 
-    console.log('🎯 Placing take profit order:', takeProfitOrder);
+    logger.info('🎯 Placing take profit order:', { takeProfitOrder });
     const tpOrderResponse = await deltaExchange.placeOrder(takeProfitOrder);
-    console.log('✅ Take profit order placed:', tpOrderResponse);
+    logger.info('✅ Take profit order placed:', { tpOrderResponse });
 
     // Step 5: Place Stop Loss order (correct Delta Exchange format)
     const stopLossOrder = {
@@ -414,12 +390,12 @@ router.post('/place-trade-with-tpsl', async (req, res) => {
       reduce_only: true // Ensure this order only reduces position
     };
 
-    console.log('🛡️ Placing stop loss order:', stopLossOrder);
+    logger.info('🛡️ Placing stop loss order:', { stopLossOrder });
     const slOrderResponse = await deltaExchange.placeOrder(stopLossOrder);
-    console.log('✅ Stop loss order placed:', slOrderResponse);
+    logger.info('✅ Stop loss order placed:', { slOrderResponse });
 
     // Return comprehensive response
-    res.json({
+    return res.json({
       success: true,
       message: `Trade placed successfully with TP/SL on ${symbol}`,
       data: {
@@ -430,7 +406,7 @@ router.post('/place-trade-with-tpsl', async (req, res) => {
         take_profit_price: takeProfitPrice,
         stop_loss_price: stopLossPrice,
         orders: {
-          main_order: mainOrderResponse.result || mainOrderResponse,
+          main_order: slOrderResponse.result || slOrderResponse,
           take_profit_order: tpOrderResponse.result || tpOrderResponse,
           stop_loss_order: slOrderResponse.result || slOrderResponse
         }
@@ -438,13 +414,13 @@ router.post('/place-trade-with-tpsl', async (req, res) => {
       timestamp: Date.now()
     });
 
-  } catch (error: any) {
-    console.error('❌ Error placing trade with TP/SL:', error.response?.data || error.message);
-    res.status(500).json({
+  } catch (error) {
+    logger.error('❌ Error placing trade with TP/SL:', { error: error instanceof Error ? error.message : String(error), response_data: (error as any).response?.data });
+    return res.status(500).json({
       success: false,
       error: 'Failed to place trade with TP/SL',
-      message: error.response?.data?.error?.message || error.message || 'Unknown error',
-      error_details: error.response?.data || error.message
+      message: (error as any).response?.data?.error?.message || (error as any).message || 'Unknown error',
+      error_details: (error as any).response?.data || (error as any).message
     });
   }
 });
@@ -453,7 +429,7 @@ router.post('/place-trade-with-tpsl', async (req, res) => {
  * POST /api/trading/activate-bot
  * Activate trading bot with specified parameters
  */
-router.post('/activate-bot', async (req, res) => {
+router.post('/activate-bot', async (req, res): Promise<Response> => {
   try {
     const {
       name = 'SmartMarketOOPS Bot',
@@ -466,7 +442,7 @@ router.post('/activate-bot', async (req, res) => {
       enabled = true
     } = req.body;
 
-    console.log('🤖 Activating trading bot:', { name, strategy, symbols, risk_per_trade });
+    logger.info('🤖 Activating trading bot:', { name, strategy, symbols, risk_per_trade });
 
     // Simulate bot activation (in real implementation, this would start the bot service)
     const botConfig = {
@@ -485,21 +461,21 @@ router.post('/activate-bot', async (req, res) => {
       last_updated: new Date().toISOString()
     };
 
-    console.log('✅ Trading bot activated:', botConfig);
+    logger.info('✅ Trading bot activated:', { botConfig });
 
-    res.json({
+    return res.json({
       success: true,
       message: `Trading bot "${name}" activated successfully`,
       data: botConfig,
       timestamp: Date.now()
     });
 
-  } catch (error: any) {
-    console.error('❌ Error activating trading bot:', error);
-    res.status(500).json({
+  } catch (error) {
+    logger.error('❌ Error activating trading bot:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to activate trading bot',
-      message: error.message || 'Unknown error'
+      message: error instanceof Error ? error.message : 'Unknown error'
     });
   }
 });

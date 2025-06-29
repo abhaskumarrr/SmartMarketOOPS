@@ -14,6 +14,13 @@ from .backtesting.strategies import SmcBasedStrategy
 from .backtesting.utils import plot_backtest_results
 import pandas as pd
 import numpy as np
+from torch.utils.data import TensorDataset, DataLoader
+import torch
+
+# Load configuration
+CONFIG_PATH = os.path.join(os.path.dirname(__file__), '..', 'config', 'default_config.json')
+with open(CONFIG_PATH, 'r') as f:
+    config = json.load(f)
 
 # Configure logging
 logging.basicConfig(
@@ -79,36 +86,54 @@ def predict_command(args):
     logger.info(f"Symbol: {args.symbol}")
     logger.info(f"Model version: {args.version or 'latest'}")
     
-    # Load the model and preprocessor
-    registry = ModelRegistry()
-    model, _, preprocessor = registry.load_model(
-        symbol=args.symbol,
-        version=args.version,
-        return_metadata=True,
-        return_preprocessor=True
-    )
+    try:
+        # Load the model and preprocessor
+        registry = ModelRegistry()
+        model, _, preprocessor = registry.load_model(
+            symbol=args.symbol,
+            version=args.version,
+            return_metadata=True,
+            return_preprocessor=True
+        )
+    except Exception as e:
+        logger.error(f"Error loading model or preprocessor: {e}")
+        sys.exit(1)
     
     # Load data
     if args.data_file:
-        df = pd.read_csv(args.data_file)
+        try:
+            df = pd.read_csv(args.data_file)
+        except FileNotFoundError:
+            logger.error(f"Data file not found: {args.data_file}")
+            sys.exit(1)
     else:
         # Use API to get latest data
         from .data.market_data import get_latest_data
-        df = get_latest_data(args.symbol, args.time_frame, args.limit)
+        try:
+            df = get_latest_data(args.symbol, args.time_frame, args.limit)
+            if df.empty:
+                logger.error(f"No data fetched for symbol {args.symbol} and timeframe {args.time_frame}")
+                sys.exit(1)
+        except Exception as e:
+            logger.error(f"Error fetching latest data: {e}")
+            sys.exit(1)
     
     # Feature engineering to match training pipeline
-    from .data.data_loader import MarketDataLoader
-    loader = MarketDataLoader(timeframe='1h', symbols=[args.symbol])
-    df_proc = loader.preprocess_for_smc(df)
-    X_df, _ = loader.create_features(df_proc)
+    from .data.unified_data_processor import UnifiedDataProcessor
+    loader = UnifiedDataProcessor(timeframe='1h', symbols=[args.symbol])
+    df_proc = loader._engineer_features(df)
+    X_df = df_proc[loader.feature_names]
     # Use only the feature columns used in training
     df_numeric = X_df
     if preprocessor is not None:
-        # If the preprocessor is a dict (feature_scaler, target_scaler), use feature_scaler
-        if isinstance(preprocessor, dict) and 'feature_scaler' in preprocessor:
-            X = preprocessor['feature_scaler'].transform(df_numeric.values)
-        else:
-            X = preprocessor.transform(df_numeric.values)
+        try:
+            if isinstance(preprocessor, dict) and 'feature_scaler' in preprocessor:
+                X = preprocessor['feature_scaler'].transform(df_numeric.values)
+            else:
+                X = preprocessor.transform(df_numeric.values)
+        except Exception as e:
+            logger.error(f"Error transforming data with preprocessor: {e}")
+            sys.exit(1)
     else:
         logger.warning("No preprocessor found for this model version. Using raw input data.")
         X = df_numeric.values
@@ -149,10 +174,9 @@ def serve_command(args):
     
     # Start the server (assuming server.py handles the actual app creation)
     uvicorn.run(
-        "ml.backend.src.scripts.server:app", 
+        "src.api.app:app", 
         host=args.host, 
         port=args.port,
-        reload=True
     )
 
 def evaluate_command(args):
@@ -163,31 +187,41 @@ def evaluate_command(args):
         args: Command line arguments
     """
     from .models.model_registry import ModelRegistry
-    from .data.data_loader import load_data
+    from .data.unified_data_processor import UnifiedDataProcessor
     from .training.evaluation import evaluate_model
     
     logger.info("Starting model evaluation")
     logger.info(f"Symbol: {args.symbol}")
     logger.info(f"Model version: {args.version or 'latest'}")
-    
+
     # Load the model
     registry = ModelRegistry()
     model = registry.load_model(
         symbol=args.symbol,
         version=args.version
     )
-    
-    # Load test data
-    _, _, test_dataloader = load_data(
-        symbol=args.symbol,
-        data_path=args.data_path,
-        train_ratio=0,
-        val_ratio=0,
-        test_ratio=1.0,
-        sequence_length=args.sequence_length,
-        forecast_horizon=args.forecast_horizon,
-        batch_size=args.batch_size
+
+    # Load test data using UnifiedDataProcessor
+    data_processor = UnifiedDataProcessor(
+        data_dir=args.data_path or config['model_training']['data_path'],
+        sequence_length=args.sequence_length or config['model_training']['sequence_length'],
+        forecast_horizon=args.forecast_horizon or config['model_training']['forecast_horizon']
     )
+
+    # Assuming data_path points to a CSV file for evaluation
+    try:
+        df = data_processor.load_from_csv(symbol=args.symbol.replace('-', '/'), file_path=args.data_path)
+    except FileNotFoundError:
+        logger.error(f"Data file not found for evaluation: {args.data_path}")
+        sys.exit(1)
+
+    processed_data = data_processor.fit_transform(df, train_split=0.0) # Use entire dataset for evaluation
+    X_test = processed_data['X_test']
+    y_test = processed_data['y_test']
+
+    # Create DataLoader for evaluation
+    test_dataset = TensorDataset(torch.tensor(X_test, dtype=torch.float32), torch.tensor(y_test, dtype=torch.long))
+    test_dataloader = DataLoader(test_dataset, batch_size=args.batch_size or config['model_training']['batch_size'], shuffle=False)
     
     # Evaluate model
     metrics = evaluate_model(model, test_dataloader)
@@ -210,19 +244,30 @@ def backtest_command(args):
     # Load data
     data = pd.read_csv(args.data_file)
     # Select strategy (expandable)
-    if args.strategy == "smc":
-        strategy = SmcBasedStrategy(name="SMC Strategy")
-    elif args.strategy == "ml_model":
+    strategy_classes = {
+        "smc": SmcBasedStrategy,
+        "ml_model": MLModelStrategy
+    }
+
+    if args.strategy not in strategy_classes:
+        logger.error(f"Unknown strategy: {args.strategy}")
+        sys.exit(1)
+
+    if args.strategy == "ml_model":
         # Feature engineering to match training pipeline
-        from ml.src.data.data_loader import MarketDataLoader
-        loader = MarketDataLoader(timeframe='1h', symbols=[args.symbol])
-        df_proc = loader.preprocess_for_smc(data)
-        X_df, _ = loader.create_features(df_proc)
-        feature_cols = list(X_df.columns)
+        data_processor = UnifiedDataProcessor(
+            timeframe='1h', 
+            symbols=[args.symbol],
+            sequence_length=seq_len,
+            forecast_horizon=forecast_horizon
+        )
+        df_proc = data_processor._engineer_features(data)
+        X_df = df_proc[data_processor.feature_names]
+        feature_cols = data_processor.feature_names
         input_dim = len(feature_cols)
         logger.info(f"MLModelStrategy feature columns: {feature_cols}")
-        output_dim = args.forecast_horizon if hasattr(args, 'forecast_horizon') and args.forecast_horizon else 1
-        seq_len = args.sequence_length if hasattr(args, 'sequence_length') and args.sequence_length else 60
+        output_dim = args.forecast_horizon if hasattr(args, 'forecast_horizon') and args.forecast_horizon else config['model_training']['forecast_horizon']
+        seq_len = args.sequence_length if hasattr(args, 'sequence_length') and args.sequence_length else config['model_training']['sequence_length']
         forecast_horizon = output_dim
         # Dynamically import model class
         from ml.src.models import lstm_model, gru_model, transformer_model, cnn_lstm_model
@@ -255,8 +300,7 @@ def backtest_command(args):
             X_df.insert(0, 'timestamp', data['timestamp'].iloc[-len(X_df):].values)
         data = X_df
     else:
-        logger.error(f"Unknown strategy: {args.strategy}")
-        sys.exit(1)
+        strategy = strategy_classes[args.strategy](name=f"{args.strategy.upper()} Strategy")
     # Initialize engine
     engine = BacktestEngine(
         strategy,
@@ -299,20 +343,20 @@ def main():
     
     # Train command
     train_parser = subparsers.add_parser("train", help="Train a new model")
-    train_parser.add_argument("--symbol", type=str, required=True, help="Trading symbol (e.g., BTC-USDT)")
-    train_parser.add_argument("--model-type", type=str, required=True, help="Type of model to train")
-    train_parser.add_argument("--data-path", type=str, help="Path to input data file")
-    train_parser.add_argument("--train-ratio", type=float, default=0.7, help="Proportion of data for training")
-    train_parser.add_argument("--val-ratio", type=float, default=0.15, help="Proportion of data for validation")
-    train_parser.add_argument("--test-ratio", type=float, default=0.15, help="Proportion of data for testing")
-    train_parser.add_argument("--sequence-length", type=int, default=60, help="Input sequence length")
-    train_parser.add_argument("--forecast-horizon", type=int, default=1, help="Number of steps to predict")
-    train_parser.add_argument("--batch-size", type=int, default=32, help="Training batch size")
-    train_parser.add_argument("--num-epochs", type=int, default=100, help="Maximum number of epochs")
-    train_parser.add_argument("--learning-rate", type=float, default=0.001, help="Learning rate")
-    train_parser.add_argument("--early-stopping-patience", type=int, default=10, help="Early stopping patience")
+    train_parser.add_argument("--symbol", type=str, default=config['model_training']['default_symbol'], help="Trading symbol (e.g., BTC-USDT)")
+    train_parser.add_argument("--model-type", type=str, default=config['model_training']['default_model_type'], help="Type of model to train")
+    train_parser.add_argument("--data-path", type=str, default=config['model_training']['data_path'], help="Path to input data file")
+    train_parser.add_argument("--train-ratio", type=float, default=config['model_training']['train_ratio'], help="Proportion of data for training")
+    train_parser.add_argument("--val-ratio", type=float, default=config['model_training']['val_ratio'], help="Proportion of data for validation")
+    train_parser.add_argument("--test-ratio", type=float, default=config['model_training']['test_ratio'], help="Proportion of data for testing")
+    train_parser.add_argument("--sequence-length", type=int, default=config['model_training']['sequence_length'], help="Input sequence length")
+    train_parser.add_argument("--forecast-horizon", type=int, default=config['model_training']['forecast_horizon'], help="Number of steps to predict")
+    train_parser.add_argument("--batch-size", type=int, default=config['model_training']['batch_size'], help="Training batch size")
+    train_parser.add_argument("--num-epochs", type=int, default=config['model_training']['num_epochs'], help="Maximum number of epochs")
+    train_parser.add_argument("--learning-rate", type=float, default=config['model_training']['learning_rate'], help="Learning rate")
+    train_parser.add_argument("--early-stopping-patience", type=int, default=config['model_training']['early_stopping_patience'], help="Early stopping patience")
     train_parser.add_argument("--training-args", type=str, help="Additional training args as JSON")
-    
+
     # Predict command
     predict_parser = subparsers.add_parser("predict", help="Make predictions with a trained model")
     predict_parser.add_argument("--symbol", type=str, required=True, help="Trading symbol (e.g., BTC-USDT)")
@@ -321,34 +365,34 @@ def main():
     predict_parser.add_argument("--time-frame", type=str, default="1h", help="Timeframe for fetching data")
     predict_parser.add_argument("--limit", type=int, default=100, help="Number of candles to fetch")
     predict_parser.add_argument("--output-file", type=str, help="Output file for predictions")
-    
+
     # Serve command
     serve_parser = subparsers.add_parser("serve", help="Start the model serving API")
-    serve_parser.add_argument("--host", type=str, default="0.0.0.0", help="API host")
-    serve_parser.add_argument("--port", type=int, default=3002, help="API port")
-    
+    serve_parser.add_argument("--host", type=str, default=config['model_serving']['host'], help="API host")
+    serve_parser.add_argument("--port", type=int, default=config['model_serving']['port'], help="API port")
+
     # Evaluate command
     evaluate_parser = subparsers.add_parser("evaluate", help="Evaluate a trained model")
     evaluate_parser.add_argument("--symbol", type=str, required=True, help="Trading symbol (e.g., BTC-USDT)")
     evaluate_parser.add_argument("--version", type=str, help="Model version (default: latest)")
-    evaluate_parser.add_argument("--data-path", type=str, help="Path to test data")
-    evaluate_parser.add_argument("--sequence-length", type=int, default=60, help="Input sequence length")
-    evaluate_parser.add_argument("--forecast-horizon", type=int, default=1, help="Number of steps to predict")
-    evaluate_parser.add_argument("--batch-size", type=int, default=32, help="Batch size for evaluation")
+    evaluate_parser.add_argument("--data-path", type=str, default=config['model_training']['data_path'], help="Path to test data")
+    evaluate_parser.add_argument("--sequence-length", type=int, default=config['model_training']['sequence_length'], help="Input sequence length")
+    evaluate_parser.add_argument("--forecast-horizon", type=int, default=config['model_training']['forecast_horizon'], help="Number of steps to predict")
+    evaluate_parser.add_argument("--batch-size", type=int, default=config['model_training']['batch_size'], help="Batch size for evaluation")
     evaluate_parser.add_argument("--output-file", type=str, help="Output file for metrics")
-    
+
     # Backtest command
     backtest_parser = subparsers.add_parser("backtest", help="Run a backtest with historical data")
     backtest_parser.add_argument("--data-file", type=str, required=True, help="Path to CSV file with OHLCV data")
     backtest_parser.add_argument("--strategy", type=str, default="smc", help="Strategy to use (default: smc)")
     backtest_parser.add_argument("--symbol", type=str, default="BTC/USDT", help="Trading symbol")
-    backtest_parser.add_argument("--initial-capital", type=float, default=10000, help="Initial capital")
-    backtest_parser.add_argument("--fee-rate", type=float, default=0.001, help="Trading fee rate (e.g., 0.001 for 0.1%)")
-    backtest_parser.add_argument("--slippage", type=float, default=0.0005, help="Slippage factor (e.g., 0.0005 for 0.05%)")
+    backtest_parser.add_argument("--initial-capital", type=float, default=config['backtesting']['initial_capital'], help="Initial capital")
+    backtest_parser.add_argument("--fee-rate", type=float, default=config['backtesting']['fee_rate'], help="Trading fee rate (e.g., 0.001 for 0.1%)")
+    backtest_parser.add_argument("--slippage", type=float, default=config['backtesting']['slippage'], help="Slippage factor (e.g., 0.0005 for 0.05%)")
     backtest_parser.add_argument("--output-dir", type=str, help="Directory to save results and plots")
     backtest_parser.add_argument("--start-date", type=str, help="Start date (YYYY-MM-DD)")
     backtest_parser.add_argument("--end-date", type=str, help="End date (YYYY-MM-DD)")
-    backtest_parser.add_argument("--logging-level", type=str, default="INFO", help="Logging level (default: INFO)")
+    backtest_parser.add_argument("--logging-level", type=str, default=config['backtesting']['logging_level'], help="Logging level (default: INFO)")
     backtest_parser.add_argument("--model-type", type=str, help="ML model type (lstm, gru, transformer, cnn_lstm, etc.) for MLModelStrategy")
     backtest_parser.add_argument("--model-checkpoint", type=str, help="Path to PyTorch model checkpoint (.pt/.pth) for MLModelStrategy")
     backtest_parser.add_argument("--preprocessor", type=str, help="Path to preprocessor (joblib/pickle) for MLModelStrategy")
@@ -371,5 +415,4 @@ def main():
         parser.print_help()
         sys.exit(1)
 
-if __name__ == "__main__":
-    main() 
+ 

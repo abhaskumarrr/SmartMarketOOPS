@@ -26,20 +26,20 @@ router.use(auth);
  * GET /api/market-data
  * Get market data for all supported symbols
  */
-router.get('/', async (req, res) => {
+router.get('/', async (req, res): Promise<Response> => {
   try {
     const symbols = marketDataService.getSupportedSymbols();
     const marketData = await marketDataService.getMultipleMarketData(symbols);
 
-    res.json({
+    return res.json({
       success: true,
       data: marketData,
       timestamp: Date.now(),
       source: marketDataService.isReady() ? 'delta_exchange' : 'mock'
     });
   } catch (error) {
-    logger.error('Error fetching market data:', error);
-    res.status(500).json({
+    logger.error('Error fetching market data:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch market data',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -51,7 +51,7 @@ router.get('/', async (req, res) => {
  * GET /api/market-data/accurate/:symbol
  * Get ACCURATE market data for a specific symbol using multiple sources
  */
-router.get('/accurate/:symbol', async (req, res) => {
+router.get('/accurate/:symbol', async (req, res): Promise<Response> => {
   try {
     const { symbol } = req.params;
     const marketData = await accurateMarketDataService.getMarketData(symbol.toUpperCase());
@@ -64,7 +64,7 @@ router.get('/accurate/:symbol', async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: marketData,
       timestamp: Date.now(),
@@ -73,8 +73,8 @@ router.get('/accurate/:symbol', async (req, res) => {
       note: 'This data is cross-validated from multiple reliable exchanges'
     });
   } catch (error) {
-    logger.error(`Error fetching accurate market data for ${req.params.symbol}:`, error);
-    res.status(500).json({
+    logger.error(`Error fetching accurate market data for ${req.params.symbol}:`, { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch accurate market data',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -86,12 +86,12 @@ router.get('/accurate/:symbol', async (req, res) => {
  * GET /api/market-data/accurate
  * Get ACCURATE market data for all supported symbols
  */
-router.get('/accurate', async (req, res) => {
+router.get('/accurate', async (req, res): Promise<Response> => {
   try {
     const symbols = accurateMarketDataService.getSupportedSymbols();
     const marketData = await accurateMarketDataService.getMultipleMarketData(symbols);
 
-    res.json({
+    return res.json({
       success: true,
       data: marketData,
       timestamp: Date.now(),
@@ -99,8 +99,8 @@ router.get('/accurate', async (req, res) => {
       sources_used: [...new Set(marketData.map(d => d.source))]
     });
   } catch (error) {
-    logger.error('Error fetching accurate market data:', error);
-    res.status(500).json({
+    logger.error('Error fetching accurate market data:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch accurate market data',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -112,12 +112,12 @@ router.get('/accurate', async (req, res) => {
  * GET /api/market-data/status
  * Get market data service status
  */
-router.get('/status', async (req, res) => {
+router.get('/status', async (req, res): Promise<Response> => {
   try {
     const isReady = marketDataService.isReady();
     const supportedSymbols = marketDataService.getSupportedSymbols();
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         status: isReady ? 'connected' : 'disconnected',
@@ -127,8 +127,8 @@ router.get('/status', async (req, res) => {
       }
     });
   } catch (error) {
-    logger.error('Error getting market data status:', error);
-    res.status(500).json({
+    logger.error('Error getting market data status:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to get status',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -140,7 +140,7 @@ router.get('/status', async (req, res) => {
  * GET /api/market-data/:symbol
  * Get market data for a specific symbol
  */
-router.get('/:symbol', async (req, res) => {
+router.get('/:symbol', async (req, res): Promise<Response> => {
   try {
     const { symbol } = req.params;
     const marketData = await marketDataService.getMarketData(symbol.toUpperCase());
@@ -153,15 +153,15 @@ router.get('/:symbol', async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: marketData,
       timestamp: Date.now(),
       source: marketDataService.isReady() ? 'delta_exchange' : 'mock'
     });
   } catch (error) {
-    logger.error(`Error fetching market data for ${req.params.symbol}:`, error);
-    res.status(500).json({
+    logger.error(`Error fetching market data for ${req.params.symbol}:`, { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch market data',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -173,7 +173,7 @@ router.get('/:symbol', async (req, res) => {
  * GET /api/market-data/:symbol/orderbook
  * Get order book data for a specific symbol
  */
-router.get('/:symbol/orderbook', async (req, res) => {
+router.get('/:symbol/orderbook', async (req, res): Promise<Response> => {
   try {
     const { symbol } = req.params;
     const limit = parseInt(req.query.limit as string) || 10;
@@ -188,15 +188,15 @@ router.get('/:symbol/orderbook', async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: orderBook,
       timestamp: Date.now(),
       source: 'delta_exchange'
     });
   } catch (error) {
-    logger.error(`Error fetching order book for ${req.params.symbol}:`, error);
-    res.status(500).json({
+    logger.error(`Error fetching order book for ${req.params.symbol}:`, { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch order book',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -208,22 +208,22 @@ router.get('/:symbol/orderbook', async (req, res) => {
  * GET /api/market-data/:symbol/trades
  * Get recent trades for a specific symbol
  */
-router.get('/:symbol/trades', async (req, res) => {
+router.get('/:symbol/trades', async (req, res): Promise<Response> => {
   try {
     const { symbol } = req.params;
     const limit = parseInt(req.query.limit as string) || 50;
 
     const trades = await marketDataService.getRecentTrades(symbol.toUpperCase(), limit);
 
-    res.json({
+    return res.json({
       success: true,
       data: trades,
       timestamp: Date.now(),
       source: 'delta_exchange'
     });
   } catch (error) {
-    logger.error(`Error fetching trades for ${req.params.symbol}:`, error);
-    res.status(500).json({
+    logger.error(`Error fetching trades for ${req.params.symbol}:`, { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch trades',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -235,20 +235,20 @@ router.get('/:symbol/trades', async (req, res) => {
  * POST /api/market-data/refresh
  * Force refresh market data service connection
  */
-router.post('/refresh', async (req, res) => {
+router.post('/refresh', async (req, res): Promise<Response> => {
   try {
     // Cleanup and reinitialize the market data service
     await marketDataService.cleanup();
 
     // The service will automatically reinitialize on next request
-    res.json({
+    return res.json({
       success: true,
       message: 'Market data service refresh initiated',
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error('Error refreshing market data service:', error);
-    res.status(500).json({
+    logger.error('Error refreshing market data service:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to refresh service',
       message: error instanceof Error ? error.message : 'Unknown error'

@@ -8,7 +8,7 @@ const EventEmitter = require('events');
 jest.mock('ws');
 
 // Mock the WebSocket class
-WebSocket.mockImplementation(() => {
+jest.spyOn(WebSocket, 'mockImplementation').mockImplementation(() => {
   const mockWs = new EventEmitter();
   mockWs.send = jest.fn();
   mockWs.close = jest.fn();

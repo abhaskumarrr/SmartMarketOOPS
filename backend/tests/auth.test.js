@@ -8,7 +8,7 @@ const app = require('../src/app');
 const prisma = require('../src/utils/prismaClient');
 
 describe('Authentication System', () => {
-  let testUser = {
+  const testUser = {
     name: 'Test User',
     email: 'test@example.com',
     password: 'TestPassword123!'

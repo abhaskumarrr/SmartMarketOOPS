@@ -77,7 +77,7 @@ if __name__ == "__main__":
     import sys
     import signal
     from ml.src.api.delta_client import DeltaExchangeWebSocketClient
-    from ml.src.data.data_loader import RealTimeDataNormalizer
+    from ml.src.data.unified_data_processor import RealTimeDataNormalizer
 
     logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger("streaming_pipeline")

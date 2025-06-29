@@ -61,7 +61,7 @@ class ModelRegistry:
             model: The PyTorch model to save
             symbol: Trading symbol or model identifier
             metadata: Model metadata (training params, architecture, etc.)
-            preprocessor: Optional preprocessor used with the model
+            preprocessor: Optional preprocessor used with the model (can be a single scaler or a dict of scalers)
             version: Optional specific version to use (default: timestamp-based)
             metrics: Optional performance metrics
             artifacts: Optional additional artifacts to save
@@ -70,9 +70,7 @@ class ModelRegistry:
             The version string of the saved model
         """
         # Normalize symbol name for file paths (remove '/' and '_')
-        # Ensure consistency with the naming convention used in model_service.py
-        # symbol_name = symbol.replace("/", "").replace("_", "") # Original: removed _ as well
-        symbol_name = symbol.replace("/", "") # Only remove /, matching model_service.py
+        symbol_name = symbol.replace("/", "")
 
         # Create version string if not provided
         if version is None:
@@ -117,10 +115,19 @@ class ModelRegistry:
 
         # Save preprocessor if provided
         if preprocessor is not None:
-            preprocessor_path = model_dir / "preprocessor.pkl"
-            with open(preprocessor_path, 'wb') as f:
-                pickle.dump(preprocessor, f)
-            logger.info(f"Preprocessor saved to {preprocessor_path}")
+            if isinstance(preprocessor, dict):
+                # Save each scaler in the dictionary
+                for key, scaler in preprocessor.items():
+                    scaler_path = model_dir / f"preprocessor_{key}.pkl"
+                    with open(scaler_path, 'wb') as f:
+                        pickle.dump(scaler, f)
+                    logger.info(f"Scaler '{key}' saved to {scaler_path}")
+            else:
+                # Save single scaler
+                preprocessor_path = model_dir / "preprocessor.pkl"
+                with open(preprocessor_path, 'wb') as f:
+                    pickle.dump(preprocessor, f)
+                logger.info(f"Preprocessor saved to {preprocessor_path}")
 
         # Save metadata
         metadata_path = model_dir / "metadata.json"
@@ -339,10 +346,20 @@ class ModelRegistry:
         # Load preprocessor if requested
         if return_preprocessor:
             preprocessor = None
-            preprocessor_path = version_dir / "preprocessor.pkl"
-            if preprocessor_path.exists():
-                with open(preprocessor_path, 'rb') as f:
-                    preprocessor = pickle.load(f)
+            # Check for individual scaler files first (new format)
+            scaler_files = list(version_dir.glob("preprocessor_*.pkl"))
+            if scaler_files:
+                preprocessor = {}
+                for scaler_file in scaler_files:
+                    key = scaler_file.stem.replace("preprocessor_", "")
+                    with open(scaler_file, 'rb') as f:
+                        preprocessor[key] = pickle.load(f)
+            else:
+                # Fallback to single preprocessor.pkl (old format)
+                preprocessor_path = version_dir / "preprocessor.pkl"
+                if preprocessor_path.exists():
+                    with open(preprocessor_path, 'rb') as f:
+                        preprocessor = pickle.load(f)
             results.append(preprocessor)
 
         if len(results) == 1:
@@ -807,17 +824,21 @@ class ModelRegistry:
         # Normalize symbol name for file paths
         symbol_name = symbol.replace("/", "_")
 
-        # Find version if not specified
+        # Determine model directory
+        model_dir = self.registry_path / symbol_name
+        if not model_dir.exists():
+            raise FileNotFoundError(f"No models found for {symbol}")
+
+        # Find the specific version or latest
         if version is None:
-            versions = self.get_versions(symbol)
+            versions = [d.name for d in model_dir.iterdir() if d.is_dir() and d.name != "artifacts"]
             if not versions:
                 raise FileNotFoundError(f"No model versions found for {symbol}")
-            version = versions[-1]
+            version = sorted(versions)[-1]
 
-        # Check if version exists
-        version_dir = self.registry_path / symbol_name / version
+        version_dir = model_dir / version
         if not version_dir.exists():
-            raise FileNotFoundError(f"Version {version} not found for {symbol}")
+            raise FileNotFoundError(f"Model version {version} not found for {symbol}")
 
         # Check if performance data exists
         performance_dir = version_dir / "performance"

@@ -6,6 +6,8 @@
 
 const { DeltaExchangeUnified } = require('../dist/services/DeltaExchangeUnified');
 const { logger } = require('../dist/utils/logger');
+const fs = require('fs');
+const path = require('path');
 
 class DeltaPaperTradingBot {
   constructor() {
@@ -92,34 +94,37 @@ class DeltaPaperTradingBot {
   }
 
   /**
-   * Generate simple trading signal
+   * Generate trading signal from the hybrid engine
    */
   async generateTradingSignal(symbol) {
     try {
       const marketData = await this.deltaService.getMarketData(symbol);
-      const currentPrice = marketData.last_price;
+      const orderbook = await this.deltaService.getOrderbook(symbol);
 
-      // Simple momentum strategy for paper trading
-      const random = Math.random();
-      
-      // Generate signals based on price levels and some randomness
-      if (symbol === 'BTCUSD') {
-        if (currentPrice < 105000 && random > 0.6) {
-          return { side: 'buy', confidence: 0.8 };
-        } else if (currentPrice > 105500 && random > 0.6) {
-          return { side: 'sell', confidence: 0.8 };
-        }
+      const response = await fetch('http://localhost:8000/get_decision', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          lastPrice: marketData.last_price,
+          volume24h: marketData.volume_24h,
+          bid: orderbook.buy[0] ? orderbook.buy[0].price : marketData.last_price,
+          ask: orderbook.sell[0] ? orderbook.sell[0].price : marketData.last_price,
+          orderbookDepth: {
+            bids: orderbook.buy.slice(0, 5),
+            asks: orderbook.sell.slice(0, 5),
+          },
+          price_change: 0, // Simplified for now
+          volume_change: 0, // Simplified for now
+        }),
+      });
+
+      if (!response.ok) {
+        logger.error(`Error from decision engine: ${response.statusText}`);
+        return null;
       }
 
-      if (symbol === 'ETHUSD') {
-        if (currentPrice < 2600 && random > 0.6) {
-          return { side: 'buy', confidence: 0.8 };
-        } else if (currentPrice > 2650 && random > 0.6) {
-          return { side: 'sell', confidence: 0.8 };
-        }
-      }
-
-      return null;
+      const decision = await response.json();
+      return { side: decision.decision, confidence: 0.8 }; // Confidence can be refined
     } catch (error) {
       logger.error(`❌ Error generating signal for ${symbol}:`, error);
       return null;
@@ -174,11 +179,55 @@ class DeltaPaperTradingBot {
     const marginRequired = (size * entryPrice) / leverage;
     this.portfolio.availableBalance -= marginRequired;
 
+    // Log the expert trade for imitation learning
+    this.logExpertTrade(position);
+
     logger.info(`📝 Paper Position Opened:`);
-    logger.info(`   ${side.toUpperCase()} ${size} ${symbol} @ $${entryPrice.toFixed(2)}`);
-    logger.info(`   Stop Loss: $${position.stopLoss.toFixed(2)}`);
-    logger.info(`   Take Profit: $${position.takeProfit.toFixed(2)}`);
+    logger.info(`   ${side.toUpperCase()} ${size} ${symbol} @ ${entryPrice.toFixed(2)}`);
+    logger.info(`   Stop Loss: ${position.stopLoss.toFixed(2)}`);
+    logger.info(`   Take Profit: ${position.takeProfit.toFixed(2)}`);
     logger.info(`   Leverage: ${leverage}x`);
+  }
+
+  /**
+   * Log expert trade data for imitation learning
+   */
+  async logExpertTrade(position) {
+    try {
+      const logPath = path.join(__dirname, '../../../data/expert_trades/trades.jsonl');
+      
+      // Ensure the directory exists
+      fs.mkdirSync(path.dirname(logPath), { recursive: true });
+
+      // Gather market context
+      const marketData = await this.deltaService.getMarketData(position.symbol);
+      const orderbook = await this.deltaService.getOrderbook(position.symbol);
+
+      const tradeLog = {
+        timestamp: Date.now(),
+        trade: {
+          symbol: position.symbol,
+          side: position.side,
+          size: position.size,
+          entryPrice: position.entryPrice,
+        },
+        marketContext: {
+          lastPrice: marketData.last_price,
+          volume24h: marketData.volume_24h,
+          bid: orderbook.buy[0] ? orderbook.buy[0].price : null,
+          ask: orderbook.sell[0] ? orderbook.sell[0].price : null,
+          orderbookDepth: {
+            bids: orderbook.buy.slice(0, 5),
+            asks: orderbook.sell.slice(0, 5),
+          }
+        },
+      };
+
+      fs.appendFileSync(logPath, JSON.stringify(tradeLog) + '\n');
+      logger.info(`[Expert Log] Recorded trade for ${position.symbol} to ${logPath}`);
+    } catch (error) {
+      logger.error('❌ Failed to log expert trade:', error);
+    }
   }
 
   /**

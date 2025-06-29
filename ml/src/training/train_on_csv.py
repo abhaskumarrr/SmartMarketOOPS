@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-from ml.backend.src.data.loader import get_dataloader
+from ml.src.data.unified_data_processor import UnifiedDataProcessor
 # from ml.backend.src.models.cnn_lstm import CNNLSTMModel # Corrected import below
 from ml.src.models.cnn_lstm_model import CNNLSTMModel # Import CNNLSTMModel from its new location
 from ml.backend.src.training.trainer import Trainer
@@ -30,7 +30,7 @@ class_weights = torch.tensor([406671/72735, 406671/262980, 406671/70956], dtype=
 if __name__ == "__main__":
     import argparse
     from ml.backend.src.training.hyperparameter_tuning import run_optuna
-    from ml.backend.src.data.loader import TradingDataset
+    from ml.src.data.unified_data_processor import UnifiedDataProcessor
     parser = argparse.ArgumentParser()
     parser.add_argument('--hyperopt', action='store_true', help='Run hyperparameter optimization')
     parser.add_argument('--n_trials', type=int, default=20, help='Number of Optuna trials')
@@ -149,7 +149,7 @@ if __name__ == "__main__":
                     "num_classes": 3,
                     "training_mode": "hyperopt"
                 },
-                preprocessor=scaler, # Save the scaler
+                preprocessor=data_processor.scalers, # Save the scalers from UnifiedDataProcessor
                 metrics=metrics
             )
             print(f'Best model from hyperopt saved via ModelRegistry to {model_dir}')
@@ -162,8 +162,20 @@ if __name__ == "__main__":
         try:
             # Prepare DataLoader
             # Pass save_norm_params=True and norm_params_file to get_dataloader
-            train_loader = get_dataloader(csv_file, schema_file, batch_size=batch_size, shuffle=True, seq_len=seq_len, norm_params_file=norm_params_file, save_norm_params=True, num_workers=0)
-            val_loader = get_dataloader(csv_file, schema_file, batch_size=batch_size, shuffle=False, seq_len=seq_len, norm_params_file=norm_params_file, num_workers=0)
+            data_processor = UnifiedDataProcessor(
+        sequence_length=seq_len,
+        forecast_horizon=1, # Assuming single step prediction for now
+        scaling_method="standard" # Or other method as needed
+    )
+
+    df = data_processor.load_from_csv(file_path=csv_file)
+    processed_data = data_processor.fit_transform(df, target_column='close')
+
+    train_dataset, val_dataset, test_dataset = data_processor.create_pytorch_datasets(processed_data)
+    train_loader, val_loader, test_loader = data_processor.create_pytorch_dataloaders(
+        (train_dataset, val_dataset, test_dataset),
+        batch_size=batch_size
+    )
             # Model params (input_size = number of features excluding timestamp)
             sample = next(iter(train_loader))
             window, target = sample

@@ -133,8 +133,8 @@ export class AnalysisExecutionBridge {
   };
 
   constructor(customConfig?: Partial<BridgeConfig>) {
-    this.config = { ...this.config, ...customConfig };
-    
+      this.config = { ...this.config, ...customConfig };
+
     // Initialize Express app
     this.app = express();
     this.server = new Server(this.app);

@@ -57,9 +57,9 @@ const setupBotManagerEventListeners = (): void => {
  * GET /api/delta-trading/health
  * Public health check endpoint (no auth required)
  */
-router.get('/health', async (req: Request, res: Response) => {
+router.get('/health', async (req: Request, res: Response): Promise<Response> => {
   try {
-    res.json({
+    return res.json({
       success: true,
       message: 'Delta Exchange trading service is healthy',
       data: {
@@ -70,8 +70,8 @@ router.get('/health', async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    logger.error('Error in health check:', error);
-    res.status(500).json({
+    logger.error('Error in health check:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Health check failed',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -83,11 +83,11 @@ router.get('/health', async (req: Request, res: Response) => {
  * GET /api/delta-trading/test-connection
  * Test Delta Exchange connection (public endpoint)
  */
-router.get('/test-connection', async (req: Request, res: Response) => {
+router.get('/test-connection', async (req: Request, res: Response): Promise<Response> => {
   try {
     const manager = await initializeBotManager();
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Delta Exchange connection successful',
       data: {
@@ -99,8 +99,8 @@ router.get('/test-connection', async (req: Request, res: Response) => {
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error('Error testing Delta Exchange connection:', error);
-    res.status(500).json({
+    logger.error('Error testing Delta Exchange connection:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Delta Exchange connection failed',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -115,12 +115,12 @@ router.use(auth);
  * GET /api/delta-trading/status
  * Get Delta Exchange trading service status
  */
-router.get('/status', async (req: Request, res: Response) => {
+router.get('/status', async (req: Request, res: Response): Promise<Response> => {
   try {
     const manager = await initializeBotManager();
     const status = manager.getManagerStatus();
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         ...status,
@@ -130,8 +130,8 @@ router.get('/status', async (req: Request, res: Response) => {
       }
     });
   } catch (error) {
-    logger.error('Error getting Delta trading status:', error);
-    res.status(500).json({
+    logger.error('Error getting Delta trading status:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to get trading status',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -143,7 +143,7 @@ router.get('/status', async (req: Request, res: Response) => {
  * POST /api/delta-trading/bots
  * Create a new trading bot
  */
-router.post('/bots', async (req: Request, res: Response) => {
+router.post('/bots', async (req: Request, res: Response): Promise<Response> => {
   try {
     const manager = await initializeBotManager();
     const config: BotConfig = req.body;
@@ -175,15 +175,15 @@ router.post('/bots', async (req: Request, res: Response) => {
 
     const botId = await manager.createBot(botConfig);
 
-    res.json({
+    return res.json({
       success: true,
       data: { botId, config: botConfig },
       message: 'Trading bot created successfully',
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error('Error creating bot:', error);
-    res.status(500).json({
+    logger.error('Error creating bot:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to create bot',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -195,12 +195,12 @@ router.post('/bots', async (req: Request, res: Response) => {
  * GET /api/delta-trading/bots
  * Get all trading bots
  */
-router.get('/bots', async (req: Request, res: Response) => {
+router.get('/bots', async (req: Request, res: Response): Promise<Response> => {
   try {
     const manager = await initializeBotManager();
     const bots = manager.getAllBotStatuses();
 
-    res.json({
+    return res.json({
       success: true,
       data: bots,
       meta: {
@@ -213,8 +213,8 @@ router.get('/bots', async (req: Request, res: Response) => {
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error('Error getting bots:', error);
-    res.status(500).json({
+    logger.error('Error getting bots:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to get bots',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -226,20 +226,20 @@ router.get('/bots', async (req: Request, res: Response) => {
  * GET /api/delta-trading/bots/:botId
  * Get specific bot status
  */
-router.get('/bots/:botId', async (req: Request, res: Response) => {
+router.get('/bots/:botId', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { botId } = req.params;
     const manager = await initializeBotManager();
     const status = manager.getBotStatus(botId);
 
-    res.json({
+    return res.json({
       success: true,
       data: status,
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error(`Error getting bot ${req.params.botId}:`, error);
-    res.status(404).json({
+    logger.error(`Error getting bot ${req.params.botId}:`, { error: error instanceof Error ? error.message : String(error) });
+    return res.status(404).json({
       success: false,
       error: 'Bot not found',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -251,21 +251,21 @@ router.get('/bots/:botId', async (req: Request, res: Response) => {
  * POST /api/delta-trading/bots/:botId/start
  * Start a trading bot
  */
-router.post('/bots/:botId/start', async (req: Request, res: Response) => {
+router.post('/bots/:botId/start', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { botId } = req.params;
     const manager = await initializeBotManager();
     
     await manager.startBot(botId);
 
-    res.json({
+    return res.json({
       success: true,
       message: `Bot ${botId} started successfully`,
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error(`Error starting bot ${req.params.botId}:`, error);
-    res.status(500).json({
+    logger.error(`Error starting bot ${req.params.botId}:`, { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to start bot',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -277,21 +277,21 @@ router.post('/bots/:botId/start', async (req: Request, res: Response) => {
  * POST /api/delta-trading/bots/:botId/stop
  * Stop a trading bot
  */
-router.post('/bots/:botId/stop', async (req: Request, res: Response) => {
+router.post('/bots/:botId/stop', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { botId } = req.params;
     const manager = await initializeBotManager();
     
     await manager.stopBot(botId);
 
-    res.json({
+    return res.json({
       success: true,
       message: `Bot ${botId} stopped successfully`,
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error(`Error stopping bot ${req.params.botId}:`, error);
-    res.status(500).json({
+    logger.error(`Error stopping bot ${req.params.botId}:`, { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to stop bot',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -303,21 +303,21 @@ router.post('/bots/:botId/stop', async (req: Request, res: Response) => {
  * POST /api/delta-trading/bots/:botId/pause
  * Pause a trading bot
  */
-router.post('/bots/:botId/pause', async (req: Request, res: Response) => {
+router.post('/bots/:botId/pause', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { botId } = req.params;
     const manager = await initializeBotManager();
     
     manager.pauseBot(botId);
 
-    res.json({
+    return res.json({
       success: true,
       message: `Bot ${botId} paused successfully`,
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error(`Error pausing bot ${req.params.botId}:`, error);
-    res.status(500).json({
+    logger.error(`Error pausing bot ${req.params.botId}:`, { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to pause bot',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -329,21 +329,21 @@ router.post('/bots/:botId/pause', async (req: Request, res: Response) => {
  * POST /api/delta-trading/bots/:botId/resume
  * Resume a trading bot
  */
-router.post('/bots/:botId/resume', async (req: Request, res: Response) => {
+router.post('/bots/:botId/resume', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { botId } = req.params;
     const manager = await initializeBotManager();
     
     manager.resumeBot(botId);
 
-    res.json({
+    return res.json({
       success: true,
       message: `Bot ${botId} resumed successfully`,
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error(`Error resuming bot ${req.params.botId}:`, error);
-    res.status(500).json({
+    logger.error(`Error resuming bot ${req.params.botId}:`, { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to resume bot',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -355,21 +355,21 @@ router.post('/bots/:botId/resume', async (req: Request, res: Response) => {
  * DELETE /api/delta-trading/bots/:botId
  * Remove a trading bot
  */
-router.delete('/bots/:botId', async (req: Request, res: Response) => {
+router.delete('/bots/:botId', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { botId } = req.params;
     const manager = await initializeBotManager();
     
     await manager.removeBot(botId);
 
-    res.json({
+    return res.json({
       success: true,
       message: `Bot ${botId} removed successfully`,
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error(`Error removing bot ${req.params.botId}:`, error);
-    res.status(500).json({
+    logger.error(`Error removing bot ${req.params.botId}:`, { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to remove bot',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -381,20 +381,20 @@ router.delete('/bots/:botId', async (req: Request, res: Response) => {
  * GET /api/delta-trading/bots/:botId/performance
  * Get bot performance metrics
  */
-router.get('/bots/:botId/performance', async (req: Request, res: Response) => {
+router.get('/bots/:botId/performance', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { botId } = req.params;
     const manager = await initializeBotManager();
     const performance = manager.getBotPerformance(botId);
 
-    res.json({
+    return res.json({
       success: true,
       data: performance,
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error(`Error getting bot performance ${req.params.botId}:`, error);
-    res.status(404).json({
+    logger.error(`Error getting bot performance ${req.params.botId}:`, { error: error instanceof Error ? error.message : String(error) });
+    return res.status(404).json({
       success: false,
       error: 'Bot not found',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -406,7 +406,7 @@ router.get('/bots/:botId/performance', async (req: Request, res: Response) => {
  * PUT /api/delta-trading/bots/:botId/config
  * Update bot configuration
  */
-router.put('/bots/:botId/config', async (req: Request, res: Response) => {
+router.put('/bots/:botId/config', async (req: Request, res: Response): Promise<Response> => {
   try {
     const { botId } = req.params;
     const manager = await initializeBotManager();
@@ -414,14 +414,14 @@ router.put('/bots/:botId/config', async (req: Request, res: Response) => {
 
     manager.updateBotConfig(botId, newConfig);
 
-    res.json({
+    return res.json({
       success: true,
       message: `Bot ${botId} configuration updated successfully`,
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error(`Error updating bot config ${req.params.botId}:`, error);
-    res.status(500).json({
+    logger.error(`Error updating bot config ${req.params.botId}:`, { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to update bot configuration',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -433,19 +433,19 @@ router.put('/bots/:botId/config', async (req: Request, res: Response) => {
  * POST /api/delta-trading/emergency-stop
  * Emergency stop all bots
  */
-router.post('/emergency-stop', async (req: Request, res: Response) => {
+router.post('/emergency-stop', async (req: Request, res: Response): Promise<Response> => {
   try {
     const manager = await initializeBotManager();
     await manager.emergencyStopAll();
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Emergency stop executed for all bots',
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error('Error in emergency stop:', error);
-    res.status(500).json({
+    logger.error('Error in emergency stop:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to execute emergency stop',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -457,19 +457,19 @@ router.post('/emergency-stop', async (req: Request, res: Response) => {
  * GET /api/delta-trading/performance
  * Get overall performance summary
  */
-router.get('/performance', async (req: Request, res: Response) => {
+router.get('/performance', async (req: Request, res: Response): Promise<Response> => {
   try {
     const manager = await initializeBotManager();
     const performance = manager.getAllBotsPerformance();
 
-    res.json({
+    return res.json({
       success: true,
       data: performance,
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error('Error getting overall performance:', error);
-    res.status(500).json({
+    logger.error('Error getting overall performance:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to get performance data',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -481,7 +481,7 @@ router.get('/performance', async (req: Request, res: Response) => {
  * GET /api/delta-trading/balance
  * Get Delta Exchange account balance
  */
-router.get('/balance', async (req: Request, res: Response) => {
+router.get('/balance', async (req: Request, res: Response): Promise<Response> => {
   try {
     const manager = await initializeBotManager();
     // Access the Delta service through the manager
@@ -493,14 +493,14 @@ router.get('/balance', async (req: Request, res: Response) => {
 
     const balances = await deltaService.getBalance();
 
-    res.json({
+    return res.json({
       success: true,
       data: balances,
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error('Error getting Delta Exchange balance:', error);
-    res.status(500).json({
+    logger.error('Error getting Delta Exchange balance:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to get balance',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -512,7 +512,7 @@ router.get('/balance', async (req: Request, res: Response) => {
  * GET /api/delta-trading/positions
  * Get Delta Exchange positions
  */
-router.get('/positions', async (req: Request, res: Response) => {
+router.get('/positions', async (req: Request, res: Response): Promise<Response> => {
   try {
     const manager = await initializeBotManager();
     // Access the Delta service through the manager
@@ -524,14 +524,14 @@ router.get('/positions', async (req: Request, res: Response) => {
 
     const positions = await deltaService.getPositions();
 
-    res.json({
+    return res.json({
       success: true,
       data: positions,
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error('Error getting Delta Exchange positions:', error);
-    res.status(500).json({
+    logger.error('Error getting Delta Exchange positions:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to get positions',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -543,7 +543,7 @@ router.get('/positions', async (req: Request, res: Response) => {
  * POST /api/delta-trading/place-order
  * Place order on Delta Exchange
  */
-router.post('/place-order', async (req: Request, res: Response) => {
+router.post('/place-order', async (req: Request, res: Response): Promise<Response> => {
   try {
     const manager = await initializeBotManager();
     const deltaService = (manager as any).deltaService;
@@ -571,19 +571,19 @@ router.post('/place-order', async (req: Request, res: Response) => {
       ...(limit_price && { limit_price: limit_price.toString() })
     };
 
-    logger.info('🚀 Placing order on Delta Exchange:', orderData);
+    logger.info('🚀 Placing order on Delta Exchange:', { orderData });
 
     const result = await deltaService.placeOrder(orderData);
 
-    res.json({
+    return res.json({
       success: true,
       data: result,
       message: `Order placed successfully on Delta Exchange`,
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error('Error placing order on Delta Exchange:', error);
-    res.status(500).json({
+    logger.error('Error placing order on Delta Exchange:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to place order',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -595,7 +595,7 @@ router.post('/place-order', async (req: Request, res: Response) => {
  * GET /api/delta-trading/products
  * Get available Delta Exchange products
  */
-router.get('/products', async (req: Request, res: Response) => {
+router.get('/products', async (req: Request, res: Response): Promise<Response> => {
   try {
     const manager = await initializeBotManager();
     // Access the Delta service through the manager (we'll need to expose this)
@@ -623,7 +623,7 @@ router.get('/products', async (req: Request, res: Response) => {
       }
     ];
 
-    res.json({
+    return res.json({
       success: true,
       data: products,
       meta: {
@@ -634,8 +634,8 @@ router.get('/products', async (req: Request, res: Response) => {
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error('Error getting products:', error);
-    res.status(500).json({
+    logger.error('Error getting products:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to get products',
       message: error instanceof Error ? error.message : 'Unknown error'

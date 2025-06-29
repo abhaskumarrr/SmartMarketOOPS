@@ -32,7 +32,12 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # Allow all origins in development
+    allow_origins=[
+        "http://localhost:3000",  # Frontend
+        "http://localhost:3006",  # Backend
+        os.environ.get("FRONTEND_URL", ""),
+        os.environ.get("BACKEND_URL", ""),
+    ],
     allow_credentials=True,
     allow_methods=["*"],  # Allow all methods
     allow_headers=["*"],  # Allow all headers
@@ -131,7 +136,7 @@ async def compare_versions(
 @app.exception_handler(Exception)
 async def global_exception_handler(request: Request, exc: Exception) -> JSONResponse:
     """Global exception handler"""
-    logger.error(f"Unhandled exception: {str(exc)}", exc_info=True)
+    logger.exception(f"Unhandled exception: {str(exc)}")
     return JSONResponse(
         status_code=500,
         content={"status": "error", "message": "Internal server error"}
@@ -153,11 +158,4 @@ def create_app() -> FastAPI:
     return app
 
 
-if __name__ == "__main__":
-    import uvicorn
-    
-    # Get port from environment
-    port = int(os.environ.get("ML_API_PORT", 8000))
-    
-    # Run the application
-    uvicorn.run("app:app", host="0.0.0.0", port=port, reload=True) 
+ 

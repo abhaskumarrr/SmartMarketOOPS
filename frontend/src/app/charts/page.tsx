@@ -19,7 +19,7 @@ import { Separator } from '@/components/ui/separator'
 // Mock data generators
 function generateMockCandles(symbol: string, count = 100): CandlestickData[] {
   const candles: CandlestickData[] = [];
-  let currentTime = new Date();
+  const currentTime = new Date();
   currentTime.setHours(0, 0, 0, 0);
   
   // Base prices for different symbols

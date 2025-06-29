@@ -13,7 +13,7 @@ import numpy as np
 from typing import Dict, Any, Optional, Union, Tuple
 from datetime import datetime, timedelta
 
-from ..data.data_loader import MarketDataLoader
+from ..data.unified_data_processor import UnifiedDataProcessor
 from ..models.model_registry import ModelRegistry
 from ..utils.metrics import calculate_metrics
 from ..models.base_model import ModelFactory
@@ -62,21 +62,45 @@ def train_model(
     logger.info(f"Training {model_type} model for {symbol}")
     
     # Load data (raw DataFrame and feature engineering)
-    loader = MarketDataLoader(timeframe='1h', symbols=[symbol.replace('USD', '/USDT')])
-    try:
-        df = loader.load_from_csv(symbol=symbol.replace('USD', '/USDT'), file_path=data_path)
-    except Exception as e:
-        logger.warning(f"Could not load from CSV: {e}. Fetching from exchange instead.")
-        df_dict = loader.fetch_historical_data(start_date=(datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d'), end_date=datetime.now().strftime('%Y-%m-%d'))
+    data_processor = UnifiedDataProcessor(
+        timeframe='1h', 
+        symbols=[symbol.replace('USD', '/USDT')],
+        sequence_length=sequence_length,
+        forecast_horizon=forecast_horizon
+    )
+
+    if data_path:
+        df = data_processor.load_from_csv(symbol=symbol.replace('USD', '/USDT'), file_path=data_path)
+    else:
+        df_dict = data_processor.fetch_historical_data(start_date=(datetime.now() - timedelta(days=30)).strftime('%Y-%m-%d'), end_date=datetime.now().strftime('%Y-%m-%d'))
         df = df_dict.get(symbol.replace('USD', '/USDT'))
+
     if df is None:
         raise ValueError(f"No data found for symbol {symbol}")
-    df_proc = loader.preprocess_for_smc(df)
-    X, y = loader.create_features(df_proc)
+
+    processed_data = data_processor.fit_transform(
+        df,
+        target_column='close',
+        train_split=train_ratio
+    )
+
+    X_train, y_train = processed_data['X_train'], processed_data['y_train']
+    X_val, y_val = processed_data['X_val'], processed_data['y_val']
+    X_test, y_test = processed_data['X_test'], processed_data['y_test']
+
+    # Create DataLoaders
+    train_dataset = data_processor.create_pytorch_datasets(processed_data)[0]
+    val_dataset = data_processor.create_pytorch_datasets(processed_data)[1]
+    test_dataset = data_processor.create_pytorch_datasets(processed_data)[2]
+
+    train_loader, val_loader, test_loader = data_processor.create_pytorch_dataloaders(
+        (train_dataset, val_dataset, test_dataset),
+        batch_size=batch_size
+    )
 
     # Create trainer
     from .trainer import ModelTrainer
-    input_dim = X.shape[1]
+    input_dim = X_train.shape[2] if len(X_train.shape) == 3 else X_train.shape[1]
     trainer = ModelTrainer(
         model_type=model_type,
         input_shape=(sequence_length, input_dim),
@@ -90,27 +114,6 @@ def train_model(
         experiment_name=None,
         random_state=42
     )
-    # Preprocess and split data using ModelTrainer
-    # Reshape X to (samples, sequence_length, features) for LSTM/GRU
-    X_seq = []
-    y_seq = []
-    for i in range(len(X) - sequence_length):
-        X_seq.append(X[i:i+sequence_length])
-        y_seq.append(y[i+sequence_length])
-    X_seq = np.array(X_seq)
-    y_seq = np.array(y_seq)
-    X_train, X_val, y_train, y_val = trainer.preprocess_data(X_seq, y_seq, scaling_method='standard', target_scaling=False)
-    # Create DataLoaders
-    from torch.utils.data import TensorDataset, DataLoader
-    train_dataset = TensorDataset(torch.tensor(X_train, dtype=torch.float32), torch.tensor(y_train, dtype=torch.float32))
-    val_dataset = TensorDataset(torch.tensor(X_val, dtype=torch.float32), torch.tensor(y_val, dtype=torch.float32))
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
-    # For test set, use the remaining data
-    X_test = X_seq[-len(X_val):]
-    y_test = y_seq[-len(y_val):]
-    test_dataset = TensorDataset(torch.tensor(X_test, dtype=torch.float32), torch.tensor(y_test, dtype=torch.float32))
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
     trainer.model = ModelFactory.create_model(
         model_type=model_type,
         input_dim=input_dim,
@@ -125,21 +128,7 @@ def train_model(
     test_metrics = trainer.evaluate(test_loader)
     
     # Collect fitted preprocessors if available
-    preprocessor = None
-    if hasattr(trainer, 'feature_scaler') and hasattr(trainer, 'target_scaler'):
-        if getattr(trainer, 'feature_scaler', None) is not None and getattr(trainer, 'target_scaler', None) is not None:
-            preprocessor = {
-                'feature_scaler': trainer.feature_scaler,
-                'target_scaler': trainer.target_scaler
-            }
-        elif getattr(trainer, 'feature_scaler', None) is not None:
-            preprocessor = trainer.feature_scaler
-        elif getattr(trainer, 'target_scaler', None) is not None:
-            preprocessor = trainer.target_scaler
-    elif hasattr(trainer, 'feature_scaler') and getattr(trainer, 'feature_scaler', None) is not None:
-        preprocessor = trainer.feature_scaler
-    elif hasattr(trainer, 'target_scaler') and getattr(trainer, 'target_scaler', None) is not None:
-        preprocessor = trainer.target_scaler
+    preprocessor = data_processor.scalers # UnifiedDataProcessor stores scalers in .scalers
 
     # Save the model and preprocessor
     version = ModelRegistry().save_model(
@@ -156,4 +145,4 @@ def train_model(
         },
         preprocessor=preprocessor
     )
-    return {"version": version, "metrics": test_metrics} 
+    return {"version": version, "metrics": test_metrics}

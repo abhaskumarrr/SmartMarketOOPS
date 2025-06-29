@@ -12,21 +12,21 @@ router.use(auth);
  * GET /api/real-market-data/portfolio
  * Get portfolio data with real Delta Exchange testnet balance and real market prices
  */
-router.get('/portfolio', async (req, res) => {
+router.get('/portfolio', async (req, res): Promise<Response> => {
   try {
     logger.info('📊 Fetching real portfolio data with Delta Exchange testnet balance...');
     
     const portfolioData = await realMarketDataService.getPortfolioData();
 
-    res.json({
+    return res.json({
       success: true,
       data: portfolioData,
       timestamp: Date.now(),
       message: 'Real portfolio data with Delta Exchange testnet integration'
     });
   } catch (error) {
-    logger.error('Error fetching real portfolio data:', error);
-    res.status(500).json({
+    logger.error('Error fetching real portfolio data:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch real portfolio data',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -38,14 +38,14 @@ router.get('/portfolio', async (req, res) => {
  * GET /api/real-market-data
  * Get real market data for all supported symbols using Delta Exchange + CCXT
  */
-router.get('/', async (req, res) => {
+router.get('/', async (req, res): Promise<Response> => {
   try {
     logger.info('📡 Fetching real market data for all symbols...');
     
     const symbols = ['BTCUSD', 'ETHUSD', 'SOLUSD'];
     const marketData = await realMarketDataService.getMultipleMarketData(symbols);
 
-    res.json({
+    return res.json({
       success: true,
       data: marketData,
       timestamp: Date.now(),
@@ -54,8 +54,8 @@ router.get('/', async (req, res) => {
       message: 'Real market data from Delta Exchange India testnet and CCXT exchanges'
     });
   } catch (error) {
-    logger.error('Error fetching real market data:', error);
-    res.status(500).json({
+    logger.error('Error fetching real market data:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch real market data',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -67,7 +67,7 @@ router.get('/', async (req, res) => {
  * GET /api/real-market-data/:symbol
  * Get real market data for a specific symbol using Delta Exchange + CCXT
  */
-router.get('/:symbol', async (req, res) => {
+router.get('/:symbol', async (req, res): Promise<Response> => {
   try {
     const { symbol } = req.params;
     logger.info(`📡 Fetching real market data for ${symbol}...`);
@@ -82,15 +82,15 @@ router.get('/:symbol', async (req, res) => {
       });
     }
 
-    res.json({
+    return res.json({
       success: true,
       data: marketData,
       timestamp: Date.now(),
       message: `Real market data for ${symbol} from ${marketData.source}`
     });
   } catch (error) {
-    logger.error(`Error fetching real market data for ${req.params.symbol}:`, error);
-    res.status(500).json({
+    logger.error(`Error fetching real market data for ${req.params.symbol}:`, { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch real market data',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -102,12 +102,12 @@ router.get('/:symbol', async (req, res) => {
  * GET /api/real-market-data/delta/balance
  * Get real Delta Exchange testnet balance
  */
-router.get('/delta/balance', async (req, res) => {
+router.get('/delta/balance', async (req, res): Promise<Response> => {
   try {
     logger.info('💰 Fetching real Delta Exchange testnet balance...');
     
     // This will be implemented when we have the Delta Exchange service working
-    res.json({
+    return res.json({
       success: true,
       data: {
         message: 'Delta Exchange balance endpoint - implementation in progress',
@@ -116,8 +116,8 @@ router.get('/delta/balance', async (req, res) => {
       timestamp: Date.now()
     });
   } catch (error) {
-    logger.error('Error fetching Delta Exchange balance:', error);
-    res.status(500).json({
+    logger.error('Error fetching Delta Exchange balance:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Failed to fetch Delta Exchange balance',
       message: error instanceof Error ? error.message : 'Unknown error'
@@ -129,14 +129,14 @@ router.get('/delta/balance', async (req, res) => {
  * GET /api/real-market-data/health
  * Health check for real market data services
  */
-router.get('/health', async (req, res) => {
+router.get('/health', async (req, res): Promise<Response> => {
   try {
     logger.info('🔍 Checking real market data services health...');
     
     // Test a quick market data fetch
     const testData = await realMarketDataService.getMarketData('BTCUSD');
     
-    res.json({
+    return res.json({
       success: true,
       data: {
         status: 'healthy',
@@ -155,8 +155,8 @@ router.get('/health', async (req, res) => {
       message: 'Real market data services health check'
     });
   } catch (error) {
-    logger.error('Error in health check:', error);
-    res.status(500).json({
+    logger.error('Error in health check:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({
       success: false,
       error: 'Health check failed',
       message: error instanceof Error ? error.message : 'Unknown error'

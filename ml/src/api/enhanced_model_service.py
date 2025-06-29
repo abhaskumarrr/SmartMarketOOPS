@@ -11,12 +11,11 @@ from pathlib import Path
 import torch
 from datetime import datetime
 
-from ..models.model_registry import ModelRegistry
+from ..models.model_registry import ModelRegistry, get_registry
 from ..ensemble.signal_quality_system import EnhancedSignalQualitySystem, SignalQualityMetrics
 from ..ensemble.multi_model_ensemble import EnsembleConfig
-from ..data.transformer_preprocessor import TransformerPreprocessor
-from ..data.real_market_data_service import get_market_data_service, MarketDataPoint
 from ..utils.config import MODEL_CONFIG
+from fastapi import Depends
 
 logger = logging.getLogger(__name__)
 
@@ -30,104 +29,21 @@ class EnhancedModelService:
     - Advanced signal quality analysis
     """
 
-    def __init__(self):
+    def __init__(self, model_registry: ModelRegistry = Depends(get_registry)):
         """Initialize the enhanced model service"""
-        self.model_registry = ModelRegistry()
+        self.model_registry = model_registry
         self.loaded_models: Dict[str, Any] = {}
         self.signal_systems: Dict[str, EnhancedSignalQualitySystem] = {}
-        self.preprocessors: Dict[str, TransformerPreprocessor] = {}
-        self.market_data_service = None
 
         # Configuration
         self.config = MODEL_CONFIG
         self.ensemble_enabled = self.config.get('ensemble', {}).get('enabled', True)
-        self.use_real_data = self.config.get('use_real_market_data', True)
 
         logger.info("Enhanced Model Service initialized")
 
-    async def initialize_market_data_service(self):
-        """Initialize real market data service"""
-        if self.use_real_data and self.market_data_service is None:
-            try:
-                self.market_data_service = await get_market_data_service()
-                logger.info("✅ Real market data service initialized")
-            except Exception as e:
-                logger.error(f"❌ Failed to initialize market data service: {e}")
-                self.use_real_data = False
-
-    async def get_real_market_features(self, symbol: str) -> Dict[str, float]:
-        """Get real market features for a symbol"""
-        if not self.use_real_data or not self.market_data_service:
-            return self._generate_synthetic_features(symbol)
-
-        try:
-            # Get latest market data
-            market_data = await self.market_data_service.get_latest_data(symbol)
-
-            if market_data:
-                features = {
-                    'open': market_data.open,
-                    'high': market_data.high,
-                    'low': market_data.low,
-                    'close': market_data.close,
-                    'volume': market_data.volume,
-                    'timestamp': market_data.timestamp.timestamp()
-                }
-
-                # Add spread if available
-                if market_data.spread:
-                    features['spread'] = market_data.spread
-
-                # Add funding rate if available
-                if market_data.funding_rate:
-                    features['funding_rate'] = market_data.funding_rate
-
-                # Add open interest if available
-                if market_data.open_interest:
-                    features['open_interest'] = market_data.open_interest
-
-                return features
-            else:
-                logger.warning(f"No real market data available for {symbol}, using synthetic")
-                return self._generate_synthetic_features(symbol)
-
-        except Exception as e:
-            logger.error(f"Error getting real market data for {symbol}: {e}")
-            return self._generate_synthetic_features(symbol)
-
-    def _generate_synthetic_features(self, symbol: str) -> Dict[str, float]:
-        """Generate synthetic market features as fallback"""
-        import random
-
-        # Base prices for different symbols
-        base_prices = {
-            'BTCUSDT': 45000,
-            'ETHUSDT': 2500,
-            'SOLUSDT': 100,
-            'ADAUSDT': 0.5
-        }
-
-        base_price = base_prices.get(symbol, 100)
-        volatility = base_price * 0.02
-
-        close = base_price + random.uniform(-volatility, volatility)
-        open_price = close * (1 + random.uniform(-0.01, 0.01))
-        high = max(open_price, close) * (1 + random.uniform(0, 0.02))
-        low = min(open_price, close) * (1 - random.uniform(0, 0.02))
-        volume = random.uniform(1000000, 5000000)
-
-        return {
-            'open': open_price,
-            'high': high,
-            'low': low,
-            'close': close,
-            'volume': volume,
-            'timestamp': datetime.now().timestamp()
-        }
-
     def load_model(self, symbol: str, model_version: Optional[str] = None) -> bool:
         """
-        Load a model for the given symbol
+        Load a model for the given symbol using ModelRegistry.
 
         Args:
             symbol: Trading symbol
@@ -137,7 +53,6 @@ class EnhancedModelService:
             True if successful, False otherwise
         """
         try:
-            # Load traditional model
             model, metadata, preprocessor = self.model_registry.load_model(
                 symbol=symbol,
                 version=model_version,
@@ -149,7 +64,7 @@ class EnhancedModelService:
                 logger.error(f"Failed to load model for {symbol}")
                 return False
 
-            # Store loaded model
+            # Store loaded model, metadata, and preprocessor
             self.loaded_models[symbol] = {
                 'model': model,
                 'metadata': metadata,
@@ -159,7 +74,7 @@ class EnhancedModelService:
 
             # Initialize enhanced signal quality system if ensemble is enabled
             if self.ensemble_enabled:
-                self._initialize_signal_system(symbol, model, metadata)
+                self._initialize_signal_system(symbol, model, metadata, preprocessor)
 
             logger.info(f"Model loaded successfully for {symbol}")
             return True
@@ -177,17 +92,6 @@ class EnhancedModelService:
             # Initialize signal quality system
             signal_system = EnhancedSignalQualitySystem(ensemble_config)
             self.signal_systems[symbol] = signal_system
-
-            # Initialize transformer preprocessor
-            preprocessor = TransformerPreprocessor(
-                sequence_length=metadata.get('sequence_length', 100),
-                forecast_horizon=metadata.get('forecast_horizon', 1),
-                scaling_method='standard',
-                feature_engineering=True,
-                multi_timeframe=True,
-                attention_features=True
-            )
-            self.preprocessors[symbol] = preprocessor
 
             logger.info(f"Signal quality system initialized for {symbol}")
 
@@ -252,31 +156,19 @@ class EnhancedModelService:
 
         return config
 
-    async def predict(self, symbol: str, features: Dict[str, float], sequence_length: int = 60) -> Dict[str, Any]:
+    async def predict(self, symbol: str, features: List[float], sequence_length: int = 60) -> Dict[str, Any]:
         """
         Generate enhanced predictions using ensemble system or fallback to traditional model
 
         Args:
             symbol: Trading symbol
-            features: Feature dictionary (optional if using real data)
+            features: Pre-engineered and scaled feature values for prediction
             sequence_length: Length of input sequence
 
         Returns:
             Enhanced prediction results
         """
         try:
-            # Initialize market data service if needed
-            await self.initialize_market_data_service()
-
-            # Get real market features if enabled
-            if self.use_real_data:
-                real_features = await self.get_real_market_features(symbol)
-                # Merge with provided features (provided features take precedence)
-                combined_features = {**real_features, **features}
-                logger.info(f"Using real market data for {symbol}: close=${real_features.get('close', 0):.2f}")
-            else:
-                combined_features = features
-
             # Check if model is loaded
             if symbol not in self.loaded_models:
                 success = self.load_model(symbol)
@@ -285,9 +177,9 @@ class EnhancedModelService:
 
             # Use enhanced signal quality system if available
             if symbol in self.signal_systems and self.ensemble_enabled:
-                return self._predict_with_ensemble(symbol, combined_features, sequence_length)
+                return self._predict_with_ensemble(symbol, features, sequence_length)
             else:
-                return self._predict_traditional(symbol, combined_features, sequence_length)
+                return self._predict_traditional(symbol, features, sequence_length)
 
         except Exception as e:
             logger.error(f"Prediction error for {symbol}: {e}")
@@ -298,11 +190,11 @@ class EnhancedModelService:
                 'timestamp': datetime.now().isoformat()
             }
 
-    def _predict_with_ensemble(self, symbol: str, features: Dict[str, float], sequence_length: int) -> Dict[str, Any]:
+    def _predict_with_ensemble(self, symbol: str, features: List[float], sequence_length: int) -> Dict[str, Any]:
         """Generate prediction using enhanced signal quality system"""
 
         # Convert features to market data format
-        market_data = self._features_to_market_data(features, sequence_length)
+        market_data = np.array(features).reshape(1, -1) # Assuming features are already OHLCV + indicators
 
         # Generate timestamps
         timestamps = pd.date_range(
@@ -338,7 +230,7 @@ class EnhancedModelService:
             'enhanced': True
         }
 
-    def _predict_traditional(self, symbol: str, features: Dict[str, float], sequence_length: int) -> Dict[str, Any]:
+    def _predict_traditional(self, symbol: str, features: List[float], sequence_length: int) -> Dict[str, Any]:
         """Generate prediction using traditional model"""
 
         model_info = self.loaded_models[symbol]
@@ -346,7 +238,7 @@ class EnhancedModelService:
         preprocessor = model_info['preprocessor']
 
         # Prepare input data
-        feature_values = list(features.values())
+        feature_values = features
 
         # Create sequence (repeat last values if needed)
         if len(feature_values) < sequence_length:
@@ -381,39 +273,12 @@ class EnhancedModelService:
             'enhanced': False
         }
 
-    def _features_to_market_data(self, features: Dict[str, float], sequence_length: int) -> np.ndarray:
-        """Convert feature dictionary to market data format for ensemble system"""
-
-        # Extract OHLCV data from features
-        ohlcv_keys = ['open', 'high', 'low', 'close', 'volume']
-
-        # Create base OHLCV data
-        base_data = []
-        for key in ohlcv_keys:
-            if key in features:
-                base_data.append(features[key])
-            elif key == 'volume':
-                base_data.append(1000.0)  # Default volume
-            else:
-                # Use close price as fallback
-                base_data.append(features.get('close', 100.0))
-
-        # Create sequence by repeating with small variations
-        market_data = []
-        for i in range(sequence_length):
-            # Add small random variations to simulate historical data
-            variation = 1 + np.random.normal(0, 0.001)  # 0.1% variation
-            row = [val * variation for val in base_data]
-            market_data.append(row)
-
-        return np.array(market_data)
-
     def update_performance(self, symbol: str, prediction: float, actual_outcome: float, confidence: float):
         """Update performance metrics for the enhanced system"""
         if symbol in self.signal_systems:
             self.signal_systems[symbol].update_performance(prediction, actual_outcome, confidence)
 
-    def get_model_status(self, symbol: str) -> Dict[str, Any]:
+    def get_model_status(self, symbol: str) -> Dict[str, Any>:
         """Get comprehensive model status"""
         if symbol not in self.loaded_models:
             return {'status': 'not_loaded'}

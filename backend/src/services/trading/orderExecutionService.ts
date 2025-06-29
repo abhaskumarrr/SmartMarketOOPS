@@ -25,7 +25,7 @@ import { RiskManagementService } from './riskManagementService';
 import smartOrderRouter from './smartOrderRouter';
 
 // Import deltaExchangeService with require since it's a JS file
-const { createDefaultService } = require('../../services/deltaExchangeService');
+import DeltaExchangeService from '../../services/deltaExchangeService';
 
 // Create logger
 const logger = createLogger('OrderExecutionService');
@@ -48,7 +48,7 @@ export class OrderExecutionService implements IOrderExecutionService {
     logger.info('Order Execution Service initialized');
     
     // Initialize exchange connectors
-    this.registerExchangeConnector('delta', createDefaultService());
+    this.registerExchangeConnector('delta', new DeltaExchangeService({ apiKey: process.env.DELTA_EXCHANGE_API_KEY || '', apiSecret: process.env.DELTA_EXCHANGE_API_SECRET || '', testnet: process.env.NODE_ENV !== 'production' }));
     
     // Initialize risk management service
     this.riskManagementService = new RiskManagementService();

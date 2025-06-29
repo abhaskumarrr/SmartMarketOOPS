@@ -72,18 +72,21 @@ export default function TradeExecutionPanel({ className, symbol, compact = false
     const fetchMarkets = async () => {
       try {
         setLoadingMarkets(true);
-        const response = await axios.get('/api/markets');
         
-        if (response.data && response.data.success) {
-          setMarkets(response.data.data);
+        // Use the enhanced API service
+        const { apiService } = await import('@/services/api');
+        const response = await apiService.getAvailableMarkets();
+        
+        if (response.success && response.data) {
+          setMarkets(response.data);
           
           // Set default symbol if available and not provided as prop
-          if (response.data.data.length > 0 && !orderForm.symbol) {
-            const defaultSymbol = symbol || response.data.data[0].symbol;
+          if (response.data.length > 0 && !orderForm.symbol) {
+            const defaultSymbol = symbol || response.data[0].symbol;
             setOrderForm(prev => ({ ...prev, symbol: defaultSymbol }));
           }
         } else {
-          console.error('Failed to fetch markets:', response.data?.message || 'Unknown error');
+          console.error('Failed to fetch markets:', response.message || 'Unknown error');
           // Use mock markets data for development
           const mockMarkets = getMockMarkets();
           setMarkets(mockMarkets);
@@ -232,10 +235,11 @@ export default function TradeExecutionPanel({ className, symbol, compact = false
         orderRequest.limit_price = orderForm.price;
       }
 
-      // Send order request to API
-      const response = await axios.post('/api/trading/orders', orderRequest);
+      // Send order request to API using enhanced API service
+      const { apiService } = await import('@/services/api');
+      const response = await apiService.placeDeltaOrder(orderRequest);
 
-      if (response.data && response.data.success) {
+      if (response.success) {
         toast({
           title: 'Order placed successfully',
           description: `${orderForm.side.toUpperCase()} ${orderForm.size} ${orderForm.symbol}`,
@@ -249,7 +253,7 @@ export default function TradeExecutionPanel({ className, symbol, compact = false
           price: orderForm.orderType === 'market' ? prev.price : '',
         }));
       } else {
-        throw new Error(response.data?.message || 'Failed to place order');
+        throw new Error(response.message || 'Failed to place order');
       }
     } catch (error) {
       console.error('Error placing order:', error);

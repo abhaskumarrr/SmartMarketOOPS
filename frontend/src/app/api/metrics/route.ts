@@ -51,7 +51,7 @@ export async function GET(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       // Add a short timeout to prevent hanging
-      signal: AbortSignal.timeout(2000)
+      signal: AbortSignal.timeout ? AbortSignal.timeout(2000) : undefined
     });
     
     if (response.ok) {

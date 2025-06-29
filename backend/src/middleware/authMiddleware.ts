@@ -43,7 +43,7 @@ export const authenticateJWT = async (req: AuthenticatedRequest, res: Response, 
       });
       return;
     }
-
+    
     // Attach user to request with proper AuthUser interface
     req.user = {
       id: user.id,

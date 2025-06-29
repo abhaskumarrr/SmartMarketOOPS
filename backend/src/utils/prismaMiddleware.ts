@@ -3,10 +3,11 @@
  * Middleware for logging and validation of database operations
  */
 
-import fs from 'fs';
+import { PrismaClient } from '@prisma/client';
+import { logger } from './logger';
+import * as fs from 'fs';
 import path from 'path';
 import { createWriteStream } from 'fs';
-import { PrismaClient } from '@prisma/client';
 
 // Log directory
 const LOG_DIR = path.join(__dirname, '../../logs');

@@ -1,4 +1,13 @@
+import useSWR from 'swr';
+
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
+
 export default function Home() {
+  const { data, error } = useSWR(`${process.env.NEXT_PUBLIC_API_URL}/api/dashboard/dashboard-summary`, fetcher);
+
+  if (error) return <div>Failed to load dashboard data.</div>;
+  if (!data) return <div>Loading dashboard data...</div>;
+
   return (
     <div className="space-y-6">
       <div>
@@ -15,8 +24,8 @@ export default function Home() {
             <p className="card-description">Real-time portfolio performance and balance</p>
           </div>
           <div className="card-content">
-            <div className="text-2xl font-bold text-green-500">$10,000.00</div>
-            <p className="text-sm text-muted-foreground">+2.5% today</p>
+            <div className="text-2xl font-bold text-green-500">${data.portfolioValue}</div>
+            <p className="text-sm text-muted-foreground">{data.dailyChange}% today</p>
           </div>
         </div>
 
@@ -26,8 +35,8 @@ export default function Home() {
             <p className="card-description">Currently open trading positions</p>
           </div>
           <div className="card-content">
-            <div className="text-2xl font-bold">3</div>
-            <p className="text-sm text-muted-foreground">2 profitable, 1 pending</p>
+            <div className="text-2xl font-bold">{data.activePositions}</div>
+            <p className="text-sm text-muted-foreground">{data.profitablePositions} profitable</p>
           </div>
         </div>
 
@@ -37,7 +46,7 @@ export default function Home() {
             <p className="card-description">Machine learning model performance</p>
           </div>
           <div className="card-content">
-            <div className="text-2xl font-bold text-blue-500">85%</div>
+            <div className="text-2xl font-bold text-blue-500">{data.aiAccuracy}%</div>
             <p className="text-sm text-muted-foreground">Prediction accuracy</p>
           </div>
         </div>

@@ -9,7 +9,7 @@ const router = express.Router();
 router.use(auth);
 
 // In-memory storage for paper trading data with REAL market data simulation
-let paperTradingState = {
+const paperTradingState = {
   portfolio: {
     balance: 1000, // $1000 initial balance as requested
     totalPnL: 0,
@@ -32,7 +32,7 @@ paperTradingState.portfolio.positions = [];
 paperTradingState.portfolio.trades = [];
 
 // Get portfolio overview
-router.get('/portfolio', async (req, res) => {
+router.get('/portfolio', async (req, res): Promise<Response> => {
   try {
     // Get current prices for unrealized P&L calculation
     const positions = [];
@@ -51,7 +51,7 @@ router.get('/portfolio', async (req, res) => {
             unrealizedPnL
           });
         } catch (error) {
-          logger.error(`Error getting price for ${position.symbol}:`, error);
+          logger.error(`Error getting price for ${position.symbol}:`, { error: error instanceof Error ? error.message : String(error) });
           positions.push({
             ...position,
             currentPrice: position.entryPrice,
@@ -67,7 +67,7 @@ router.get('/portfolio', async (req, res) => {
       .filter(p => p.status === 'open')
       .reduce((sum, p) => sum + (p.unrealizedPnL || 0), 0);
     
-    res.json({
+    return res.json({
       success: true,
       data: {
         ...paperTradingState.portfolio,
@@ -78,16 +78,16 @@ router.get('/portfolio', async (req, res) => {
       }
     });
   } catch (error) {
-    logger.error('Error getting portfolio:', error);
-    res.status(500).json({ success: false, error: error.message });
+    logger.error('Error getting portfolio:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({ success: false, error: error.message });
   }
 });
 
 // Get real-time market data
-router.get('/market-data', async (req, res) => {
+router.get('/market-data', async (req, res): Promise<Response> => {
   try {
     const symbols = ['ETH/USDT', 'BTC/USDT'];
-    const marketData = {};
+    const marketData: { [key: string]: any } = {};
     
     for (const symbol of symbols) {
       try {
@@ -104,7 +104,7 @@ router.get('/market-data', async (req, res) => {
           timestamp: new Date()
         };
       } catch (error) {
-        logger.error(`Error getting market data for ${symbol}:`, error);
+        logger.error(`Error getting market data for ${symbol}:`, { error: error instanceof Error ? error.message : String(error) });
         marketData[symbol] = {
           symbol,
           price: 0,
@@ -118,18 +118,18 @@ router.get('/market-data', async (req, res) => {
       }
     }
     
-    res.json({
+    return res.json({
       success: true,
       data: marketData
     });
   } catch (error) {
-    logger.error('Error getting market data:', error);
-    res.status(500).json({ success: false, error: error.message });
+    logger.error('Error getting market data:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({ success: false, error: error.message });
   }
 });
 
 // Get trading system status
-router.get('/status', async (req, res) => {
+router.get('/status', async (req, res): Promise<Response> => {
   try {
     const status = {
       isConnected: true,
@@ -141,18 +141,18 @@ router.get('/status', async (req, res) => {
       systemHealth: 'healthy'
     };
     
-    res.json({
+    return res.json({
       success: true,
       data: status
     });
   } catch (error) {
-    logger.error('Error getting status:', error);
-    res.status(500).json({ success: false, error: error.message });
+    logger.error('Error getting status:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({ success: false, error: error.message });
   }
 });
 
 // Get historical price data for charts
-router.get('/chart-data/:symbol', async (req, res) => {
+router.get('/chart-data/:symbol', async (req, res): Promise<Response> => {
   try {
     const { symbol } = req.params;
     const { timeframe = '1m', limit = '100' } = req.query;
@@ -188,7 +188,7 @@ router.get('/chart-data/:symbol', async (req, res) => {
       basePrice = close;
     }
     
-    res.json({
+    return res.json({
       success: true,
       data: {
         symbol,
@@ -197,13 +197,13 @@ router.get('/chart-data/:symbol', async (req, res) => {
       }
     });
   } catch (error) {
-    logger.error('Error getting chart data:', error);
-    res.status(500).json({ success: false, error: error.message });
+    logger.error('Error getting chart data:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({ success: false, error: error.message });
   }
 });
 
 // Execute a simulated trade with real market data
-router.post('/trade', async (req, res) => {
+router.post('/trade', async (req, res): Promise<Response> => {
   try {
     const { symbol, side, size, orderType = 'market_order' } = req.body;
 
@@ -299,9 +299,9 @@ router.post('/trade', async (req, res) => {
 
     paperTradingState.lastUpdate = new Date();
 
-    logger.info(`🎯 Simulated trade executed: ${side.toUpperCase()} ${size} ${symbol} @ $${currentPrice}`);
+    logger.info(`🎯 Simulated trade executed: ${side.toUpperCase()} ${size} ${symbol} @ ${currentPrice}`);
 
-    res.json({
+    return res.json({
       success: true,
       data: {
         trade,
@@ -314,13 +314,13 @@ router.post('/trade', async (req, res) => {
       }
     });
   } catch (error) {
-    logger.error('Error executing simulated trade:', error);
-    res.status(500).json({ success: false, error: error.message });
+    logger.error('Error executing simulated trade:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({ success: false, error: error.message });
   }
 });
 
 // Update paper trading state (called by trading system)
-router.post('/update', async (req, res) => {
+router.post('/update', async (req, res): Promise<Response> => {
   try {
     const { portfolio, config } = req.body;
 
@@ -334,13 +334,13 @@ router.post('/update', async (req, res) => {
 
     paperTradingState.lastUpdate = new Date();
 
-    res.json({
+    return res.json({
       success: true,
       message: 'Paper trading state updated'
     });
   } catch (error) {
-    logger.error('Error updating paper trading state:', error);
-    res.status(500).json({ success: false, error: error.message });
+    logger.error('Error updating paper trading state:', { error: error instanceof Error ? error.message : String(error) });
+    return res.status(500).json({ success: false, error: error.message });
   }
 });
 
@@ -353,7 +353,7 @@ async function getCurrentPrice(symbol: string): Promise<number> {
       return marketData.price;
     }
   } catch (error) {
-    logger.error(`Error fetching price for ${symbol}:`, error);
+    logger.error(`Error fetching price for ${symbol}:`, { error: error instanceof Error ? error.message : String(error) });
   }
 
   // Fallback to realistic mock prices when external APIs are having issues
@@ -367,7 +367,7 @@ async function getCurrentPrice(symbol: string): Promise<number> {
   };
 
   const price = mockPrices[symbol] || mockPrices[symbol.replace('USD', '/USDT')] || 50000;
-  logger.info(`📊 Using mock price for ${symbol}: $${price} (external APIs having issues)`);
+  logger.info(`📊 Using mock price for ${symbol}: ${price} (external APIs having issues)`);
   return price;
 }
 

@@ -48,15 +48,15 @@ def fetch_real_data_simple(symbol="BTCUSD", days_back=30, timeframe="1h"):
     
     try:
         # Try CCXT/Binance
-        from ml.src.data.data_loader import MarketDataLoader
+        from ml.src.data.unified_data_processor import UnifiedDataProcessor
         
         end_date = datetime.now()
         start_date = end_date - timedelta(days=days_back)
         
-        loader = MarketDataLoader(
-            timeframe=timeframe,
-            symbols=[symbol.replace('USD', '/USDT')]
-        )
+        loader = UnifiedDataProcessor(
+        timeframe=config.timeframe,
+        symbols=[config.symbol]
+    )
         
         data_dict = loader.fetch_data(
             exchange='binance',

@@ -33,7 +33,7 @@ sys.path.append(str(project_root))
 # Import our components
 try:
     from ml.src.api.delta_client import DeltaExchangeClient
-    from ml.src.data.data_loader import MarketDataLoader
+    from ml.src.data.unified_data_processor import UnifiedDataProcessor
     from ml.backend.src.api.enhanced_trading_predictions import (
         EnhancedTradingPredictor, TradingPredictionInput, ModelService
     )
@@ -132,10 +132,10 @@ class RealDataBacktester:
             self.delta_client = DeltaExchangeClient()
 
             # Initialize market data loader
-            self.market_loader = MarketDataLoader(
-                timeframe=self.config.timeframe,
-                symbols=[self.config.symbol.replace('USD', '/USDT')]
-            )
+            self.market_loader = UnifiedDataProcessor(
+            timeframe=self.config.timeframe,
+            symbols=[self.config.symbol]
+        )
 
             # Initialize enhanced predictor with mock model service
             if self.config.use_enhanced_predictions:

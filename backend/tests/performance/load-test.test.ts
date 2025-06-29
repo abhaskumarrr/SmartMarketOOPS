@@ -10,8 +10,8 @@ import { logger } from '../../src/utils/logger';
 import prisma from '../../src/utils/prismaClient';
 
 describe('Performance Load Tests', () => {
-  let testUsers: any[] = [];
-  let authTokens: string[] = [];
+  const testUsers: any[] = [];
+  const authTokens: string[] = [];
   
   beforeAll(async () => {
     // Create multiple test users for load testing

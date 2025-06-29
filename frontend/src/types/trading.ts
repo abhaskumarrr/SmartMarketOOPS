@@ -32,15 +32,41 @@ export interface Portfolio {
   dailyPnlPercentage: number;
 }
 
-export interface MarketData {
+export interface MarketTick {
   symbol: string;
   price: number;
-  change24h: number;
   changePercentage24h: number;
-  volume24h: number;
-  high24h: number;
-  low24h: number;
-  timestamp: string;
+  volume: number;
+  timestamp: number;
+}
+
+export interface TradeSignal {
+  id: string;
+  symbol: string;
+  side: 'buy' | 'sell';
+  price: number;
+  size: number;
+  timestamp: number;
+  source: 'algorithm' | 'manual' | 'bot';
+  strategy?: string;
+  confidence?: number;
+}
+
+export interface PortfolioUpdate {
+  totalBalance: number;
+  availableBalance: number;
+  totalPnL: number;
+  totalPnLPercentage: number;
+  positions: {
+    symbol: string;
+    side: 'long' | 'short';
+    size: number;
+    entryPrice: number;
+    currentPrice: number;
+    pnl: number;
+    pnlPercentage: number;
+  }[];
+  timestamp: number;
 }
 
 export interface CandlestickData {

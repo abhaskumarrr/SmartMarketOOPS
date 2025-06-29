@@ -19,8 +19,7 @@ sys.path.append(str(Path(__file__).parents[3]))
 from ml.src.models.transformer_model import EnhancedTransformerModel, TransformerModel
 from ml.src.models.lstm_model import LSTMModel
 from ml.src.models.cnn_lstm_model import CNNLSTMModel
-from ml.src.data.transformer_preprocessor import TransformerPreprocessor
-from ml.src.data.market_data_loader import MarketDataLoader
+from ml.src.data.unified_data_processor import UnifiedDataProcessor
 from ml.src.utils.config import MODEL_CONFIG
 
 logger = logging.getLogger(__name__)
@@ -45,14 +44,11 @@ class TransformerBenchmark:
         self.results = {}
         
         # Load and preprocess data
-        self.data_loader = MarketDataLoader()
-        self.preprocessor = TransformerPreprocessor(
-            sequence_length=100,
-            forecast_horizon=1,
-            scaling_method='standard',
-            feature_engineering=True,
-            multi_timeframe=True,
-            attention_features=True
+        self.data_processor = UnifiedDataProcessor(
+            sequence_length=self.config.get('preprocessing', {}).get('sequence_length', 100),
+            forecast_horizon=self.config.get('preprocessing', {}).get('forecast_horizon', 1),
+            scaling_method=self.config.get('preprocessing', {}).get('scaling_method', 'standard'),
+            feature_engineering_config=self.config.get('preprocessing', {}).get('feature_engineering_config', {})
         )
         
         logger.info(f"TransformerBenchmark initialized for {symbol}")
@@ -62,24 +58,12 @@ class TransformerBenchmark:
         logger.info(f"Loading {self.days_back} days of {self.symbol} data")
         
         # Load raw data
-        df = self.data_loader.get_data(
-            symbol=self.symbol,
-            interval="1h",
-            days_back=self.days_back,
-            use_cache=True
-        )
-        
-        # Preprocess for Transformer
-        processed_data = self.preprocessor.fit_transform(df, target_column='close')
-        
+        df = self.data_processor.load_from_csv(symbol=self.config.symbol)
+        processed_data = self.data_processor.fit_transform(df, target_column='close')
+
         # Create data loaders
-        train_loader, val_loader = self.preprocessor.create_data_loaders(
-            processed_data['X_train'],
-            processed_data['y_train'],
-            processed_data['X_val'],
-            processed_data['y_val'],
-            batch_size=32
-        )
+        train_dataset, val_dataset, _ = self.data_processor.create_pytorch_datasets(processed_data)
+        train_loader, val_loader, _ = self.data_processor.create_pytorch_dataloaders((train_dataset, val_dataset, _), batch_size=self.config.batch_size)
         
         self.processed_data = processed_data
         self.train_loader = train_loader

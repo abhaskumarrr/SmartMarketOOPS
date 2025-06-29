@@ -206,10 +206,10 @@ def check_infrastructure():
             "available": False,
             "description": "ML model training pipeline"
         },
-        "MarketDataLoader": {
+        "UnifiedDataProcessor": {
             "available": False,
-            "description": "Market data fetching"
-        },
+            "details": "Checks if UnifiedDataProcessor is correctly integrated."
+        },,
         "DeltaExchangeClient": {
             "available": False,
             "description": "Delta Exchange API client"
@@ -247,8 +247,8 @@ def check_infrastructure():
     
     # Check MarketDataLoader
     try:
-        from ml.src.data.data_loader import MarketDataLoader
-        infrastructure["MarketDataLoader"]["available"] = True
+        from ml.src.data.unified_data_processor import UnifiedDataProcessor
+    infrastructure["UnifiedDataProcessor"]["available"] = True
     except ImportError:
         pass
     

@@ -24,4 +24,4 @@ if (process.env.NODE_ENV !== 'production') {
 // Log Prisma initialization
 console.log('Prisma Client initialized successfully');
 
-export default prisma; 
+export default prisma;
