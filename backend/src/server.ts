@@ -1,286 +1,70 @@
-require('dotenv').config();
-
-/**
- * Main Server Entry Point
- * Sets up and starts the Express server with API routes
- */
-
-import express, { Request, Response, NextFunction } from 'express';
+import express from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
-import path from 'path';
 import http from 'http';
-import { createWriteStream } from 'fs';
-import compression from 'compression';
-import prisma from './utils/prismaClient';
-import cookieParser from 'cookie-parser';
-import { errorHandler, notFoundHandler } from './middleware/errorHandler';
-import { secureCookieParser, sessionActivity, setDeviceIdCookie } from './middleware/sessionMiddleware';
-import optimizationMiddleware from './middleware/optimizationMiddleware';
-import { createCacheService } from './services/cacheService';
-import { createDatabaseOptimizationService } from './services/databaseOptimizationService';
+import 'dotenv/config';
 import { logger } from './utils/logger';
-import { setupSwagger } from './swagger';
-
-// Import centralized environment configuration
-import env from './config/environment';
-
-// Import routes - gradually re-enabling fixed routes
 import healthRoutes from './routes/healthRoutes';
-import authRoutes from './routes/authRoutes';
-import userRoutes from './routes/userRoutes';
-import apiKeyRoutes from './routes/apiKeyRoutes';
-import metricsRoutes from './routes/metricsRoutes';
-import roleRoutes from './routes/roleRoutes';
-import sessionRoutes from './routes/sessionRoutes';
-import signalRoutes from './routes/signalRoutes';
-import riskRoutes from './routes/riskRoutes';
-import strategyRoutes from './routes/strategyRoutes';
-import bridgeRoutes from './routes/bridge/bridgeRoutes';
-import performanceRoutes from './routes/performance/performanceRoutes';
-import orderExecutionRoutes from './routes/trading/orderExecutionRoutes';
-import tradingApiKeyRoutes from './routes/trading/apiKeyRoutes';
-import botRoutes from './routes/botRoutes';
-import auditRoutes from './routes/auditRoutes';
-import tradesRoutes from './routes/trading/trades';
-import mlRoutes from './routes/mlRoutes';
-import marketDataRoutes from './routes/marketDataRoutes';
 import tradingRoutes from './routes/tradingRoutes';
-import deltaTradingRoutes from './routes/deltaTradingRoutes';
-import paperTradingRoutes from './routes/paperTradingRoutes';
-import realMarketDataRoutes from './routes/realMarketDataRoutes';
 import dashboardRoutes from './routes/dashboardRoutes';
-import feedbackRoutes from './routes/feedbackRoutes';
-// Import other routes as needed
+import { errorHandler, notFoundHandler } from './middleware/errorHandler';
 
-// Load socket initialization
-const initializeWebsocketServer = require('./sockets/websocketServer').initializeWebsocketServer;
-
-// Create Express app
 const app = express();
-const PORT = env.PORT;
-const NODE_ENV = env.NODE_ENV;
+const PORT = process.env.PORT || 3000;
 
-// Initialize optimization services
-const cacheService = createCacheService({
-  host: env.REDIS_HOST,
-  port: env.REDIS_PORT,
-  password: env.REDIS_PASSWORD,
-  keyPrefix: 'smartmarket:',
-});
+logger.info('🚀 Starting server initialization...');
+logger.info(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+logger.info(`🔌 Target port: ${PORT}`);
 
-const dbOptimizationService = createDatabaseOptimizationService();
+// --- Essential Middleware ---
+logger.info('⚙️ Setting up middleware...');
+// Enable Cross-Origin Resource Sharing
+app.use(cors());
+// Parse JSON bodies
+app.use(express.json());
+// Parse URL-encoded bodies
+app.use(express.urlencoded({ extended: true }));
 
-// Create HTTP server for Socket.IO
-const server = http.createServer(app);
-
-// Initialize WebSocket server
-const io = initializeWebsocketServer(server);
-
-// Logging middleware
-app.use((req: Request, res: Response, next: NextFunction) => {
-  const start = Date.now();
-
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    const message = `${req.method} ${req.originalUrl} ${res.statusCode} ${duration}ms`;
-    logger.info(message, {
-      method: req.method,
-      url: req.originalUrl,
-      statusCode: res.statusCode,
-      duration,
-    });
-  });
-
-  next();
-});
-
-// Performance and optimization middleware
-app.use(optimizationMiddleware.performanceMonitor());
-app.use(optimizationMiddleware.securityHeaders());
-app.use(optimizationMiddleware.requestValidation());
-app.use(optimizationMiddleware.requestTimeout(30000)); // 30 second timeout
-
-// Compression middleware
-app.use(compression({
-  filter: (req, res) => {
-    if (req.headers['x-no-compression']) {
-      return false;
-    }
-    return compression.filter(req, res);
-  },
-  threshold: 1024, // Only compress responses larger than 1KB
-}));
-
-// Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", "data:", "https:"],
-    },
-  },
-  hsts: {
-    maxAge: 31536000,
-    includeSubDomains: true,
-    preload: true,
-  },
-}));
-
-// Rate limiting
-app.use('/api/', optimizationMiddleware.createRateLimiter({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 1000, // limit each IP to 1000 requests per windowMs
-}));
-
-// Stricter rate limiting for auth endpoints
-app.use('/api/auth/', optimizationMiddleware.createRateLimiter({
-  windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 50, // limit each IP to 50 auth requests per windowMs
-}));
-
-const allowedOrigins = [
-  env.CLIENT_URL,
-  'http://localhost:3001', // Frontend running on port 3001
-  'http://localhost:3002',
-  'http://localhost:3333',
-  'http://192.168.1.20:3000', // Network access
-];
-
-// CORS middleware
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.indexOf(origin) !== -1) {
-      callback(null, true)
-    } else {
-      callback(new Error('Not allowed by CORS'))
-    }
-  },
-  credentials: true,
-  optionsSuccessStatus: 200,
-}));
-
-// Body parser middleware with size limits
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// Cookie parser middleware (with signed cookies)
-app.use(secureCookieParser);
-
-// Set device ID cookie for session tracking
-app.use(setDeviceIdCookie);
-
-// Set trust proxy if behind a proxy
-if (process.env.TRUST_PROXY === 'true') {
-  app.set('trust proxy', 1);
-}
-
-// Setup Swagger API documentation
-setupSwagger(app);
-
-// Track session activity for authenticated routes
-app.use(sessionActivity);
-
-// Root route handler - API welcome page
-app.get('/', (req: Request, res: Response) => {
-  res.status(200).json({
-    name: 'SmartMarket OOPS API',
-    version: '1.0.0',
-    status: 'online',
-    timestamp: new Date().toISOString(),
-    routes: {
-      health: '/api/health',
-      auth: '/api/auth',
-      users: '/api/users',
-      apiKeys: '/api/api-keys',
-      trading: {
-        orders: '/api/orders',
-        apiKeys: '/api/trading/api-keys',
-        bots: '/api/bots',
-        trades: '/api/trades'
-      }
-    }
-  });
-});
-
-// Enhanced health check at root path
-app.get('/health', optimizationMiddleware.healthCheck());
-
-// Use routes - gradually re-enabling fixed routes
+logger.info('🛣️ Setting up routes...');
+// --- Core Routes ---
+// Health check endpoint to verify service is up
 app.use('/api/health', healthRoutes);
-app.use('/api/auth', authRoutes);
-app.use('/api/users', userRoutes);
-app.use('/api/api-keys', apiKeyRoutes);
-app.use('/api', metricsRoutes);
-app.use('/api/roles', roleRoutes);
-app.use('/api/sessions', sessionRoutes);
-app.use('/api/signals', signalRoutes);
-app.use('/api/risk', riskRoutes);
-app.use('/api/strategies', strategyRoutes);
-app.use('/api/bridge', bridgeRoutes);
-app.use('/api/performance', performanceRoutes);
-app.use('/api/orders', orderExecutionRoutes);
-app.use('/api/trading/api-keys', tradingApiKeyRoutes);
-app.use('/api/bots', botRoutes);
-app.use('/api/audit', auditRoutes);
-app.use('/api/trades', tradesRoutes);
-app.use('/api/ml', mlRoutes);
-app.use('/api/market-data', marketDataRoutes);
-app.use('/api/real-market-data', realMarketDataRoutes);
-app.use('/api/trading', tradingRoutes);
-app.use('/api/delta-trading', deltaTradingRoutes);
-app.use('/api/paper-trading', paperTradingRoutes);
+// Dashboard data endpoints
 app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/feedback', feedbackRoutes);
-// Use other routes as needed
+// The primary trading signal route
+app.use('/api/trading', tradingRoutes);
 
-// Not found middleware for undefined routes
+logger.info('🛡️ Setting up error handling...');
+// --- Error Handling ---
+// Handle 404 for routes not found
 app.use(notFoundHandler);
-
-// Global error handling middleware
+// Centralized error handler
 app.use(errorHandler);
 
-// Start server
+logger.info('🏗️ Creating HTTP server...');
+const server = http.createServer(app);
+
+logger.info('👂 Starting to listen...');
 server.listen(PORT, () => {
-  console.log(`Server running in ${NODE_ENV} mode on port ${PORT}`);
+  logger.info(`🚀 Server is running on http://localhost:${PORT}`);
+  logger.info('✅ Server startup complete!');
 });
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-  console.error('Unhandled Promise Rejection:', err);
-  // Log the error but don't crash the server for Delta Exchange auth issues
-  if (err && typeof err === 'object' && 'status' in err && err.status === 401) {
-    console.warn('⚠️  Delta Exchange authentication failed - continuing with limited functionality');
-  }
-});
-
-// Handle uncaught exceptions
-process.on('uncaughtException', (err) => {
-  console.error('Uncaught Exception:', err);
+server.on('error', (error: any) => {
+  logger.error('❌ Server error:', error);
   process.exit(1);
 });
 
-// Graceful shutdown
-process.on('SIGTERM', async () => {
-  console.log('SIGTERM received, shutting down gracefully');
-
-  // Close Prisma connection
-  await prisma.$disconnect();
-
-  // Close server
-  server.close(() => {
-    console.log('Server closed');
+const gracefulShutdown = async () => {
+  logger.info('🔌 Server is shutting down...');
+  server.close(async () => {
+    logger.info('✅ HTTP server closed.');
+    // TODO: Add prisma.$disconnect() when database is set up
+    logger.info('🔚 Server shutdown complete.');
     process.exit(0);
   });
+};
 
-  // Force close after timeout
-  setTimeout(() => {
-    console.error('Could not close connections in time, forcefully shutting down');
-    process.exit(1);
-  }, 10000);
-});
+process.on('SIGINT', gracefulShutdown);
+process.on('SIGTERM', gracefulShutdown);
 
-// Export for testing
-export { app, server, io, prisma };
+logger.info('🎯 Server setup complete, waiting for connections...'); 

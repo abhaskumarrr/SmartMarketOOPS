@@ -1,7 +1,7 @@
 import { Portfolio, Position, Trade, MarketData, AIModelPrediction, ModelPerformance } from '@/types/trading';
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3006';
+const API_BASE_URL = 'http://localhost:3006';
 
 // Additional types for Delta Exchange integration
 export interface DeltaMarketData {
@@ -72,6 +72,24 @@ class ApiService {
       console.error(`❌ API request error for ${endpoint}:`, error);
       throw error;
     }
+  }
+
+  // Method to call the enhanced backend's AI prediction endpoint
+  async getTradingSignal(): Promise<any> {
+    const endpoint = '/api/ai/predict';
+    const body = {
+      symbol: 'BTCUSD',
+      features: [Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random(), Math.random()]
+    };
+    return this.request<any>(endpoint, {
+      method: 'POST',
+      body: JSON.stringify(body),
+    });
+  }
+
+  // Dashboard endpoint
+  async getDashboardSummary(): Promise<any> {
+    return this.request<any>('/api/dashboard/dashboard-summary');
   }
 
   // Portfolio endpoints
@@ -450,4 +468,9 @@ class ApiService {
   }
 }
 
-export const apiService = new ApiService();
+// Export the class as default to fix import issues
+const ApiServiceInstance = new ApiService();
+export default ApiServiceInstance;
+
+// Also export the class for named imports
+export { ApiService };

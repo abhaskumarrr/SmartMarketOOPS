@@ -5,10 +5,10 @@
 // Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
 
 generator client {
-  provider      = "prisma-client-js"
-  output        = "../generated/prisma"
+  provider        = "prisma-client-js"
+  previewFeatures = ["prismaSchemaFolder"]
+  output          = "../../../node_modules/.prisma/client"
   binaryTargets = ["native", "darwin", "darwin-arm64", "linux-arm64-openssl-3.0.x"]
-  previewFeatures = ["prismaSchemaFolder"] // Enable multi-file schema support
 }
 
 datasource db {

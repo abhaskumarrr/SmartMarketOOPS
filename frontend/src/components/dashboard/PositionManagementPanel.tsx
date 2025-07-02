@@ -81,7 +81,7 @@ export default function PositionManagementPanel({ className, compact = false }: 
           const transformedPositions = response.data.map((pos: any) => ({
             id: pos.id || Math.random(),
             symbol: pos.symbol || pos.product?.symbol || 'UNKNOWN',
-            side: pos.side === 'buy' ? 'long' : 'short',
+            side: (pos.side === 'buy' ? 'long' : 'short') as 'long' | 'short',
             size: parseFloat(pos.size || '0'),
             entryPrice: parseFloat(pos.entry_price || pos.average_price || '0'),
             currentPrice: parseFloat(pos.mark_price || pos.current_price || '0'),
@@ -224,10 +224,9 @@ export default function PositionManagementPanel({ className, compact = false }: 
       });
       
       if (response.data && response.data.success) {
-        toast({
+        toast.default({
           title: 'Position closed',
           description: 'Position has been closed successfully.',
-          variant: 'default',
         });
         
         // Remove position from list
@@ -238,10 +237,9 @@ export default function PositionManagementPanel({ className, compact = false }: 
     } catch (error) {
       console.error('Error closing position:', error);
       
-      toast({
+      toast.destructive({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Failed to close position',
-        variant: 'destructive',
       });
     } finally {
       setIsModifying(false);
@@ -266,10 +264,9 @@ export default function PositionManagementPanel({ className, compact = false }: 
       });
       
       if (response.data && response.data.success) {
-        toast({
+        toast.default({
           title: 'Position updated',
           description: 'Stop loss and take profit have been updated.',
-          variant: 'default',
         });
         
         // Update position in list
@@ -288,10 +285,9 @@ export default function PositionManagementPanel({ className, compact = false }: 
     } catch (error) {
       console.error('Error updating position:', error);
       
-      toast({
+      toast.destructive({
         title: 'Error',
         description: error instanceof Error ? error.message : 'Failed to update position',
-        variant: 'destructive',
       });
     } finally {
       setIsModifying(false);

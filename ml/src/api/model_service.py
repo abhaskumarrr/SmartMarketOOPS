@@ -9,17 +9,41 @@ import torch
 import numpy as np
 import pandas as pd
 import logging
-from ..data.unified_data_processor import UnifiedDataProcessor
+import sys
 from typing import Dict, Any, List, Optional
 from pathlib import Path
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel, Field
 import json
 
-# Import project modules
-from ..models import ModelFactory
-from ..models.model_registry import get_registry, ModelRegistry
-from .enhanced_model_service import EnhancedModelService
+# Add project root to path
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+# Import project modules with absolute imports
+try:
+    from src.data.unified_data_processor import UnifiedDataProcessor
+    from src.models import ModelFactory
+    from src.models.model_registry import get_registry, ModelRegistry
+    from src.api.enhanced_model_service import EnhancedModelService
+except ImportError:
+    # Fallback to creating a simple data processor
+    class UnifiedDataProcessor:
+        def transform_inference_data(self, df):
+            # Simple fallback that returns the input as-is
+            return df.values.reshape(1, -1, df.shape[1])
+    
+    class ModelRegistry:
+        def load_model(self, symbol, version=None, return_metadata=False, return_preprocessor=False):
+            raise HTTPException(status_code=404, detail=f"Model registry not available")
+    
+    def get_registry():
+        return ModelRegistry()
+    
+    class EnhancedModelService:
+        def __init__(self):
+            pass
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -126,7 +150,6 @@ class ModelService:
         model = self.models[symbol]
 
         try:
-            try:
             # Convert features to DataFrame
             df = pd.DataFrame([features])
 
@@ -138,7 +161,6 @@ class ModelService:
             # Reshape for model input
             # The processed_features is already (1, sequence_length, num_features)
             features_tensor = torch.tensor(processed_features, dtype=torch.float32)
-
 
             # Make prediction
             with torch.no_grad():

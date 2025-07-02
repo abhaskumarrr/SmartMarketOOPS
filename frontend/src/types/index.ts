@@ -134,10 +134,15 @@ export interface ChartOptions {
 }
 
 export interface ChartIndicator {
-  type: 'ma' | 'ema' | 'bollinger' | 'rsi' | 'macd' | 'volume';
+  id: string;
+  name: string;
+  type: 'ma' | 'ema' | 'bollinger' | 'rsi' | 'macd' | 'volume' | 'overlay';
   params: Record<string, number>;
   color: string;
-  visible: boolean;
+  visible?: boolean;
+  enabled?: boolean;
+  category?: string;
+  defaultParams?: Record<string, number>;
 }
 
 export interface OHLCData {

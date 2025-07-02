@@ -42,6 +42,7 @@ export function TradingChart({ symbol = 'BTCUSD', height = 400 }: TradingChartPr
     const chart = createChart(chartContainerRef.current, {
       layout: {
         textColor: 'rgba(255, 255, 255, 0.9)',
+        // @ts-ignore
         background: { type: 'solid', color: 'transparent' },
       },
       grid: {

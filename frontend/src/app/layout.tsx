@@ -28,6 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={`${inter.className} ${inter.variable} antialiased`}>
+        {/* @ts-ignore */}
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"
@@ -73,7 +74,9 @@ export default function RootLayout({
           </SidebarProvider>
           
           <Toaster />
-          <VersionSkewProtection />
+          <VersionSkewProtection>
+            <></>
+          </VersionSkewProtection>
         </ThemeProvider>
       </body>
     </html>

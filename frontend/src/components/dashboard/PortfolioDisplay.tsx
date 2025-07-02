@@ -119,7 +119,7 @@ export default function PortfolioDisplay({
 
   useEffect(() => {
     if (lastPortfolioUpdate && lastPortfolioUpdate.positions && lastPortfolioUpdate.positions.length > 0) {
-      const mappedPositions = lastPortfolioUpdate.positions.map((pos, index) => ({
+      const mappedPositions = lastPortfolioUpdate.positions.map((pos: any, index: number) => ({
         id: index.toString(),
         symbol: pos.symbol,
         side: pos.side,

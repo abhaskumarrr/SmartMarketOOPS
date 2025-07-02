@@ -477,3 +477,21 @@ auto-generated/
 *.tar.gz
 *.rar
 *.7z
+
+# Logs
+logs
+dev-debug.log
+# Environment variables
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+# OS specific
+
+# Task files
+# tasks.json
+# tasks/ 

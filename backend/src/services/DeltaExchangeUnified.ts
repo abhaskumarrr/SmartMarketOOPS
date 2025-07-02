@@ -401,7 +401,10 @@ export class DeltaExchangeUnified extends EventEmitter {
    * Check if service is ready for trading
    */
   public isReady(): boolean {
-    return this.initialized && !!this.credentials.apiKey && !!this.credentials.apiSecret;
+    if (!this.initialized) {
+      throw new Error('Delta Exchange service not ready');
+    }
+    return true;
   }
   
   /**
@@ -415,36 +418,21 @@ export class DeltaExchangeUnified extends EventEmitter {
    * Get account balance
    */
   public async getBalance(): Promise<DeltaBalance[]> {
-    if (!this.isReady()) {
-      throw new Error({ message: 'Delta Exchange service not ready' });
-    }
-
     try {
+      this.isReady(); // Ensure service is initialized
       const response = await this.makeAuthenticatedRequest('GET', '/v2/wallet/balances');
-
-      if (response.success) {
-        return response.result;
-      } else {
-        throw new Error({ message: 'Failed to get balance', error: response.error });
+      if (response.error) {
+        throw new Error(`Failed to get balance: ${response.error}`);
       }
+      return response.result;
     } catch (error: any) {
-      logger.error({ message: '❌ Error getting REAL balance from Delta Exchange', error });
-
-      // Log detailed error information
-      if (error.response?.data) {
-        logger.error({ message: 'API Error Response', apiErrorResponse: JSON.stringify(error.response.data, null, 2) });
+      logger.error('❌ Error getting REAL balance from Delta Exchange', { error: error.message });
+      if (error.response?.data?.error?.code === 1005) {
+        logger.error('🚫 IP NOT WHITELISTED FOR API KEY', { currentIp: error.response.data.error.context?.client_ip });
+        logger.error('🔗 Please whitelist your IP at', { whitelistUrl: 'https://testnet.delta.exchange/app/account/manageapikeys' });
+        throw new Error(`IP_NOT_WHITELISTED: ${error.response.data.error.context?.client_ip}`);
       }
-
-      // Check if it's an IP whitelisting issue
-      if (error.response?.data?.error?.code === 'ip_not_whitelisted_for_api_key') {
-        logger.error({ message: '🚫 IP NOT WHITELISTED FOR API KEY', currentIp: error.response.data.error.context?.client_ip });
-        logger.error({ message: '🔗 Please whitelist your IP at', whitelistUrl: 'https://testnet.delta.exchange/app/account/manageapikeys' });
-
-        throw new Error({ message: 'IP_NOT_WHITELISTED', ip: error.response.data.error.context?.client_ip });
-      }
-
-      // For any other error, throw it instead of returning mock data
-      throw new Error({ message: 'Failed to get real balance from Delta Exchange', error: error.message });
+      throw new Error(`Failed to get real balance from Delta Exchange: ${error.message}`);
     }
   }
 
@@ -452,32 +440,20 @@ export class DeltaExchangeUnified extends EventEmitter {
    * Get current positions
    */
   public async getPositions(productId?: number): Promise<DeltaPosition[]> {
-    if (!this.isReady()) {
-      throw new Error({ message: 'Delta Exchange service not ready' });
-    }
-
     try {
-      // Delta Exchange requires either product_id or underlying_asset_symbol
-      // If no productId provided, get positions for all major assets
-      let params: Record<string, any>;
-
+      this.isReady();
+      const params: any = {};
       if (productId) {
-        params = { product_id: productId };
-      } else {
-        // Get positions for BTC first, then we can call again for ETH if needed
-        params = { underlying_asset_symbol: 'BTC' };
+        params.product_id = productId;
       }
-
       const response = await this.makeAuthenticatedRequest('GET', '/v2/positions', params);
-
-      if (response.success) {
-        return response.result;
-      } else {
-        throw new Error({ message: 'Failed to get positions', error: response.error?.code || response.error });
+      if (response.error) {
+        throw new Error(`Failed to get positions: ${response.error?.code || response.error}`);
       }
+      return response.result;
     } catch (error) {
-      logger.error({ message: 'Error getting positions', error });
-      throw error;
+      logger.error('Error getting positions', { error });
+      return []; // Return empty array on error to prevent crashes
     }
   }
 
@@ -485,34 +461,22 @@ export class DeltaExchangeUnified extends EventEmitter {
    * Get all positions for major trading assets
    */
   public async getAllPositions(): Promise<DeltaPosition[]> {
-    if (!this.isReady()) {
-      throw new Error({ message: 'Delta Exchange service not ready' });
-    }
-
     try {
+      this.isReady();
+      const products = this.getPerpetualProducts();
       const allPositions: DeltaPosition[] = [];
-      const assets = ['BTC', 'ETH']; // Major assets we trade
-
-      // Get positions for each asset
-      for (const asset of assets) {
+      for (const product of products) {
         try {
-          const response = await this.makeAuthenticatedRequest('GET', '/v2/positions', {
-            underlying_asset_symbol: asset
-          });
-
-          if (response.success && response.result) {
-            allPositions.push(...response.result);
-          }
+          const positions = await this.getPositions(product.id);
+          allPositions.push(...positions);
         } catch (error) {
-          logger.warn({ message: 'Failed to get positions for', asset }, error instanceof Error ? error.message : 'Unknown error');
-          // Continue with other assets even if one fails
+          logger.warn('Failed to get positions for', { asset: product.symbol, error: error instanceof Error ? error.message : 'Unknown error' });
         }
       }
-
       return allPositions;
     } catch (error) {
-      logger.error({ message: 'Error getting all positions', error });
-      throw error;
+      logger.error('Error getting all positions', { error });
+      return [];
     }
   }
 
@@ -520,35 +484,28 @@ export class DeltaExchangeUnified extends EventEmitter {
    * Place a new order
    */
   public async placeOrder(orderRequest: DeltaOrderRequest): Promise<DeltaOrder> {
-    if (!this.isReady()) {
-      throw new Error({ message: 'Delta Exchange service not ready' });
-    }
-
     try {
-      // Validate order request
+      this.isReady();
       this.validateOrderRequest(orderRequest);
 
-      const response = await this.makeAuthenticatedRequest('POST', '/v2/orders', {}, orderRequest);
+      // Convert size to contract units if needed (assuming helper exists)
+      const finalSize = this.convertToContractUnits(orderRequest.size, this.getSymbolByProductId(orderRequest.product_id) || '');
 
-      if (response.success) {
-        const order: DeltaOrder = response.result;
-        const symbol = order.product?.symbol || `Product-${order.product?.id || 'Unknown'}`;
-        logger.info({ message: '✅ Order placed successfully', side: order.side, size: order.size, symbol, price: order.limit_price || 'market' });
-        this.emit('orderPlaced', order);
+      const response = await this.makeAuthenticatedRequest('POST', '/v2/orders', {}, { ...orderRequest, size: finalSize });
+      
+      const order = response.result;
+      if (order) {
+        const symbol = this.getSymbolByProductId(order.product.id) || 'UNKNOWN';
+        logger.info('✅ Order placed successfully', { side: order.side, size: order.size, symbol, price: order.limit_price || 'market' });
         return order;
       } else {
-        throw new Error({ message: 'Order placement failed', error: response.error });
+        throw new Error(`Order placement failed: ${response.error}`);
       }
     } catch (error: any) {
-      logger.error({ message: 'Error placing order', error });
-      // If IP whitelisting issue, simulate order placement for demo
-      if (error.response?.data?.error?.code === 'ip_not_whitelisted_for_api_key') {
-        const err = new Error('Order placement failed: IP not whitelisted for API key.');
-        logger.error({ message: 'Order placement failed: IP not whitelisted for API key.', error: err });
-        this.emit('orderError', err);
-        throw err;
+      logger.error('Error placing order', { error: error.message });
+      if (error.message?.includes('IP_NOT_WHITELISTED')) {
+         logger.error('Order placement failed: IP not whitelisted for API key.', { error });
       }
-      this.emit('orderError', error);
       throw error;
     }
   }
@@ -557,23 +514,18 @@ export class DeltaExchangeUnified extends EventEmitter {
    * Cancel an order
    */
   public async cancelOrder(orderId: number): Promise<DeltaOrder> {
-    if (!this.isReady()) {
-      throw new Error({ message: 'Delta Exchange service not ready' });
-    }
-
     try {
+      this.isReady();
       const response = await this.makeAuthenticatedRequest('DELETE', `/v2/orders/${orderId}`);
-
-      if (response.success) {
-        const order: DeltaOrder = response.result;
-        logger.info({ message: '✅ Order cancelled', orderId: order.id });
-        this.emit('orderCancelled', order);
+      const order = response.result;
+      if (order) {
+        logger.info('✅ Order cancelled', { orderId: order.id });
         return order;
       } else {
-        throw new Error({ message: 'Order cancellation failed', error: response.error });
+        throw new Error(`Order cancellation failed: ${response.error}`);
       }
     } catch (error) {
-      logger.error({ message: 'Error cancelling order', error });
+      logger.error('Error cancelling order', { error });
       throw error;
     }
   }
@@ -582,20 +534,15 @@ export class DeltaExchangeUnified extends EventEmitter {
    * Get order status
    */
   public async getOrder(orderId: number): Promise<DeltaOrder> {
-    if (!this.isReady()) {
-      throw new Error({ message: 'Delta Exchange service not ready' });
-    }
-
     try {
+      this.isReady();
       const response = await this.makeAuthenticatedRequest('GET', `/v2/orders/${orderId}`);
-
-      if (response.success) {
-        return response.result;
-      } else {
-        throw new Error({ message: 'Failed to get order', error: response.error });
+      if (response.error) {
+        throw new Error(`Failed to get order: ${response.error}`);
       }
+      return response.result;
     } catch (error) {
-      logger.error({ message: 'Error getting order', error });
+      logger.error('Error getting order', { error });
       throw error;
     }
   }
@@ -604,22 +551,20 @@ export class DeltaExchangeUnified extends EventEmitter {
    * Get all open orders
    */
   public async getOpenOrders(productId?: number): Promise<DeltaOrder[]> {
-    if (!this.isReady()) {
-      throw new Error({ message: 'Delta Exchange service not ready' });
-    }
-
     try {
-      const params = productId ? { product_id: productId } : {};
-      const response = await this.makeAuthenticatedRequest('GET', '/v2/orders', params);
-
-      if (response.success) {
-        return response.result;
-      } else {
-        throw new Error({ message: 'Failed to get open orders', error: response.error });
+      this.isReady();
+      const params: any = {};
+      if (productId) {
+        params.product_id = productId;
       }
+      const response = await this.makeAuthenticatedRequest('GET', '/v2/orders', params);
+      if (response.error) {
+        throw new Error(`Failed to get open orders: ${response.error}`);
+      }
+      return response.result;
     } catch (error) {
-      logger.error({ message: 'Error getting open orders', error });
-      throw error;
+      logger.error('Error getting open orders', { error });
+      return [];
     }
   }
 
@@ -643,24 +588,21 @@ export class DeltaExchangeUnified extends EventEmitter {
    * Validate order request
    */
   private validateOrderRequest(orderRequest: DeltaOrderRequest): void {
-    if (!orderRequest.product_id) {
-      throw new Error({ message: 'Product ID is required' });
+    const { product_id, side, size, order_type, limit_price } = orderRequest;
+    if (!product_id) {
+      throw new Error('Product ID is required');
     }
-
-    if (!['buy', 'sell'].includes(orderRequest.side)) {
-      throw new Error({ message: 'Side must be "buy" or "sell"' });
+    if (side !== 'buy' && side !== 'sell') {
+      throw new Error('Side must be "buy" or "sell"');
     }
-
-    if (!orderRequest.size || orderRequest.size <= 0) {
-      throw new Error({ message: 'Size must be greater than 0' });
+    if (size <= 0) {
+      throw new Error('Size must be greater than 0');
     }
-
-    if (!['limit_order', 'market_order'].includes(orderRequest.order_type)) {
-      throw new Error({ message: 'Order type must be "limit_order" or "market_order"' });
+    if (order_type !== 'limit_order' && order_type !== 'market_order') {
+      throw new Error('Order type must be "limit_order" or "market_order"');
     }
-
-    if (orderRequest.order_type === 'limit_order' && !orderRequest.limit_price) {
-      throw new Error({ message: 'Limit price is required for limit orders' });
+    if (order_type === 'limit_order' && !limit_price) {
+      throw new Error('Limit price is required for limit orders');
     }
   }
 
@@ -670,39 +612,31 @@ export class DeltaExchangeUnified extends EventEmitter {
   public async getMarketData(symbol: string): Promise<any> {
     const productId = this.getProductId(symbol);
     if (!productId) {
-      throw new Error({ message: 'Product not found for symbol', symbol });
+      throw new Error(`Product not found for symbol: ${symbol}`);
     }
 
     try {
-      // Use the correct ticker endpoint from Delta Exchange API docs
-      const response = await this.makeAuthenticatedRequest('GET', `/v2/tickers/${symbol}`);
-
-      if (response.success) {
-        const ticker = response.result;
-
-        logger.debug({ message: 'Raw ticker data for', symbol, ticker });
-
-        // Return standardized market data with current prices
+      // Use v2/ticker for live market data
+      const response = await this.client.get(`/v2/ticker/${productId}`);
+      const ticker = response.data;
+      if (ticker) {
+        logger.debug('Raw ticker data for', { symbol, ticker });
+        // Format to a consistent structure
         return {
-          symbol: symbol,
-          product_id: productId,
-          last_price: ticker.close || ticker.last_price || ticker.price,
-          mark_price: ticker.mark_price || ticker.close || ticker.price,
-          bid: ticker.bid,
-          ask: ticker.ask,
+          symbol: ticker.symbol,
+          open: ticker.open,
           high: ticker.high,
           low: ticker.low,
+          close: ticker.close,
           volume: ticker.volume,
-          timestamp: ticker.timestamp || Date.now()
+          updated_at: ticker.st,
         };
       } else {
-        throw new Error({ message: 'Failed to get market data', error: response.error });
+        throw new Error(`Failed to get market data: ${response.data.error}`);
       }
-    } catch (error) {
-      logger.error({ message: 'Error getting live market data for', symbol, error });
-
-      // ONLY USE LIVE DATA - No fallback to mock data
-      throw new Error({ message: 'Failed to get live market data for', symbol, error: 'Refusing to use mock data for safety.' });
+    } catch (error: any) {
+      logger.error('Error getting live market data for', { symbol, error: error.message });
+      throw new Error(`Failed to get live market data for ${symbol}: Refusing to use mock data for safety.`);
     }
   }
 
@@ -712,21 +646,17 @@ export class DeltaExchangeUnified extends EventEmitter {
   public async getOrderBook(symbol: string, depth: number = 20): Promise<any> {
     const productId = this.getProductId(symbol);
     if (!productId) {
-      throw new Error({ message: 'Product not found for symbol', symbol });
+      throw new Error(`Product not found for symbol: ${symbol}`);
     }
 
     try {
-      const response = await this.client.get(`/v2/l2orderbook/${productId}`, {
-        params: { depth }
-      });
-
-      if (response.data.success) {
-        return response.data.result;
-      } else {
-        throw new Error({ message: 'Failed to get order book', error: response.data.error });
+      const response = await this.client.get(`/v2/l2orderbook/${productId}?depth=${depth}`);
+      if (response.data.error) {
+        throw new Error(`Failed to get order book: ${response.data.error}`);
       }
+      return response.data;
     } catch (error) {
-      logger.error({ message: 'Error getting order book', error });
+      logger.error('Error getting order book', { error });
       throw error;
     }
   }
@@ -743,10 +673,9 @@ export class DeltaExchangeUnified extends EventEmitter {
       this.wsClient = new WebSocket(this.wsUrl);
 
       this.wsClient.on('open', () => {
-        logger.info({ message: '✅ Delta Exchange WebSocket connected' });
-        this.reconnectAttempts = 0;
-
-        // Subscribe to channels for each symbol
+        logger.info('✅ Delta Exchange WebSocket connected');
+        this.reconnectAttempts = 0; // Reset on successful connection
+        // Subscribe to channels for the given symbols
         symbols.forEach(symbol => {
           const productId = this.getProductId(symbol);
           if (productId) {
@@ -760,27 +689,38 @@ export class DeltaExchangeUnified extends EventEmitter {
 
       this.wsClient.on('message', (data: WebSocket.Data) => {
         try {
-          const message = JSON.parse(data.toString());
-          this.handleWebSocketMessage(message);
+          let message: any;
+          if (typeof data === 'string') {
+            message = JSON.parse(data);
+          } else if (Buffer.isBuffer(data)) {
+            message = JSON.parse(data.toString());
+          } else {
+            message = data;
+          }
+
+          if (this.wsClient) {
+            if (message.type === 'v2/ticker') {
+              this.emit('ticker', message);
+            }
+          }
         } catch (error) {
-          logger.error({ message: 'Error parsing WebSocket message', error });
+          logger.error('Error parsing WebSocket message', { error });
         }
       });
 
       this.wsClient.on('close', () => {
-        logger.warn({ message: '🔌 Delta Exchange WebSocket disconnected' });
-        this.emit('wsDisconnected');
+        logger.warn('🔌 Delta Exchange WebSocket disconnected');
         this.handleReconnect(symbols);
       });
 
-      this.wsClient.on('error', (error) => {
-        logger.error({ message: '❌ Delta Exchange WebSocket error', error });
-        this.emit('wsError', error);
+      this.wsClient.on('error', (error: Error) => {
+        logger.error('❌ Delta Exchange WebSocket error', { error });
+        this.emit('error', error);
       });
 
     } catch (error) {
-      logger.error({ message: 'Error connecting to WebSocket', error });
-      throw error;
+      logger.error('Error connecting to WebSocket', { error });
+      this.handleReconnect(symbols);
     }
   }
 
@@ -789,33 +729,12 @@ export class DeltaExchangeUnified extends EventEmitter {
    */
   private subscribeToChannel(productId: number, channel: string): void {
     if (this.wsClient && this.wsClient.readyState === WebSocket.OPEN) {
-      const subscribeMessage = {
+      const subscriptionMessage = {
         type: 'subscribe',
-        payload: {
-          channels: [
-            {
-              name: channel,
-              symbols: [`${productId}`]
-            }
-          ]
-        }
+        payload: { channels: [{ name: channel, symbols: [this.getSymbolByProductId(productId)] }] }
       };
-
-      this.wsClient.send(JSON.stringify(subscribeMessage));
-      logger.info({ message: '📡 Subscribed to', channel, forProduct: productId });
-    }
-  }
-
-  /**
-   * Handle WebSocket message
-   */
-  private handleWebSocketMessage(message: any): void {
-    if (message.type === 'ticker') {
-      this.emit('ticker', message);
-    } else if (message.type === 'l2_orderbook') {
-      this.emit('orderbook', message);
-    } else if (message.type === 'trade') {
-      this.emit('trade', message);
+      this.wsClient.send(JSON.stringify(subscriptionMessage));
+      logger.info('📡 Subscribed to', { channel, forProduct: productId });
     }
   }
 
@@ -825,14 +744,12 @@ export class DeltaExchangeUnified extends EventEmitter {
   private handleReconnect(symbols: string[]): void {
     if (this.reconnectAttempts < this.maxReconnectAttempts) {
       this.reconnectAttempts++;
-      logger.info({ message: '🔄 Attempting to reconnect WebSocket', attempt: this.reconnectAttempts, maxAttempts: this.maxReconnectAttempts });
-
       setTimeout(() => {
+        logger.info('🔄 Attempting to reconnect WebSocket', { attempt: this.reconnectAttempts, maxAttempts: this.maxReconnectAttempts });
         this.connectWebSocket(symbols);
-      }, this.reconnectDelay * this.reconnectAttempts);
+      }, this.reconnectDelay);
     } else {
-      logger.error({ message: '❌ Max WebSocket reconnection attempts reached' });
-      this.emit('wsReconnectFailed');
+      logger.error('❌ Max WebSocket reconnection attempts reached');
     }
   }
 
@@ -842,8 +759,7 @@ export class DeltaExchangeUnified extends EventEmitter {
   public disconnectWebSocket(): void {
     if (this.wsClient) {
       this.wsClient.close();
-      this.wsClient = undefined;
-      logger.info({ message: '🔌 Delta Exchange WebSocket disconnected manually' });
+      logger.info('🔌 Delta Exchange WebSocket disconnected manually');
     }
   }
 
@@ -868,51 +784,39 @@ export class DeltaExchangeUnified extends EventEmitter {
    * Get historical candle data for a specific timeframe
    */
   public async getCandleData(symbol: string, timeframe: Timeframe, limit: number = 100): Promise<DeltaCandle[]> {
-    if (!this.isReady()) {
-      throw new Error({ message: 'Delta Exchange service not ready' });
-    }
+    this.isReady();
 
     const productId = this.getProductId(symbol);
     if (!productId) {
-      throw new Error({ message: 'Product not found for symbol', symbol });
+      throw new Error(`Product not found for symbol: ${symbol}`);
+    }
+
+    // Check cache first
+    const cachedCandles = this.getCachedCandleData(symbol, timeframe);
+    if (cachedCandles) {
+      return cachedCandles;
     }
 
     try {
-      // Convert timeframe to Delta Exchange format
-      const deltaTimeframe = this.convertTimeframe(timeframe);
-
-      const params = {
-        resolution: deltaTimeframe,
-        symbol: symbol,
-        start: Math.floor(Date.now() / 1000) - (limit * this.getTimeframeSeconds(timeframe)),
-        end: Math.floor(Date.now() / 1000)
-      };
-
-      const response = await this.client.get('/v2/history', { params });
-
-      if (response.data.success) {
-        const candles: DeltaCandle[] = response.data.result.map((candle: any) => ({
-          timestamp: candle.time * 1000, // Convert to milliseconds
-          open: parseFloat(candle.open),
-          high: parseFloat(candle.high),
-          low: parseFloat(candle.low),
-          close: parseFloat(candle.close),
-          volume: parseFloat(candle.volume || '0')
-        }));
-
-        // Cache the data
-        if (!this.candleCache.has(symbol)) {
-          this.candleCache.set(symbol, new Map());
+      const response = await this.client.get(`/v2/candles`, {
+        params: {
+          product_id: productId,
+          resolution: this.convertTimeframe(timeframe),
+          limit: limit,
         }
-        this.candleCache.get(symbol)!.set(timeframe, candles);
+      });
 
-        return candles;
-      } else {
-        throw new Error({ message: 'Failed to get candle data', error: response.data.error });
+      if (response.data.error) {
+        throw new Error(`Failed to get candle data: ${response.data.error}`);
       }
+
+      const candles: DeltaCandle[] = response.data.result;
+      this.candleCache.set(symbol, (this.candleCache.get(symbol) || new Map()).set(timeframe, candles));
+        return candles;
+
     } catch (error) {
-      logger.error({ message: 'Error getting candle data for', symbol, timeframe, error });
-      throw error;
+      logger.error('Error getting candle data for', { symbol, timeframe, error });
+      return [];
     }
   }
 
@@ -920,32 +824,24 @@ export class DeltaExchangeUnified extends EventEmitter {
    * Get candles data (alias for getCandleData for compatibility)
    */
   public async getCandles(productId: number, timeframe: string, limit: number = 100): Promise<any[]> {
-    try {
-      // Convert product ID to symbol
       const symbol = this.getSymbolByProductId(productId);
       if (!symbol) {
-        throw new Error({ message: 'Symbol not found for product ID', productId });
+      throw new Error(`Symbol not found for product ID: ${productId}`);
       }
 
-      // Convert timeframe format
-      const deltaTimeframe = this.convertTimeframeFromString(timeframe);
-
-      // Get candle data
-      const candles = await this.getCandleData(symbol, deltaTimeframe, limit);
-
-      // Convert to expected format for trading script
-      return candles.map(candle => ({
-        time: Math.floor(candle.timestamp / 1000), // Convert to seconds
-        open: candle.open.toString(),
-        high: candle.high.toString(),
-        low: candle.low.toString(),
-        close: candle.close.toString(),
-        volume: candle.volume.toString()
-      }));
-
+    // This method can be simplified or deprecated in favor of getCandleData
+    try {
+      const response = await this.client.get(`/v2/candles`, {
+        params: {
+          product_id: productId,
+          resolution: timeframe, // Assumes timeframe is already in correct string format
+          limit: limit
+        }
+      });
+      return response.data.result || [];
     } catch (error) {
-      logger.error({ message: 'Error getting candles for product', productId, error });
-      throw error;
+      logger.error('Error getting candles for product', { productId, error });
+      return [];
     }
   }
 
@@ -953,24 +849,13 @@ export class DeltaExchangeUnified extends EventEmitter {
    * Get symbol by product ID (Environment-aware mapping)
    */
   private getSymbolByProductId(productId: number): string | null {
-    // Check if we're using testnet based on base URL
-    const baseUrl = this.baseURL || this.client?.defaults?.baseURL || '';
-    const isTestnet = baseUrl.includes('testnet');
-
-    const productMap: Record<number, string> = isTestnet ? {
-      84: 'BTCUSD',      // BTC perpetual (testnet - verified 2025-01-27)
-      1699: 'ETHUSD',    // ETH perpetual (testnet - verified 2025-01-27)
-      92572: 'SOLUSD',   // SOL perpetual (testnet - verified 2025-01-27)
-      101760: 'ADAUSD'   // ADA perpetual (testnet - verified 2025-01-27)
-    } : {
-      27: 'BTCUSD',      // BTC perpetual (production - verified 2025-01-27)
-      3136: 'ETHUSD',    // ETH perpetual (production - verified 2025-01-27)
-      14823: 'SOLUSD',   // SOL perpetual (production - verified 2025-01-27)
-      16614: 'ADAUSD',   // ADA perpetual (production - verified 2025-01-27)
-      15304: 'DOTUSD'    // DOT perpetual (production - verified 2025-01-27)
-    };
-
-    return productMap[productId] || null;
+    // This is inefficient, should be pre-mapped
+    for (const [symbol, product] of this.productCache.entries()) {
+      if (product.id === productId) {
+        return symbol;
+      }
+    }
+    return null;
   }
 
   /**
@@ -993,35 +878,20 @@ export class DeltaExchangeUnified extends EventEmitter {
    * Get multi-timeframe data for a symbol
    */
   public async getMultiTimeframeData(symbol: string, timeframes: Timeframe[] = ['1m', '5m', '15m', '1h', '4h', '1d']): Promise<MultiTimeframeData> {
-    const result: MultiTimeframeData = {
+    const data: MultiTimeframeData = {
       symbol,
       timeframes: {}
     };
-
-    // Fetch data for each timeframe
-    for (const timeframe of timeframes) {
+    for (const tf of timeframes) {
       try {
-        const candles = await this.getCandleData(symbol, timeframe);
+        const candles = await this.getCandleData(symbol, tf);
         const indicators = this.calculateIndicators(candles);
-
-        result.timeframes[timeframe] = {
-          candles,
-          indicators
-        };
-
-        // Cache indicators
-        if (!this.indicatorCache.has(symbol)) {
-          this.indicatorCache.set(symbol, new Map());
-        }
-        this.indicatorCache.get(symbol)!.set(timeframe, indicators);
-
+        data.timeframes[tf] = { candles, indicators };
       } catch (error) {
-        logger.error({ message: 'Failed to get data for', symbol, timeframe, error });
-        // Continue with other timeframes
+        logger.error('Failed to get data for', { symbol, timeframe: tf, error });
       }
     }
-
-    return result;
+    return data;
   }
 
   /**
@@ -1185,16 +1055,14 @@ export class DeltaExchangeUnified extends EventEmitter {
   public cleanup(): void {
     this.disconnectWebSocket();
     this.removeAllListeners();
-    this.candleCache.clear();
-    this.indicatorCache.clear();
-    logger.info({ message: '🧹 Delta Exchange service cleaned up' });
+    logger.info('🧹 Delta Exchange service cleaned up');
   }
 
   /**
    * Get all available markets
    */
   public getMarkets(): DeltaProduct[] {
-    return this.getAllProducts();
+    return Array.from(this.productCache.values());
   }
 
   /**

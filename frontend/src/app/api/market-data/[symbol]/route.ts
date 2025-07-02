@@ -51,10 +51,10 @@ function generateMockOHLCV(symbol: string, timeframe: string = '1h', limit: numb
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { symbol: string } }
+  { params }: { params: Promise<{ symbol: string }> }
 ) {
   try {
-    const { symbol } = params;
+    const { symbol } = await params;
     const { searchParams } = new URL(request.url);
     const timeframe = searchParams.get('timeframe') || '1h';
     const limit = parseInt(searchParams.get('limit') || '100');

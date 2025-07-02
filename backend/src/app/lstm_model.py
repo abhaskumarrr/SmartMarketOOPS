@@ -1,0 +1,298 @@
+"""
+LSTM Model Architecture for cryptocurrency trading with Smart Money Concepts features
+"""
+
+import logging
+import os
+
+import numpy as np
+import torch
+import torch.nn as nn
+import torch.optim as optim
+from sklearn.metrics import accuracy_score, f1_score, precision_score, recall_score
+
+from .base_model import BaseModel
+
+logger = logging.getLogger(__name__)
+
+
+class LSTMModel(BaseModel, nn.Module):
+    """
+    LSTM model for time-series prediction of cryptocurrency markets
+    with Smart Money Concepts features
+    """
+
+    def __init__(
+        self,
+        input_dim: int,
+        output_dim: int,
+        seq_len: int,
+        forecast_horizon: int,
+        hidden_dim: int = 64,
+        num_layers: int = 2,
+        dropout: float = 0.2,
+        device: str | None = None,
+        **kwargs,
+    ):
+        """
+        Initialize the LSTM model.
+
+        Args:
+            input_dim: Number of features in the input data
+            output_dim: Number of output units (1 for binary classification, >1 for multiclass)
+            seq_len: Length of the input sequence
+            forecast_horizon: Number of time steps to predict
+            hidden_dim: Number of units in LSTM layers
+            num_layers: Number of LSTM layers
+            dropout: Dropout rate for regularization
+            device: Device to run the model on (CPU or GPU)
+            **kwargs: Additional arguments for model initialization
+        """
+        BaseModel.__init__(self)
+        nn.Module.__init__(self)
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.seq_len = seq_len
+        self.forecast_horizon = forecast_horizon
+        self.hidden_dim = hidden_dim
+        self.num_layers = num_layers
+        self.dropout = dropout
+        self.device = device or ("cuda" if torch.cuda.is_available() else "cpu")
+        self.lstm = nn.LSTM(input_dim, hidden_dim, num_layers, batch_first=True, dropout=dropout)
+        self.fc = nn.Linear(hidden_dim, output_dim)
+        self.to(self.device)
+
+        if kwargs.get("model_path") and os.path.exists(kwargs["model_path"]):
+            try:
+                self.load_state_dict(torch.load(kwargs["model_path"], map_location=self.device))
+                logger.info(f"Loaded weights from {kwargs['model_path']}")
+            except Exception as e:
+                logger.error(f"Failed to load weights: {e}")
+
+    def forward(self, x):
+        # x: (batch, seq_len, input_dim)
+        out, _ = self.lstm(x)
+        if out.dim() == 3:
+            out = out[:, -1, :]
+        out = self.fc(out)
+        return out
+
+    def fit_model(
+        self,
+        train_loader,
+        val_loader,
+        num_epochs: int = 100,
+        lr: float = 0.001,
+        early_stopping_patience: int = 10,
+        checkpoint_dir: str | None = None,
+        class_weights: torch.Tensor | None = None,
+    ) -> dict[str, float]:
+        """
+        Train the LSTM model.
+
+        Args:
+            train_loader: DataLoader for training data
+            val_loader: DataLoader for validation data
+            num_epochs: Maximum number of training epochs
+            lr: Learning rate for optimizer
+            early_stopping_patience: Patience for early stopping
+            checkpoint_dir: Directory for model checkpoints
+            class_weights: Optional tensor of class weights for the loss function
+
+        Returns:
+            Dictionary with training history
+        """
+        if self.output_dim == 1:
+            criterion = nn.BCEWithLogitsLoss(
+                pos_weight=class_weights.to(self.device) if class_weights is not None else None
+            )
+        else:
+            criterion = nn.CrossEntropyLoss(
+                weight=class_weights.to(self.device) if class_weights is not None else None
+            )
+
+        optimizer = optim.Adam(self.parameters(), lr=lr)
+        best_val_loss = float("inf")
+        patience_counter = 0
+        best_state = None
+        for epoch in range(num_epochs):
+            self.train()
+            train_losses = []
+            for x, y in train_loader:
+                x = x.to(self.device).float()
+                y = y.to(self.device).float() if self.output_dim == 1 else y.to(self.device).long()
+                optimizer.zero_grad()
+                outputs = self(x)
+                if self.output_dim == 1:
+                    outputs = outputs.squeeze(-1)
+                    loss = criterion(outputs, y)
+                else:
+                    loss = criterion(outputs, y)
+                loss.backward()
+                optimizer.step()
+                train_losses.append(loss.item())
+            val_loss = self._evaluate_loss(val_loader, criterion)
+            logger.info(
+                f"Epoch {epoch+1}/{num_epochs} - Train Loss: {np.mean(train_losses):.4f} - Val Loss: {val_loss:.4f}"
+            )
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
+                patience_counter = 0
+                best_state = self.state_dict()
+            else:
+                patience_counter += 1
+                if patience_counter >= early_stopping_patience:
+                    logger.info("Early stopping triggered.")
+                    break
+        if checkpoint_dir:
+            os.makedirs(checkpoint_dir, exist_ok=True)
+            torch.save(self.state_dict(), os.path.join(checkpoint_dir, "best_lstm.pt"))
+        if best_state:
+            self.load_state_dict(best_state)
+        return {"best_val_loss": best_val_loss}
+
+    def _evaluate_loss(self, loader, criterion):
+        self.eval()
+        losses = []
+        with torch.no_grad():
+            for x, y in loader:
+                x = x.to(self.device).float()
+                y = y.to(self.device).float() if self.output_dim == 1 else y.to(self.device).long()
+                outputs = self(x)
+                if self.output_dim == 1:
+                    outputs = outputs.squeeze(-1)
+                    loss = criterion(outputs, y)
+                else:
+                    loss = criterion(outputs, y)
+                losses.append(loss.item())
+        return np.mean(losses)
+
+    def predict(self, x: np.ndarray, batch_size: int = 64) -> np.ndarray:
+        """
+        Make predictions with the model.
+
+        Args:
+            x: Input data
+            batch_size: Batch size for prediction
+
+        Returns:
+            Predictions
+        """
+        self.eval()
+        preds = []
+        with torch.no_grad():
+            for i in range(0, len(x), batch_size):
+                batch = torch.tensor(x[i : i + batch_size]).to(self.device).float()
+                out = self(batch)
+                if self.output_dim == 1:
+                    out = torch.sigmoid(out).cpu().numpy().flatten()
+                else:
+                    out = torch.softmax(out, dim=1).cpu().numpy()
+                preds.append(out)
+        if self.output_dim == 1:
+            return np.concatenate(preds)
+        else:
+            return np.vstack(preds)
+
+    def evaluate(self, x: np.ndarray, y: np.ndarray, batch_size: int = 64) -> dict[str, float]:
+        """
+        Evaluate the model performance.
+
+        Args:
+            x: Input data
+            y: True labels
+            batch_size: Batch size for prediction
+
+        Returns:
+            Dictionary with evaluation metrics
+        """
+        y_pred = self.predict(x, batch_size)
+        if self.output_dim == 1:
+            y_pred_label = (y_pred > 0.5).astype(int)
+            y_true = y.astype(int).flatten()
+            metrics = {
+                "accuracy": accuracy_score(y_true, y_pred_label),
+                "precision": precision_score(y_true, y_pred_label),
+                "recall": recall_score(y_true, y_pred_label),
+                "f1_score": f1_score(y_true, y_pred_label),
+            }
+        else:
+            y_pred_label = np.argmax(y_pred, axis=1)
+            y_true = y.astype(int).flatten()
+            metrics = {
+                "accuracy": accuracy_score(y_true, y_pred_label),
+                "precision": precision_score(y_true, y_pred_label, average="macro"),
+                "recall": recall_score(y_true, y_pred_label, average="macro"),
+                "f1_score": f1_score(y_true, y_pred_label, average="macro"),
+            }
+        return metrics
+
+    def save(self, model_path: str) -> None:
+        """
+        Save the model.
+
+        Args:
+            model_path: Path to save the model
+        """
+        os.makedirs(os.path.dirname(model_path), exist_ok=True)
+        torch.save(self.state_dict(), model_path)
+        logger.info(f"Model saved to {model_path}")
+
+    @classmethod
+    def load(cls, model_path: str, **kwargs) -> "LSTMModel":
+        """
+        Load a pre-trained model.
+
+        Args:
+            model_path: Path to the saved model
+            **kwargs: Additional arguments for model initialization
+
+        Returns:
+            Loaded model
+        """
+        model = cls(**kwargs)
+        model.load_state_dict(torch.load(model_path, map_location=kwargs.get("device", "cpu")))
+        model.eval()
+        return model
+
+    def get_feature_importance(self, x: np.ndarray, sequence_index: int = -1) -> dict[str, float]:
+        """
+        Get feature importance using integrated gradients.
+
+        Args:
+            x: Input data (batch of sequences)
+            sequence_index: Index of the sequence in the batch to explain
+
+        Returns:
+            Dictionary mapping feature indices to importance scores
+        """
+        if sequence_index >= len(x):
+            raise ValueError(
+                f"sequence_index {sequence_index} out of bounds for x with length {len(x)}"
+            )
+
+        x_sample = x[sequence_index : sequence_index + 1]
+
+        # Create a GradientTape to compute gradients
+        with torch.no_grad():
+            x_sample_tensor = torch.tensor(x_sample).to(self.device).float()
+            predictions = self(x_sample_tensor)
+
+        # Get gradients of the output with respect to the input
+        gradients = torch.autograd.grad(
+            predictions, x_sample_tensor, torch.ones_like(predictions), create_graph=True
+        )[0]
+
+        # Average gradients along the sequence axis (axis=1)
+        feature_importance = np.mean(np.abs(gradients.cpu().numpy()), axis=1)[0]
+
+        # Create a dictionary mapping feature indices to importance
+        importance_dict = {i: float(importance) for i, importance in enumerate(feature_importance)}
+
+        # Sort by importance (descending)
+        importance_dict = dict(sorted(importance_dict.items(), key=lambda x: x[1], reverse=True))
+
+        return importance_dict
+
+    def _build_model(self):
+        pass

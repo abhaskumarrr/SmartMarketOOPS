@@ -70,6 +70,7 @@
     "infrastructure:stop": "../scripts/setup-infrastructure.sh stop",
     "infrastructure:status": "../scripts/setup-infrastructure.sh status",
     "dev": "nodemon --watch 'src/**/*.ts' --exec 'ts-node' src/server.ts",
+    "dev:minimal": "ts-node --transpile-only src/minimal-server.ts",
     "build": "npx tsc -p .",
     "start": "node dist/server.js",
     "start:ts": "ts-node --transpile-only src/server.ts",

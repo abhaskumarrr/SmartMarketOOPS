@@ -1,0 +1,83 @@
+You are building a **highly professional crypto trading system**, combining multi‑timeframe structural analysis, Smart Money Concepts, dynamic ATR exits, and **extreme‑only entries**—executed precisely at the top or bottom of a 4‑hour candle.
+
+---
+
+### 1. Market Regime Detection  
+- Analyze Daily or 4H chart to detect **trending vs range-bound** markets.  
+  - Trend: series of HH/HL or LH/LL  
+  - Range: price oscillating between parallel SR zones  
+- Only allow **trend regime** trades; skip when in range.  
+  (According to r/Forex, *“high probability trades come near the extremes… you will get less trades but higher probability”*  [oai_citation:0‡tradedevils-indicators.com](https://tradedevils-indicators.com/products/market-extremes-indicator?utm_source=chatgpt.com) [oai_citation:1‡reddit.com](https://www.reddit.com/r/Forex/comments/198x9zt/trading_at_the_extremes/?utm_source=chatgpt.com))
+
+### 2. Multi-Timeframe Bias (Top-Down)  
+- Confirm bias on **Daily → 4H → 1H**.  
+  - Require alignment: all bullish or bearish  
+- On 4H, identify if price is at the **top of range (for shorts)** or **bottom of range (for longs)**—extreme must be within top/bottom 10–15% of candle’s range.
+
+### 3. Smart Money Zone Identification  
+- On the 4H and 1H charts, detect:  
+  - **Order Blocks** (last opposite candle before impulsive move)  
+  - **Fair Value Gaps (FVG)**  
+  - **Liquidity Pools** (clustered highs/lows)  
+- Optionally, overlay **Fibonacci retracement** of HTF swings for confluence.
+
+### 4. Entry Timing: HTF Open + Extreme Zone  
+- Entry must be at **open of 4H or 1H candle** that:  
+  - Is aligned with HTF bias  
+  - Opens within the **extreme zone** (top/bottom 10–15%) **and** overlaps an SMC/Fib zone  
+- **Never enter mid-candle**.
+
+### 5. Micro Verification with 15-Minute Candles  
+- After HTF open, wait for the next **15m candle**:  
+  - **Bullish entry**: 15m low must stay above parent 1H low  
+  - **Bearish entry**: 15m high must stay below parent 1H high  
+- Purpose: **confirm structure** without mid-candle noise.
+
+### 6. Entry Execution  
+- If micro-confirm passes, place entry at the **HTF open price**  
+- Set **dynamic exits**:  
+  - ATR = 14-period ATR on 15m timeframe  
+  - SL = entry ± ATR × 1.5  
+  - TP = entry ± ATR × 2–3 (adjustable)  
+  - Optional **Chandelier trailing stop** (HTF swing extreme ± ATR × factor)
+
+### 7. Position Sizing & Risk Management  
+- Risk ~1–2% of account per trade  
+- Calculate position size using ATR distance to SL  
+- Require Risk:Reward ≥ 1.5:1
+
+### 8. Exit Conditions  
+- Exit on:  
+  - TP or SL hit  
+  - HTF structure invalidation (e.g., next 4H or daily close reverses)  
+  - End-of-session cut-off if intraday only  
+  - Optionally trail SL using HTF extreme
+
+### 9. Logging & Output  
+- For each trade, log:  
+  - Market regime (trend vs range)  
+  - HTF bias and extreme detection (4H top/bottom)  
+  - SMC zone type and fib confirmation  
+  - HTF open time and price  
+  - 15m confirmation pass/fail  
+  - Entry price, ATR value, SL & TP levels  
+  - Exit type and reason
+
+### 10. Code Structure & Notes  
+- Use `request.security()` to fetch HTF OHLC reliably  
+- Modular functions:  
+  - `detectRegime()`  
+  - `detectBias()`  
+  - `identifySMCZones()`  
+  - `isExtremeZone()`  
+  - `verifyMicroStructure()`  
+  - `computeATR()`  
+  - `calculateSLTP()`  
+  - `placeEntry()`  
+  - `monitorExit()`  
+- Write in **clean, commented pseudocode** or in full **Python/TS or Pine Script** ready for backtesting or live use
+
+---
+
+### 🎯 USER TASK  
+Produce **complete pseudocode or fully-functional code** implementing the above logic. Include all modules, risk sizing, logging, and dynamic ATR exits. Ensure entries only occur at HTF opens within extreme zones confirmed by 15m micro-structure. Present this as a professional developer/trader collaboration module.

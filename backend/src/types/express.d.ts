@@ -11,4 +11,10 @@ declare global {
   }
 }
 
+declare namespace Express {
+  export interface Request {
+    requestId?: string;
+  }
+}
+
 export {}; 

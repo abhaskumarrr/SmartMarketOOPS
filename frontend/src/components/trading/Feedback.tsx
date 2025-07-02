@@ -25,19 +25,13 @@ export const Feedback: React.FC<FeedbackProps> = ({ tradeId }) => {
           description: `You marked trade ${tradeId} as a ${feedback} trade.`,
         });
       } else {
-        toast({
-          title: 'Error',
-          description: 'Failed to submit feedback.',
-          variant: 'destructive',
-        });
+        toast.destructive({ title: 'Error',
+          description: 'Failed to submit feedback.', });
       }
     } catch (error) {
       console.error('Feedback submission error:', error);
-      toast({
-        title: 'Error',
-        description: 'An error occurred while submitting feedback.',
-        variant: 'destructive',
-      });
+      toast.destructive({ title: 'Error',
+        description: 'An error occurred while submitting feedback.', });
     }
   };
 

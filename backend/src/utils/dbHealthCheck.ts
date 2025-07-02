@@ -132,6 +132,9 @@ async function performDatabaseHealthCheck(): Promise<HealthCheckResult> {
 export {
   checkDbConnection,
   performDatabaseHealthCheck,
+};
+
+export type {
   ConnectionStatus,
   TableStatus,
   TablesStatus,

@@ -36,8 +36,7 @@ attrs==25.3.0
     #   referencing
 bandit==1.8.5
     # via -r ml/requirements.in
-bayesian-optimization==3.0.0
-    # via -r ml/requirements.in
+# bayesian-optimization==3.0.0
 bcrypt==4.3.0
     # via -r ml/requirements.in
 black==25.1.0
@@ -241,10 +240,9 @@ networkx==3.5
     #   torch
 numba==0.61.2
     # via tslearn
-numpy==2.2.6
+numpy==1.26.4
     # via
     #   -r ml/requirements.in
-    #   bayesian-optimization
     #   cmdstanpy
     #   contourpy
     #   hyperopt
@@ -305,7 +303,7 @@ packaging==25.0
     #   tensorboardx
     #   torchmetrics
     #   wandb
-pandas==2.3.0
+pandas==2.2.2
     # via
     #   -r ml/requirements.in
     #   cmdstanpy
@@ -473,13 +471,11 @@ scikit-image==0.25.2
 scikit-learn==1.7.0
     # via
     #   -r ml/requirements.in
-    #   bayesian-optimization
     #   mlflow
     #   sktime
     #   tslearn
 scipy==1.16.0
     # via
-    #   bayesian-optimization
     #   hyperopt
     #   mlflow
     #   scikit-image
@@ -618,6 +614,7 @@ zipp==3.23.0
     # via importlib-metadata
 lightgbm>=4.1.0
 scikit-learn>=1.4.0
+pandas-ta
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

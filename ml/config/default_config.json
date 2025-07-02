@@ -1,0 +1,114 @@
+{
+  "model_registry": {
+    "path": "./models",
+    "cache_enabled": true,
+    "auto_cleanup": true
+  },
+  "ensemble": {
+    "enabled": true,
+    "models": {
+      "lstm": {
+        "enabled": true,
+        "weight": 0.25,
+        "config": {
+          "hidden_dim": 64,
+          "num_layers": 2,
+          "dropout": 0.2
+        }
+      },
+      "gru": {
+        "enabled": true,
+        "weight": 0.25,
+        "config": {
+          "hidden_dim": 64,
+          "num_layers": 2,
+          "dropout": 0.2
+        }
+      },
+      "transformer": {
+        "enabled": true,
+        "weight": 0.25,
+        "config": {
+          "d_model": 256,
+          "nhead": 8,
+          "num_layers": 6,
+          "dropout": 0.1
+        }
+      },
+      "cnn_lstm": {
+        "enabled": true,
+        "weight": 0.25,
+        "config": {
+          "cnn_channels": 64,
+          "lstm_hidden": 128,
+          "dropout": 0.2
+        }
+      }
+    },
+    "confidence_threshold": 0.7,
+    "min_models_required": 2,
+    "voting_method": "confidence_weighted",
+    "dynamic_weights": true
+  },
+  "signal_quality": {
+    "confidence_threshold": 0.7,
+    "min_data_points": 100,
+    "quality_checks": {
+      "variance_threshold": 0.001,
+      "correlation_threshold": 0.8,
+      "stationarity_check": true
+    }
+  },
+  "data_processing": {
+    "sequence_length": 60,
+    "feature_engineering": {
+      "technical_indicators": true,
+      "price_patterns": true,
+      "volume_features": true,
+      "volatility_features": true
+    },
+    "normalization": {
+      "method": "minmax",
+      "feature_range": [-1, 1]
+    }
+  },
+  "training": {
+    "batch_size": 32,
+    "learning_rate": 0.001,
+    "epochs": 100,
+    "early_stopping": {
+      "patience": 10,
+      "monitor": "val_loss"
+    },
+    "optimizer": "adam",
+    "loss_function": "mse"
+  },
+  "inference": {
+    "batch_size": 1,
+    "confidence_calculation": "entropy_based",
+    "prediction_intervals": true
+  },
+  "logging": {
+    "level": "INFO",
+    "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    "file_logging": true,
+    "console_logging": true
+  },
+  "performance_monitoring": {
+    "enabled": true,
+    "metrics": ["accuracy", "precision", "recall", "f1_score", "sharpe_ratio"],
+    "tracking_window": 1000,
+    "alert_thresholds": {
+      "accuracy_drop": 0.1,
+      "confidence_drop": 0.2
+    }
+  },
+  "api": {
+    "max_batch_size": 100,
+    "timeout_seconds": 30,
+    "rate_limiting": {
+      "requests_per_minute": 1000,
+      "burst_size": 50
+    }
+  }
+} 

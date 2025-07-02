@@ -28,6 +28,9 @@ logging.basicConfig(
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
+logging.getLogger('ml').setLevel(logging.DEBUG)
+logging.getLogger('ml').setLevel(logging.DEBUG)
+logger.debug(f"Current working directory: {os.getcwd()}")
 
 def train_command(args):
     """
@@ -80,7 +83,7 @@ def predict_command(args):
     Args:
         args: Command line arguments
     """
-    from .models.model_registry import ModelRegistry
+    from .registry.model_registry import ModelRegistry
     
     logger.info("Making predictions")
     logger.info(f"Symbol: {args.symbol}")
@@ -186,7 +189,7 @@ def evaluate_command(args):
     Args:
         args: Command line arguments
     """
-    from .models.model_registry import ModelRegistry
+    from .registry.model_registry import ModelRegistry
     from .data.unified_data_processor import UnifiedDataProcessor
     from .training.evaluation import evaluate_model
     

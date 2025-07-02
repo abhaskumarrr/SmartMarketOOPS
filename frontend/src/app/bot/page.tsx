@@ -312,7 +312,7 @@ export default function BotManagementPage() {
                 <Label htmlFor="strategy">Trading Strategy</Label>
                 <Select
                   value={newBotData.strategy}
-                  onValueChange={(value) => setNewBotData({ ...newBotData, strategy: value })}
+                  onValueChange={(value: string) => setNewBotData({ ...newBotData, strategy: value })}
                 >
                   <SelectTrigger id="strategy">
                     <SelectValue placeholder="Select a strategy" />
@@ -330,7 +330,7 @@ export default function BotManagementPage() {
                 <Label htmlFor="timeframe">Timeframe</Label>
                 <Select
                   value={newBotData.timeframe}
-                  onValueChange={(value) => setNewBotData({ ...newBotData, timeframe: value })}
+                  onValueChange={(value: string) => setNewBotData({ ...newBotData, timeframe: value })}
                 >
                   <SelectTrigger id="timeframe">
                     <SelectValue placeholder="Select a timeframe" />

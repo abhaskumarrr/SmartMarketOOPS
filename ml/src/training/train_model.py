@@ -14,7 +14,7 @@ from typing import Dict, Any, Optional, Union, Tuple
 from datetime import datetime, timedelta
 
 from ..data.unified_data_processor import UnifiedDataProcessor
-from ..models.model_registry import ModelRegistry
+from ..registry.model_registry import ModelRegistry
 from ..utils.metrics import calculate_metrics
 from ..models.base_model import ModelFactory
 
@@ -134,12 +134,13 @@ def train_model(
     version = ModelRegistry().save_model(
         model=trainer.model,
         symbol=symbol,
+        model_type=model_type,
         metrics=test_metrics,
         metadata={
             "sequence_length": sequence_length,
             "forecast_horizon": forecast_horizon,
-                "batch_size": batch_size,
-                "learning_rate": learning_rate,
+            "batch_size": batch_size,
+            "learning_rate": learning_rate,
             "num_epochs": num_epochs,
             **kwargs
         },

@@ -185,29 +185,21 @@ export default function TradeExecutionPanel({ className, symbol, compact = false
     try {
       // Validate order parameters
       if (!orderForm.symbol) {
-        toast({
-          title: 'Missing symbol',
-          description: 'Please select a trading pair',
-          variant: 'destructive',
-        });
+        // @ts-ignore
+        toast.destructive({ title: 'Missing symbol',
+          description: 'Please select a trading pair', });
         return;
       }
 
       if (!orderForm.size || parseFloat(orderForm.size) <= 0) {
-        toast({
-          title: 'Invalid size',
-          description: 'Please enter a valid order size',
-          variant: 'destructive',
-        });
+        toast.destructive({ title: 'Invalid size',
+          description: 'Please enter a valid order size', });
         return;
       }
 
       if (orderForm.orderType === 'limit' && (!orderForm.price || parseFloat(orderForm.price) <= 0)) {
-        toast({
-          title: 'Invalid price',
-          description: 'Please enter a valid limit price',
-          variant: 'destructive',
-        });
+        toast.destructive({ title: 'Invalid price',
+          description: 'Please enter a valid limit price', });
         return;
       }
 
@@ -258,11 +250,8 @@ export default function TradeExecutionPanel({ className, symbol, compact = false
     } catch (error) {
       console.error('Error placing order:', error);
       
-      toast({
-        title: 'Order Failed',
-        description: error instanceof Error ? error.message : 'Failed to place order',
-        variant: 'destructive',
-      });
+      toast.destructive({ title: 'Order Failed',
+        description: error instanceof Error ? error.message : 'Failed to place order', });
     } finally {
       setIsSubmitting(false);
     }
